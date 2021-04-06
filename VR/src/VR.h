@@ -15,5 +15,4 @@
 #include "Context.h"
 #include "Scene.h"
 #include "Camera.h"
-#include "Renderer.h"
 #include "World.h"

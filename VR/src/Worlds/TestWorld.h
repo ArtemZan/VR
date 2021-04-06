@@ -3,13 +3,9 @@
 
 using namespace VR;
 
-class TestRenderer : public VR::Renderer
+class TestWorld : public World
 {
 	std::vector<unsigned int> indices;
-	gl::AttribLayout layout;
-	gl::VertexArray va;
-	gl::VertexBuffer* vb;
-	gl::Shader shader;
 	math::mat4 model;
 	math::mat4 proj;
 	math::mat4 view;
@@ -17,22 +13,37 @@ class TestRenderer : public VR::Renderer
 	math::mat4 rotY;
 	math::mat4 mvp;
 
+	Scene::Batch* batch;
+
 	int wWidth;
 	int wHeight;
 public:
 
-	TestRenderer()
-		:shader("Color.shader")
+	TestWorld()
 	{
-		shader.Bind();
+		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
 
-		GetWindowSize(&wWidth, &wHeight);
+		proj = math::perspective(6, float(wWidth) / wHeight, 0.1, 100.0f);
 
-		proj = math::perspective(2, float(wWidth) / wHeight, 0.1, 100.0f);
+		glm::mat4 p = glm::perspective(glm::radians(270.0f), float(wWidth) / wHeight, 0.1f, 100.0f);
 
-		//view = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 0.0f));
-
-		math::vec4(1, 2, 3, 4) * 2.0f + math::vec4(5, 6, 7, 8);
+		//auto l = glm::lookAt(W);
+		/*proj.x.x = p[0].x;
+		proj.x.y = p[0].y;
+		proj.x.z = p[0].z;
+		proj.x.w = p[0].w;
+		proj.x.x = p[1].x;
+		proj.x.y = p[1].y;
+		proj.x.z = p[1].z;
+		proj.x.w = p[1].w;
+		proj.x.x = p[2].x;
+		proj.x.y = p[2].y;
+		proj.x.z = p[2].z;
+		proj.x.w = p[2].w;
+		proj.x.x = p[3].x;
+		proj.x.y = p[3].y;
+		proj.x.z = p[3].z;
+		proj.x.w = p[3].w;*/
 
 		model = math::mat4(1.0f);
 
@@ -41,43 +52,43 @@ public:
 
 		float data[] =
 		{
-			 0.5f, -0.5f, 5 + -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			-0.5f, -0.5f, 5 + -0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
-			 0.5f,  0.5f, 5 + -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 5 + -0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, 1 + -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+			-0.5f, -0.5f, 1 + -0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
+			 0.5f,  0.5f, 1 + -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 1 + -0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
 
-			 0.5f, -0.5f, 5 + 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			-0.5f, -0.5f, 5 + 0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
-			 0.5f,  0.5f, 5 + 0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 5 + 0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, 1 + 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+			-0.5f, -0.5f, 1 + 0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
+			 0.5f,  0.5f, 1 + 0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 1 + 0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
 		};
 
 
-		indices.resize(30);
-		indices[0] = 0;
+		indices.resize(36);
+		indices[0] = 2;
 		indices[1] = 1;
-		indices[2] = 2;
-		indices[3] = 1;
-		indices[4] = 2;
-		indices[5] = 3;
+		indices[2] = 0;
+		indices[3] = 3;
+		indices[4] = 1;
+		indices[5] = 2;
 
-		indices[6] = 4;
-		indices[7] = 5;
-		indices[8] = 6;
+		indices[6] = 6;
+		indices[7] = 4;
+		indices[8] = 5;
 		indices[9] = 5;
-		indices[10] = 6;
-		indices[11] = 7;
+		indices[10] = 7;
+		indices[11] = 6;
 
-		indices[12] = 2;
+		indices[12] = 6;
 		indices[13] = 3;
-		indices[14] = 6;
+		indices[14] = 2;
 		indices[15] = 3;
 		indices[16] = 6;
 		indices[17] = 7;
 
-		indices[18] = 1;
+		indices[18] = 3;
 		indices[19] = 5;
-		indices[20] = 3;
+		indices[20] = 1;
 		indices[21] = 5;
 		indices[22] = 3;
 		indices[23] = 7;
@@ -85,29 +96,33 @@ public:
 		indices[24] = 0;
 		indices[25] = 1;
 		indices[26] = 4;
-		indices[27] = 1;
+		indices[27] = 5;
 		indices[28] = 4;
-		indices[29] = 5;
+		indices[29] = 1;
 
-
-		vb = new gl::VertexBuffer(data, sizeof(data));
-		layout.Push<float>(3);
-		layout.Push<float>(4);
-		va.Bind();
-		va.AddBuffer(layout);
-
-		//SetIndicesPtr(&indices);
+		indices[30] = 4;
+		indices[31] = 2;
+		indices[32] = 0;
+		indices[33] = 6;
+		indices[34] = 2;
+		indices[35] = 4;
 
 		SetClearColor({ 0.7, 0.9, 0.5, 0.0 });
+
+		gl::AttribLayout layout;
+		layout.Push<float>(3);
+		layout.Push<float>(4);
+		scene.AddMaterial("Basic", "Color.shader", layout);
+		batch = scene.Add((uint8_t*)data, sizeof(data), indices.data(), 36, "Basic");
 	}
 
-	~TestRenderer()
+	~TestWorld()
 	{
-		delete vb;
 	}
 
 	void OnUpdate(float dTime) override
 	{
+
 		rotX.y.y = cos(dTime / 1000.0f);
 		rotX.y.z = -sin(dTime / 1000.0f);
 		rotX.z.y = sin(dTime / 1000.0f);
@@ -118,22 +133,17 @@ public:
 		rotY.z.x = -sin(dTime / 1000.0f);
 		rotY.z.z = cos(dTime / 1000.0f);
 
-		model *= rotX * rotY;
+		model *= rotY * rotX;
 
 		mvp = model * proj;
-		shader.SetUniform("mvp", mvp);
+		batch->material.shader.SetUniform("mvp", mvp);
 
-		Render({}, {});
-	}
-};
+		Render();
 
-class TestWorld : public World
-{
-public:
-	TestWorld()
-		:World(new TestRenderer())
-	{
-
+		if (glfwWindowShouldClose(Context::Get()->window))
+		{
+			Detach();
+		}
 	}
 };
 

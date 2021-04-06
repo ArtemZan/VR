@@ -49,7 +49,7 @@ namespace VR
 			GLCall(glUniform1iv(GetUniformLocation(name), count, data));
 		}
 
-		void Shader::SetUniform(const char* name, math::mat4 matrix)
+		void Shader::SetUniform(const char* name, const math::mat4& matrix)
 		{
 			GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, &matrix.x.x));
 		}

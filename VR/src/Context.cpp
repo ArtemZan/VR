@@ -30,8 +30,11 @@ namespace VR
 			std::cout << "Failed to initialize glew: " << glewGetErrorString(err) << "\n";
 		}
 
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
+		GLCall(glEnable(GL_DEPTH_TEST));
+		GLCall(glPolygonMode(GL_FRONT, GL_FILL));
+		GLCall(glPolygonMode(GL_BACK, GL_POINT));
+		//GLCall(glEnable(GL_BLEND));
+		//GLCall(glBlendFunc())
 	}
 
 	Context::~Context()

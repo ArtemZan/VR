@@ -8,8 +8,10 @@ int main()
 {
 	Context::Create(960, 540, "Hello world");
 
-	VR::Renderer* renderer = new TestRenderer();
-	renderer->Run();
+	{
+		TestWorld testWorld;
+		testWorld.Run();
+	}
 
 	Context::Destroy();
 }
