@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "../VR.h"
+#include "VR.h"
 
 namespace VR
 {
@@ -49,9 +49,9 @@ namespace VR
 			GLCall(glUniform1iv(GetUniformLocation(name), count, data));
 		}
 
-		void Shader::SetUniform(const char* name, glm::mat4x4 matrix)
+		void Shader::SetUniform(const char* name, math::mat4 matrix)
 		{
-			GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, &matrix[0].x));
+			GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, &matrix.x.x));
 		}
 
 		unsigned int Shader::CompileShader(unsigned int type, const std::string& source) const

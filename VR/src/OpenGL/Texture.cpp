@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "../VR.h"
+#include "VR.h"
 
 namespace VR
 {

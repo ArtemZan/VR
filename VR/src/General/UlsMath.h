@@ -4,12 +4,15 @@ namespace VR
 {
     namespace math
     {
+        struct mat2;
+        struct mat4;
+
+
         struct vec2
         {
             vec2();
             vec2(float x, float y);
-            vec2(vec2& vec2);
-            vec2(vec2&& vec2);
+            vec2(const vec2& vec2);
 
             union
             {
@@ -19,6 +22,15 @@ namespace VR
             {
                 float y, t, g;
             };
+
+            void operator=(const vec2& vec);
+
+            vec2 operator*(const mat2& matrix) const;
+            vec2 operator*(float k) const;
+            inline vec2 operator+(const vec2& vec) const;
+
+            inline void operator*=(const mat2& matrix) { *this = *this * matrix; }
+            inline void operator+=(const vec2& vec) { *this = *this + vec; }
         };
 
         struct vec3
@@ -65,12 +77,26 @@ namespace VR
                 float w, q, a;
             };
 
-            void operator=(const vec4& vec4);
-            const vec4& operator*(const mat4& matrix) const;
+            void operator=(const vec4& vec);
+            vec4 operator*(const mat4& matrix) const;
+            vec4 operator*(float k) const;
+            vec4 operator+(const vec4& vec) const;
 
             inline void operator*=(const mat4& matrix) { *this = *this * matrix; }
+            inline void operator+=(const vec4& vec) { *this = *this + vec; }
         };
 
+
+        struct mat2
+        {
+            mat2();
+            mat2(float scale);
+
+            vec2 x;
+            vec2 y;
+
+            const mat2& operator*(const mat2& matrix);
+        };
 
         struct mat4
         {
@@ -82,10 +108,12 @@ namespace VR
             vec4 z;
             vec4 w;
 
-            const mat4& operator*(const mat4& matrix);
+            mat4 operator*(const mat4& matrix) const;
+            inline const void operator*=(const mat4& matrix) { *this = *this * matrix; }
         };
 
 
+        mat4 perspective(float fov, float aspect, float near, float far);
 
 
 

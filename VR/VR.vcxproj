@@ -172,7 +172,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Rendering\Renderer.h" />
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Context.h" />
+    <ClInclude Include="src\Scene.h" />
+    <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\General\Buffers.h" />
     <ClInclude Include="src\General\UlsMath.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
@@ -183,10 +186,14 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\General\Timer.h" />
-    <ClInclude Include="VR.h" />
+    <ClInclude Include="src\Worlds\TestWorld.h" />
+    <ClInclude Include="src\VR.h" />
+    <ClInclude Include="src\World.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Rendering\Renderer.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Context.cpp" />
+    <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\General\Buffers.cpp" />
     <ClCompile Include="src\General\UlsMath.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
@@ -211,6 +218,7 @@
     </ClCompile>
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\General\Timer.cpp" />
+    <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Shaders\Test.shader" />
