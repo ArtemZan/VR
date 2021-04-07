@@ -72,16 +72,36 @@ namespace VR
 
 		}
 
-		vec3::vec3(vec3& vec3)
+		vec3::vec3(const vec3& vec3)
 			: x(vec3.x), y(vec3.y), z(vec3.z)
 		{
 
 		}
 
-		vec3::vec3(vec3&& vec3)
-			: x(vec3.x), y(vec3.y), z(vec3.z)
+		void vec3::operator=(const vec3& vec)
 		{
+			x = vec.x;
+			y = vec.y;
+			z = vec.z;
+		}
 
+		vec3 vec3::operator*(const mat3& matrix) const
+		{
+			vec3 res;
+			res.x = matrix.x.x * x + matrix.y.x * y + matrix.z.x * z;
+			res.y = matrix.x.y * x + matrix.y.y * y + matrix.z.y * z;
+			res.z = matrix.x.z * x + matrix.y.z * y + matrix.z.z * z;
+			return res;
+		}
+
+		vec3 vec3::operator*(float k) const
+		{
+			return vec3(x * k, y * k, z * k);
+		}
+
+		inline vec3 vec3::operator+(const vec3& vec) const
+		{
+			return vec3(x + vec.x, y + vec.y, z + vec.z);
 		}
 
 
@@ -135,6 +155,8 @@ namespace VR
 			return vec4(x * k, y * k, z * k, w * k);
 		}
 
+
+
 		mat2::mat2()
 		{
 		}
@@ -154,6 +176,28 @@ namespace VR
 
 			return res;
 		}
+
+
+		mat3::mat3()
+		{
+		}
+
+		mat3::mat3(float scale)
+		{
+			x.x = scale;
+			y.y = scale;
+			z.z = scale;
+		}
+
+		const mat3& mat3::operator*(const mat3& matrix)
+		{
+			mat3 res;
+			res.x = x * matrix.x.x + y * matrix.x.y + z * matrix.x.z;
+			res.y = x * matrix.y.x + y * matrix.y.y + z * matrix.y.z;
+			res.z = x * matrix.z.x + y * matrix.z.y + z * matrix.z.z;
+			return res;
+		}
+
 
 		mat4::mat4()
 		{
@@ -181,9 +225,20 @@ namespace VR
 		mat4 perspective(float fov, float aspect, float near, float far)
 		{
 			mat4 res(1.0f);
-			res.z.z = 1.0f / far - near;
-			res.w.z = 1.0f / fov;
-			res.x.x = 1.0f / aspect;
+			res.x.x = 1.0f / aspect / tan(fov / 2);
+			res.y.y = 1.0f / tan(fov / 2);
+			res.z.z = -(far + near) / (far - near);
+			res.z.w = -1;
+			res.w.z = -(2.0f * far * near) / (far - near);
+			return res;
+		}
+
+		mat4 lookAt(const vec3& eye, const vec3& dir, const vec3& up)
+		{
+			mat4 res;
+			vec3 target = eye + dir;
+			glm::mat4 glmRes = glm::lookAt(glm::vec3(eye.x, eye.y, eye.z), glm::vec3(0.0, 0.0, 0.0), glm::vec3(up.x, up.y, up.z));
+			memcpy(&res, &glmRes, sizeof(mat4));
 			return res;
 		}
 

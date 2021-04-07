@@ -12,7 +12,7 @@ uniform float ratio;
 void main()
 {
 	color = in_color;
-	gl_Position = vec4(in_position, 1.0) * mvp;
+	gl_Position = mvp * vec4(in_position, 1.0);
 	//gl_Position = vec4(position.x * ratio, position.y, position.z, position.w);
 	//gl_Position = vec4(position.x * 100.0f, position.y * 100.0f, 10.0f, 1.0f);
 

@@ -31,8 +31,9 @@ namespace VR
 		}
 
 		GLCall(glEnable(GL_DEPTH_TEST));
-		GLCall(glPolygonMode(GL_FRONT, GL_FILL));
-		GLCall(glPolygonMode(GL_BACK, GL_POINT));
+
+		GLCall(glEnable(GL_CULL_FACE));
+		GLCall(glCullFace(GL_FRONT));
 		//GLCall(glEnable(GL_BLEND));
 		//GLCall(glBlendFunc())
 	}

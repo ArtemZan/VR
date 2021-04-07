@@ -5,6 +5,7 @@ namespace VR
     namespace math
     {
         struct mat2;
+        struct mat3;
         struct mat4;
 
 
@@ -37,8 +38,7 @@ namespace VR
         {
             vec3();
             vec3(float x, float y, float z);
-            vec3(vec3& vec3);
-            vec3(vec3&& vec3);
+            vec3(const vec3& vec3);
 
             union
             {
@@ -52,6 +52,16 @@ namespace VR
             {
                 float z, p, b;
             };
+
+
+            void operator=(const vec3& vec);
+
+            vec3 operator*(const mat3& matrix) const;
+            vec3 operator*(float k) const;
+            inline vec3 operator+(const vec3& vec) const;
+
+            inline void operator*=(const mat3& matrix) { *this = *this * matrix; }
+            inline void operator+=(const vec3& vec) { *this = *this + vec; }
         };
 
         struct vec4
@@ -98,6 +108,18 @@ namespace VR
             const mat2& operator*(const mat2& matrix);
         };
 
+        struct mat3
+        {
+            mat3();
+            mat3(float scale);
+
+            vec3 x;
+            vec3 y;
+            vec3 z;
+
+            const mat3& operator*(const mat3& matrix);
+        };
+
         struct mat4
         {
             mat4();
@@ -115,6 +137,7 @@ namespace VR
 
         mat4 perspective(float fov, float aspect, float near, float far);
 
+        mat4 lookAt(const vec3& eye, const vec3& dir, const vec3& up);
 
 
         //Area of triangle

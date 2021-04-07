@@ -23,27 +23,9 @@ public:
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
 
-		proj = math::perspective(6, float(wWidth) / wHeight, 0.1, 100.0f);
+		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.1, 100.0f);
 
-		glm::mat4 p = glm::perspective(glm::radians(270.0f), float(wWidth) / wHeight, 0.1f, 100.0f);
-
-		//auto l = glm::lookAt(W);
-		/*proj.x.x = p[0].x;
-		proj.x.y = p[0].y;
-		proj.x.z = p[0].z;
-		proj.x.w = p[0].w;
-		proj.x.x = p[1].x;
-		proj.x.y = p[1].y;
-		proj.x.z = p[1].z;
-		proj.x.w = p[1].w;
-		proj.x.x = p[2].x;
-		proj.x.y = p[2].y;
-		proj.x.z = p[2].z;
-		proj.x.w = p[2].w;
-		proj.x.x = p[3].x;
-		proj.x.y = p[3].y;
-		proj.x.z = p[3].z;
-		proj.x.w = p[3].w;*/
+		camera.SetPosition(math::vec3(0.0, 0.0, 2));
 
 		model = math::mat4(1.0f);
 
@@ -52,15 +34,15 @@ public:
 
 		float data[] =
 		{
-			 0.5f, -0.5f, 1 + -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			-0.5f, -0.5f, 1 + -0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
-			 0.5f,  0.5f, 1 + -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 1 + -0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+			-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
+			 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
 
-			 0.5f, -0.5f, 1 + 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			-0.5f, -0.5f, 1 + 0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
-			 0.5f,  0.5f, 1 + 0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 1 + 0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+			-0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
+			 0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
 		};
 
 
@@ -133,9 +115,10 @@ public:
 		rotY.z.x = -sin(dTime / 1000.0f);
 		rotY.z.z = cos(dTime / 1000.0f);
 
-		model *= rotY * rotX;
+		//model *= rotY;// * rotX;
 
-		mvp = model * proj;
+		camera.SetPosition(math::vec3(sin(glfwGetTime()) * 5, 0.0, cos(glfwGetTime()) * 5));
+		mvp = proj * camera.view * model;
 		batch->material.shader.SetUniform("mvp", mvp);
 
 		Render();
