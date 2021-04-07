@@ -3,43 +3,73 @@
 
 namespace VR
 {
-	Scene::Batch::Batch(const Material& material)
+	Scene::Batch::Batch(const Material* material)
+		:material(material), vb(0)
+	{
+		
+	}
+
+	void Scene::Batch::Add(const Mesh& mesh)
+	{
+		indices.insert(indices.end(), mesh.geometry.indices, mesh.geometry.indices + mesh.geometry.indices_count);
+		vertices.insert(vertices.end(), mesh.geometry.vertices, mesh.geometry.vertices + mesh.geometry.vertices_size);
+		vb.Resize(vertices.size());
+		va.AddBuffer(material->attributesLayout);
+	}
+
+	void Scene::Batch::Add(Mesh* mesh)
+	{
+		Add(*mesh);
+		meshes.push_back(mesh);
+		mesh->geometry.indices = indices.data() + indices.size() - mesh->geometry.indices_count;
+		mesh->geometry.vertices = vertices.data() + vertices.size() - mesh->geometry.vertices_size;
+	}
+
+	void Scene::Add(Mesh* mesh)
+	{
+		for (Batch& batch : batches)
+		{
+			if (batch.material == mesh->material)
+			{
+				batch.Add(mesh);
+				return;
+			}
+		}
+
+		batches.emplace_back(mesh->material);
+		
+		batches.back().Add(mesh);
+	}
+
+	void Scene::Add(const Mesh& mesh)
+	{
+		for (Batch& batch : batches)
+		{
+			if (batch.material == mesh.material)
+			{
+				batch.Add(mesh);
+				return;
+			}
+		}
+
+		batches.emplace_back(mesh.material);
+
+		batches.back().Add(mesh);
+	}
+
+	Material::Material(const char* shader, const gl::AttribLayout& layout)
+		:shader(shader), attributesLayout(layout)
+	{
+
+	}
+
+	Mesh::Mesh(const Material* material)
 		:material(material)
 	{
 	}
 
-	bool Scene::AddMaterial(const char* id, const char* shader, const gl::AttribLayout& layout)
+	Mesh::Mesh(const Material* material, const Geometry& geometry)
+		:material(material), geometry(geometry)
 	{
-		for (const Batch& batch : batches)
-		{
-			if (batch.material.id == id)
-			{
-				return false;
-			}
-		}
-
-		batches.emplace_back(Material({ id, shader, layout }));
-
-		batches.back().vb = new gl::VertexBuffer(224);
-		batches.back().vb->Bind();
-		batches.back().material.shader.Bind();
-		batches.back().material.shader.SetUniform("mvp", math::mat4(1.0f));
-		batches.back().va.AddBuffer(layout);
-
-		return true;
-	}
-
-	Scene::Batch* Scene::Add(uint8_t* vertices, size_t vertices_size, uint32_t* indices, size_t indices_count, const char* material_id)
-	{
-		for (Batch& batch : batches)
-		{
-			if (batch.material.id == material_id)
-			{
-				//batch.indices.reserve(batch.indices.size() + indices_count);
-				batch.indices.insert(batch.indices.end(), indices, indices + indices_count);
-				batch.vertices.insert(batch.vertices.end(), vertices, vertices + vertices_size);
-				return &batch;
-			}
-		}
 	}
 }

@@ -22,10 +22,10 @@ void VR::World::Render()
 
 	for (const Scene::Batch& objects : scene.batches)
 	{
-		objects.material.shader.Bind();
+		objects.material->shader.Bind();
 		objects.va.Bind();
-		objects.vb->Bind();
-		objects.vb->Data(objects.vertices.size(), objects.vertices.data());
+		objects.vb.Bind();
+		objects.vb.Data(objects.vertices.size(), objects.vertices.data());
 		GLCall(glDrawElements(GL_TRIANGLES, objects.indices.size(), GL_UNSIGNED_INT, objects.indices.data()));
 	}
 

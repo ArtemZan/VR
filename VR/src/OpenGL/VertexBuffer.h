@@ -38,6 +38,15 @@ namespace VR
 					GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, size, data));
 			}
 
+			inline void Resize(size_t new_size) const
+			{
+				if (!m_staticDraw)
+				{
+					Bind();
+					GLCall(glBufferData(GL_ARRAY_BUFFER, new_size, nullptr, GL_DYNAMIC_DRAW));
+				}
+			}
+
 			void Resize(size_t size);
 
 		private:
