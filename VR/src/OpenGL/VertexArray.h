@@ -9,6 +9,7 @@ namespace VR
 		{
 		public:
 			VertexArray();
+			VertexArray(const VertexArray& va);
 			~VertexArray();
 
 			//Tells GL to use and modify this VA
@@ -25,7 +26,9 @@ namespace VR
 
 			//Sets attributes pointers to current (bound) vertex buffer
 			void AddBuffer(const AttribLayout& layout) const;
+
 		private:
+			mutable bool m_deleteBuffer = true;
 			GLuint m_glID;
 		};
 

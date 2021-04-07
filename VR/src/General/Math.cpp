@@ -60,6 +60,20 @@ namespace VR
 			return vec2(x + vec.x, y + vec.y);
 		}
 
+		void vec2::normalize()
+		{
+			float l = sqrt(x * x + y * y);
+			x /= l;
+			y /= l;
+		}
+
+		vec2 normalize(const vec2& vec)
+		{
+			vec2 res = vec;
+			res.normalize();
+			return res;
+		}
+
 
 		vec3::vec3()
 			:x(0), y(0), z(0)
@@ -104,6 +118,20 @@ namespace VR
 			return vec3(x + vec.x, y + vec.y, z + vec.z);
 		}
 
+		void vec3::normalize()
+		{
+			float l = sqrt(x * x + y * y + z * z);
+			x /= l;
+			y /= l;
+			z /= l;
+		}
+
+		vec3 normalize(const vec3& vec)
+		{
+			vec3 res = vec;
+			res.normalize();
+			return res;
+		}
 
 		vec4::vec4()
 			: x(0), y(0), z(0), w(0)
@@ -155,7 +183,21 @@ namespace VR
 			return vec4(x * k, y * k, z * k, w * k);
 		}
 
+		void vec4::normalize()
+		{
+			float l = sqrt(x * x + y * y + z * z + w * w);
+			x /= l;
+			y /= l;
+			z /= l;
+			w /= l;
+		}
 
+		vec4 normalize(const vec4& vec)
+		{
+			vec4 res = vec;
+			res.normalize();
+			return res;
+		}
 
 		mat2::mat2()
 		{
@@ -189,7 +231,7 @@ namespace VR
 			z.z = scale;
 		}
 
-		const mat3& mat3::operator*(const mat3& matrix)
+		mat3 mat3::operator*(const mat3& matrix) const
 		{
 			mat3 res;
 			res.x = x * matrix.x.x + y * matrix.x.y + z * matrix.x.z;
@@ -237,10 +279,37 @@ namespace VR
 		{
 			mat4 res;
 			vec3 target = eye + dir;
-			glm::mat4 glmRes = glm::lookAt(glm::vec3(eye.x, eye.y, eye.z), glm::vec3(0.0, 0.0, 0.0), glm::vec3(up.x, up.y, up.z));
+			glm::mat4 glmRes = glm::lookAt(glm::vec3(eye.x, eye.y, eye.z), glm::vec3(target.x, target.y, target.z), glm::vec3(up.x, up.y, up.z));
 			memcpy(&res, &glmRes, sizeof(mat4));
 			return res;
 		}
 
-}
+		mat3 rotate(const vec3& axis, float angle)
+		{
+
+			vec3 a = normalize(axis);
+
+			math::mat3 rotX(1.0f);
+			math::mat3 rotY(1.0f);
+			math::mat3 rotZ(1.0f);
+
+			rotX.y.y = cos(angle * a.x);
+			rotX.y.z = -sin(angle * a.x);
+			rotX.z.z = cos(angle * a.x);
+			rotX.z.y = sin(angle * a.x);
+
+			rotY.x.x = cos(angle * a.y);
+			rotY.x.z = sin(angle * a.y);
+			rotY.z.z = cos(angle * a.y);
+			rotY.z.x = -sin(angle * a.y);
+
+			rotZ.y.y = cos(angle * a.z);
+			rotZ.y.x = -sin(angle * a.z);
+			rotZ.x.x = cos(angle * a.z);
+			rotZ.x.y = sin(angle * a.z);
+
+			return rotZ * rotY * rotX;
+		}
+
+	}
 }

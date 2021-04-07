@@ -2,7 +2,7 @@
 #include "pch.h"
 
 #include "General/Timer.h"
-#include "General/UlsMath.h"
+#include "General/Math.h"
 #include "General/Buffers.h"
 
 #include "OpenGL/AttribLayout.h"

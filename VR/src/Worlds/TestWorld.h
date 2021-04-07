@@ -5,7 +5,6 @@ using namespace VR;
 
 class TestWorld : public World
 {
-	std::vector<unsigned int> indices;
 	math::mat4 model;
 	math::mat4 proj;
 	math::mat4 view;
@@ -14,20 +13,22 @@ class TestWorld : public World
 	math::mat4 mvp;
 
 	Material material;
-	Mesh mesh;
+	Material material1;
+	std::vector<Mesh> meshes;
 
 	int wWidth;
 	int wHeight;
 public:
 
 	TestWorld()
-		:material("Color.shader"), mesh(&material)
+		:material("Color.shader"), material1("Color1.shader")
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
 
 		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.1, 100.0f);
 
-		camera.SetPosition(math::vec3(0.0, 0.0, 5));
+		camera.SetPosition(math::vec3(0.0, 4.0, 5));
+		camera.SetRotation(math::vec3(0.0, -0.4, -1.0));
 
 		model = math::mat4(1.0f);
 
@@ -47,6 +48,8 @@ public:
 			-0.5f,  0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
 		};
 
+
+		std::vector<unsigned int> indices;
 
 		indices.resize(36);
 		indices[0] = 2;
@@ -94,13 +97,35 @@ public:
 		SetClearColor({ 0.7, 0.9, 0.5, 0.0 });
 
 		material.attributesLayout.Push<float>(3);
-		material.attributesLayout.Push<float>(4);
-		mesh.geometry.vertices = (uint8_t*)data;
-		mesh.geometry.vertices_size = sizeof(data);
-		mesh.geometry.indices = indices.data();
-		mesh.geometry.indices_count = 36;
+		material.attributesLayout.Push<float>(4); 
+		
+		material1.attributesLayout.Push<float>(3);
+		material1.attributesLayout.Push<float>(4);
 
-		scene.Add(&mesh);
+		Geometry geometry;
+		geometry.vertices = (uint8_t*)data;
+		geometry.vertices_size = sizeof(data);
+		geometry.indices = indices.data();
+		geometry.indices_count = 36;
+
+		meshes.emplace_back(&material, geometry);
+		meshes.emplace_back(&material, geometry);
+		meshes.emplace_back(&material1, geometry);
+		meshes.emplace_back(&material1, geometry);
+
+		scene.Add(&meshes[0]);
+		scene.Add(&meshes[1]);
+		scene.Add(&meshes[2]);
+		scene.Add(&meshes[3]);
+
+		for (int i = 0; i < 8; i++)
+		{
+			((float*)meshes[0].geometry.vertices)[i * 7] -= 2;
+			((float*)meshes[1].geometry.vertices)[i * 7] += 2;
+			((float*)meshes[2].geometry.vertices)[i * 7 + 2] += 2;
+			((float*)meshes[3].geometry.vertices)[i * 7 + 2] -= 2;
+		}
+		
 	}
 
 	~TestWorld()
@@ -109,10 +134,15 @@ public:
 
 	void OnUpdate(float dTime) override
 	{
-		((float*)mesh.geometry.vertices)[7 * 0] += 0.001;
-		((float*)mesh.geometry.vertices)[7 * 2] += 0.001;
-		((float*)mesh.geometry.vertices)[7 * 4] += 0.001;
-		((float*)mesh.geometry.vertices)[7 * 6] += 0.001;
+		/*((float*)meshes[0].geometry.vertices)[7 * 0] += 0.001;
+		((float*)meshes[0].geometry.vertices)[7 * 2] += 0.001;
+		((float*)meshes[0].geometry.vertices)[7 * 4] += 0.001;
+		((float*)meshes[0].geometry.vertices)[7 * 6] += 0.001;*/
+
+		meshes[0].Move({ sin((float)glfwGetTime()) / 1000.0f, 0.0f, 0.0f });
+		meshes[1].Move({ 0.0f, sin((float)glfwGetTime()) / 1000.0f, 0.0f });
+		meshes[2].Move({ 0.0f, 0.0f, sin((float)glfwGetTime()) / 1000.0f });
+		meshes[3].Rotate({ 1.0f, 1.0, 1.0 }, {0.0, 0.0, -2.0}, 0.001);
 
 		rotX.y.y = cos(dTime / 1000.0f);
 		rotX.y.z = -sin(dTime / 1000.0f);
@@ -124,12 +154,14 @@ public:
 		rotY.z.x = -sin(dTime / 1000.0f);
 		rotY.z.z = cos(dTime / 1000.0f);
 
-		model *= rotY * rotX;
+		//model *= rotY *rotX;
 
 		//camera.SetPosition(math::vec3(sin(glfwGetTime()) * 5, 0.0, cos(glfwGetTime()) * 5));
 		mvp = proj * camera.view * model;
 		material.shader.Bind();
 		material.shader.SetUniform("mvp", mvp);
+		material1.shader.Bind();
+		material1.shader.SetUniform("mvp", mvp);
 
 		Render();
 

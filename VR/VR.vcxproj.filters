@@ -36,7 +36,7 @@
     <ClCompile Include="src\General\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\General\UlsMath.cpp">
+    <ClCompile Include="src\General\Math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp">
@@ -80,7 +80,7 @@
     <ClInclude Include="src\General\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\General\UlsMath.h">
+    <ClInclude Include="src\General\Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h">
@@ -111,5 +111,6 @@
   <ItemGroup>
     <None Include="res\Shaders\Color.shader" />
     <None Include="res\Shaders\Test.shader" />
+    <None Include="res\Shaders\Color1.shader" />
   </ItemGroup>
 </Project>

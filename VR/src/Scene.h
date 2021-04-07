@@ -23,6 +23,9 @@ namespace VR
 		Mesh(const Material* material);
 		Mesh(const Material* material, const Geometry& geometry);
 
+		void Move(math::vec3 bias);
+		void Rotate(math::vec3 axis, math::vec3 center, float angle);
+
 		const Material* const material;
 		Geometry geometry;
 	};
@@ -33,6 +36,7 @@ namespace VR
 		struct Batch
 		{
 			Batch(const Material* material);
+			Batch(const Batch& batch);
 
 			void Add(const Mesh& mesh);
 			void Add(Mesh* mesh);
@@ -43,7 +47,12 @@ namespace VR
 			gl::VertexArray va;
 			gl::VertexBuffer vb;
 			std::vector<Mesh*> meshes;
+
+		private:
+			uint8_t* prev_place;
 		};
+
+		Scene();
 
 		std::vector<Batch> batches;
 

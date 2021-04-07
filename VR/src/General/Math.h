@@ -32,7 +32,11 @@ namespace VR
 
             inline void operator*=(const mat2& matrix) { *this = *this * matrix; }
             inline void operator+=(const vec2& vec) { *this = *this + vec; }
+
+            void normalize();
         };
+
+        vec2 normalize(const vec2& vec);
 
         struct vec3
         {
@@ -59,10 +63,17 @@ namespace VR
             vec3 operator*(const mat3& matrix) const;
             vec3 operator*(float k) const;
             inline vec3 operator+(const vec3& vec) const;
+            inline vec3 operator-(const vec3& vec) const { return vec3(x - vec.x, y - vec.y, z - vec.z); }
 
             inline void operator*=(const mat3& matrix) { *this = *this * matrix; }
             inline void operator+=(const vec3& vec) { *this = *this + vec; }
+            inline void operator-=(const vec3& vec) { *this = *this - vec; }
+
+            void normalize();
         };
+
+        vec3 normalize(const vec3& vec);
+
 
         struct vec4
         {
@@ -94,7 +105,11 @@ namespace VR
 
             inline void operator*=(const mat4& matrix) { *this = *this * matrix; }
             inline void operator+=(const vec4& vec) { *this = *this + vec; }
+
+            void normalize();
         };
+
+        vec4 normalize(const vec4& vec);
 
 
         struct mat2
@@ -117,7 +132,7 @@ namespace VR
             vec3 y;
             vec3 z;
 
-            const mat3& operator*(const mat3& matrix);
+            mat3 operator*(const mat3& matrix) const;
         };
 
         struct mat4
@@ -138,6 +153,8 @@ namespace VR
         mat4 perspective(float fov, float aspect, float near, float far);
 
         mat4 lookAt(const vec3& eye, const vec3& dir, const vec3& up);
+
+        mat3 rotate(const vec3& axis, float angle);
 
 
         //Area of triangle

@@ -11,9 +11,18 @@ namespace VR
 			Bind();
 		}
 
+		VertexArray::VertexArray(const VertexArray& va)
+		{
+			memcpy(this, &va, sizeof(VertexArray));
+			va.m_deleteBuffer = false;
+		}
+
 		VertexArray::~VertexArray()
 		{
-			GLCall(glDeleteVertexArrays(1, &m_glID));
+			if (m_deleteBuffer)
+			{
+				GLCall(glDeleteVertexArrays(1, &m_glID));
+			}
 		}
 
 		void VertexArray::AddBuffer(const AttribLayout& layout) const
