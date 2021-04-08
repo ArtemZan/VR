@@ -12,8 +12,8 @@ class TestWorld : public World
 	math::mat4 rotY;
 	math::mat4 mvp;
 
+	Material btnMat;
 	Material material;
-	Material material1;
 	std::vector<Mesh> meshes;
 
 	int wWidth;
@@ -21,9 +21,39 @@ class TestWorld : public World
 public:
 
 	TestWorld()
-		:material("Color.shader"), material1("Color1.shader")
+		:btnMat("Buttons.shader"), material("Color1.shader")
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
+
+		btnMat.attributesLayout.Push<float>(2);
+		btnMat.attributesLayout.Push<float>(4);
+
+		uint32_t btn_indices[]
+		{
+			0, 1, 2,
+			3, 2, 1
+		};
+
+		float btn_vert[]
+		{
+			-1.0, 0.95, 1.0, 0.0, 0.0, 0.0,
+			-1.0, 1.0, 1.0, 0.0, 0.0, 0.0,
+			-0.9, 0.95, 1.0, 0.0, 0.0, 0.0,
+			-0.9, 1.0, 1.0, 0.0, 0.0, 0.0
+		};
+
+		Geometry geo;
+		geo.indices = btn_indices;
+		geo.indices_count = 6;
+		geo.vertices = (uint8_t*)btn_vert;
+		geo.vertices_size = sizeof(btn_vert);
+
+		Mesh button(&btnMat, geo);
+
+		scene.Add(button);
+
+		
+
 
 		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.1, 100.0f);
 
@@ -49,69 +79,36 @@ public:
 		};
 
 
-		std::vector<unsigned int> indices;
+		uint32_t indices[]
+		{
+			2, 1, 0, 3, 1, 2,
 
-		indices.resize(36);
-		indices[0] = 2;
-		indices[1] = 1;
-		indices[2] = 0;
-		indices[3] = 3;
-		indices[4] = 1;
-		indices[5] = 2;
+			6, 4, 5, 5, 7, 6,
 
-		indices[6] = 6;
-		indices[7] = 4;
-		indices[8] = 5;
-		indices[9] = 5;
-		indices[10] = 7;
-		indices[11] = 6;
+			 6, 3, 2, 3, 6, 7,
 
-		indices[12] = 6;
-		indices[13] = 3;
-		indices[14] = 2;
-		indices[15] = 3;
-		indices[16] = 6;
-		indices[17] = 7;
+			 3, 5, 1, 5, 3, 7,
 
-		indices[18] = 3;
-		indices[19] = 5;
-		indices[20] = 1;
-		indices[21] = 5;
-		indices[22] = 3;
-		indices[23] = 7;
+			 0, 1, 4, 5, 4, 1,
 
-		indices[24] = 0;
-		indices[25] = 1;
-		indices[26] = 4;
-		indices[27] = 5;
-		indices[28] = 4;
-		indices[29] = 1;
-
-		indices[30] = 4;
-		indices[31] = 2;
-		indices[32] = 0;
-		indices[33] = 6;
-		indices[34] = 2;
-		indices[35] = 4;
+			 4, 2, 0, 6, 2, 4
+		};
 
 		SetClearColor({ 0.7, 0.9, 0.5, 0.0 });
 
 		material.attributesLayout.Push<float>(3);
 		material.attributesLayout.Push<float>(4); 
 		
-		material1.attributesLayout.Push<float>(3);
-		material1.attributesLayout.Push<float>(4);
-
 		Geometry geometry;
 		geometry.vertices = (uint8_t*)data;
 		geometry.vertices_size = sizeof(data);
-		geometry.indices = indices.data();
+		geometry.indices = indices;
 		geometry.indices_count = 36;
 
 		meshes.emplace_back(&material, geometry);
 		meshes.emplace_back(&material, geometry);
-		meshes.emplace_back(&material1, geometry);
-		meshes.emplace_back(&material1, geometry);
+		meshes.emplace_back(&material, geometry);
+		meshes.emplace_back(&material, geometry);
 
 		scene.Add(&meshes[0]);
 		scene.Add(&meshes[1]);
@@ -130,6 +127,34 @@ public:
 
 	~TestWorld()
 	{
+	}
+
+	void OnAttach() override
+	{
+		glfwSetWindowUserPointer(Context::Get()->window, this);
+		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mods) {
+			TestWorld* w = (TestWorld*)glfwGetWindowUserPointer(window);
+
+			double mX, mY;
+			glfwGetCursorPos(window, &mX, &mY);
+			int width, height;
+			glfwGetWindowSize(window, &width, &height);
+			mX -= width / 2;
+			mX /= width / 2;
+			mY = height / 2 - mY;
+			mY /= height / 2;
+
+			bool inside = false;
+
+
+			if (-1.0 < mX &&
+				-0.9 > mX &&
+				 1.0 > mY &&
+				 0.95 < mY)
+			{
+				w->Detach();
+			}
+			});
 	}
 
 	void OnUpdate(float dTime) override
@@ -160,8 +185,6 @@ public:
 		mvp = proj * camera.view * model;
 		material.shader.Bind();
 		material.shader.SetUniform("mvp", mvp);
-		material1.shader.Bind();
-		material1.shader.SetUniform("mvp", mvp);
 
 		Render();
 

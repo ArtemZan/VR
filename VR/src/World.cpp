@@ -7,6 +7,10 @@ VR::World::World()
 
 void VR::World::Run()
 {
+	GLCall(glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a));
+
+	OnAttach();
+
 	m_attached = true;
 
 	while (m_attached)
@@ -17,7 +21,6 @@ void VR::World::Run()
 
 void VR::World::Render()
 {
-	GLCall(glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a));
 	GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 	for (const Scene::Batch& batch : scene.batches)

@@ -107,10 +107,17 @@
     <ClInclude Include="src\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Worlds\Navigation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Worlds\TestWorld1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Shaders\Color.shader" />
     <None Include="res\Shaders\Test.shader" />
     <None Include="res\Shaders\Color1.shader" />
+    <None Include="res\Shaders\Buttons.shader" />
   </ItemGroup>
 </Project>

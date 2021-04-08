@@ -27,5 +27,9 @@ namespace VR
 
 	private:
 		static Context* context;
+
+		//Setings
+		bool cull_face;
+		GLint culled_face;
 	};
 }

@@ -185,9 +185,11 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\General\Timer.h" />
+    <ClInclude Include="src\Worlds\Navigation.h" />
     <ClInclude Include="src\Worlds\TestWorld.h" />
     <ClInclude Include="src\VR.h" />
     <ClInclude Include="src\World.h" />
+    <ClInclude Include="src\Worlds\TestWorld1.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
@@ -220,6 +222,7 @@
     <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\Shaders\Buttons.shader" />
     <None Include="res\Shaders\Color1.shader" />
     <None Include="res\Shaders\Test.shader" />
     <None Include="res\Shaders\Color.shader" />

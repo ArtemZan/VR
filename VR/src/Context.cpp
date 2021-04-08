@@ -34,6 +34,7 @@ namespace VR
 
 		GLCall(glEnable(GL_CULL_FACE));
 		GLCall(glCullFace(GL_FRONT));
+
 		//GLCall(glEnable(GL_BLEND));
 		//GLCall(glBlendFunc())
 	}

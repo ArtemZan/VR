@@ -158,13 +158,13 @@ namespace VR
 
 
         //Area of triangle
-        inline double area(const glm::vec2& A, const glm::vec2& B, const glm::vec2& C)
+        inline double area(const vec2& A, const vec2& B, const vec2& C)
         {
             return abs((A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y)) / 2);
         }
 
         //Returns whether the point is inside the triangle
-        inline bool IsInside(const glm::vec2& A, const glm::vec2& B, const glm::vec2& C, const glm::vec2& point) {
+        inline bool IsInside(const vec2& A, const vec2& B, const vec2& C, const vec2& point) {
             return (int)round(10000 * area(A, B, C)) == (int)round(10000 * (area(A, B, point) + area(A, C, point) + area(B, C, point)));
         }
 
@@ -173,16 +173,16 @@ namespace VR
         /// <param name="stride">: the size of one vertex (in bytes)</param>
         /// <param name="indices">: array of indices used to draw the figure</param>
         /// <returns>Whether the point is inside the object defined by given vertices</returns>
-        template <typename XType, typename YType = XType>
-        bool IsInside(glm::vec2 point, const uint8_t* vertices, size_t stride, const unsigned int* indices, size_t ind_count)
+        template <typename XType = float, typename YType = XType>
+        bool IsInside(vec2 point, const uint8_t* vertices, size_t stride, const unsigned int* indices, size_t ind_count)
         {
             ind_count--;
             while (ind_count >= 2 && ind_count != size_t(-1))
             {
                 if (IsInside(
-                    glm::vec2(*(const XType*)(vertices + indices[ind_count] * stride), *(const YType*)(vertices + indices[ind_count] * stride + sizeof(XType))),
-                    glm::vec2(*(const XType*)(vertices + indices[ind_count - 1] * stride), *(const YType*)(vertices + indices[ind_count - 1] * stride + sizeof(XType))),
-                    glm::vec2(*(const XType*)(vertices + indices[ind_count - 2] * stride), *(const YType*)(vertices + indices[ind_count - 2] * stride + sizeof(XType))),
+                    vec2(*(const XType*)(vertices + indices[ind_count] * stride), *(const YType*)(vertices + indices[ind_count] * stride + sizeof(XType))),
+                    vec2(*(const XType*)(vertices + indices[ind_count - 1] * stride), *(const YType*)(vertices + indices[ind_count - 1] * stride + sizeof(XType))),
+                    vec2(*(const XType*)(vertices + indices[ind_count - 2] * stride), *(const YType*)(vertices + indices[ind_count - 2] * stride + sizeof(XType))),
                     point))
                 {
                     return true;
