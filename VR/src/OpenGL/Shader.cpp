@@ -39,6 +39,11 @@ namespace VR
 			GLCall(glUniform2f(GetUniformLocation(name), x, y));
 		}
 
+		void Shader::SetUniform(const char* name, float x, float y, float z)
+		{
+			GLCall(glUniform3f(GetUniformLocation(name), x, y, z));
+		}
+
 		void Shader::SetUniform(const char* name, float v)
 		{
 			GLCall(glUniform1f(GetUniformLocation(name), v));

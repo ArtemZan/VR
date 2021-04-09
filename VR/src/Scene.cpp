@@ -126,6 +126,10 @@ namespace VR
 			v -= center;
 			v *= m;
 			v += center;
+			if (vert_size == 10 * sizeof(float))//for now
+			{
+				*(math::vec3*)((float*)(vertex)+7) *= m;
+			}
 			vertex[0] = v.x;
 			vertex[1] = v.y;
 			vertex[2] = v.z;

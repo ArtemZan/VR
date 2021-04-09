@@ -21,7 +21,7 @@ class TestWorld : public World
 public:
 
 	TestWorld()
-		:btnMat("Buttons.shader"), material("Color1.shader")
+		:btnMat("Buttons.shader"), material("Color.shader")
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
 

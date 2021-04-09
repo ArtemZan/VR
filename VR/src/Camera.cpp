@@ -20,11 +20,12 @@ void VR::Camera::Move(math::vec3 dPos)
 
 void VR::Camera::SetRotation(math::vec3 rot)
 {
-	dir = rot;
+	dir = normalize(rot);
 	view = math::lookAt(pos, dir, math::vec3(0, 1, 0));
 }
 
 void VR::Camera::Rotate(math::vec3 axis, float angle)
 {
-	//view = math::lookAt(pos, dir, math::vec3(0, 1, 0));
+	dir *= math::rotate(axis, angle);
+	view = math::lookAt(pos, dir, math::vec3(0, 1, 0));
 }

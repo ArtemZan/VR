@@ -117,7 +117,7 @@
   <ItemGroup>
     <None Include="res\Shaders\Color.shader" />
     <None Include="res\Shaders\Test.shader" />
-    <None Include="res\Shaders\Color1.shader" />
+    <None Include="res\Shaders\Diffuse.shader" />
     <None Include="res\Shaders\Buttons.shader" />
   </ItemGroup>
 </Project>

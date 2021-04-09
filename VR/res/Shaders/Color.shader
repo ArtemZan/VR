@@ -7,7 +7,6 @@ layout(location = 1) in vec4 in_color;
 out vec4 color;
 
 uniform mat4 mvp;
-uniform float ratio;
 
 void main()
 {

@@ -7,7 +7,7 @@ using namespace VR;
 class Navigation : public World
 {
 	Material btnMat;
-	Material material1;
+	Material material;
 	std::vector<Mesh> meshes;
 
 	struct Button
@@ -27,7 +27,7 @@ public:
 	int link = -1;
 
 	Navigation()
-		:btnMat("Buttons.shader"), material1("Color1.shader")
+		:btnMat("Buttons.shader"), material("Color.shader")
 	{
 		btnMat.attributesLayout.Push<float>(2);
 		btnMat.attributesLayout.Push<float>(4);
