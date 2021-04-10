@@ -213,6 +213,9 @@ public:
 
 		meshes.back().Move({ -4.0, 0.0, 3.0 });
 		meshes[1].Move({-2.0, 0.0, 2.0});
+
+		Mesh box = scene.AddBasicBox({ 1.0, 1.0, 1.0 }, { 0.0, 1.0, 0.0, 0.0 });
+		box.Move({0.0, 2.0, 0.0});
 	}
 
 	~TestWorld1()
@@ -285,6 +288,8 @@ public:
 		diffuse.shader.SetUniform("mvp", proj * camera.view);
 		basicMat.shader.Bind();
 		basicMat.shader.SetUniform("mvp", proj * camera.view);
+		Material::BasicMaterial->shader.Bind();
+		Material::BasicMaterial->shader.SetUniform("mvp", proj * camera.view);
 		//diffuse.shader.SetUniform("diffuseLight.position", sin(glfwGetTime()) * 3, 0.0, sin(glfwGetTime()));
 		meshes[0].Rotate({ 1.0, 1.0, 1.0 }, { 0.0, 0.0, 0.0 }, 0.001);
 		meshes[1].Rotate({ 0.1, 1.0, 0.0 }, { -2.0, 0.0, 2.0 }, 0.001);

@@ -3,55 +3,6 @@
 
 namespace VR
 {
-	Scene::Batch::Batch(const Material* material)
-		:material(material), vb(0)
-	{
-	}
-
-	Scene::Batch::Batch(const Batch& batch)
-		:material(batch.material), vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb), meshes(batch.meshes)
-	{
-		for (int i = 0; i < meshes.size(); i++)
-		{
-			meshes[i]->geometry.vertices = meshes[i]->geometry.vertices - batch.vertices.data() + vertices.data();
-		}
-	}
-
-	/*Scene::Batch::~Batch()
-	{
-	}*/
-
-	void Scene::Batch::Add(const Mesh& mesh)
-	{
-		//indices.insert(indices.end(), mesh.geometry.indices, mesh.geometry.indices + mesh.geometry.indices_count);
-		indices.reserve(indices.size() + mesh.geometry.indices_count);
-		for (int i = 0; i < mesh.geometry.indices_count; i++)
-		{
-			indices.push_back(mesh.geometry.indices[i] + vertices.size() / material->attributesLayout.GetStride());
-		}
-		prev_place = vertices.data();
-		vertices.insert(vertices.end(), mesh.geometry.vertices, mesh.geometry.vertices + mesh.geometry.vertices_size);
-		vb.Resize(vertices.size());
-		va.AddBuffer(material->attributesLayout);
-	}
-
-	void Scene::Batch::Add(Mesh* mesh)
-	{
-		Add(*mesh);
-		for (Mesh* m : meshes)
-		{
-			m->geometry.vertices = m->geometry.vertices - prev_place + vertices.data();
-		}
-		meshes.push_back(mesh);
-		mesh->geometry.indices = indices.data() + indices.size() - mesh->geometry.indices_count;
-		mesh->geometry.vertices = vertices.data() + vertices.size() - mesh->geometry.vertices_size;
-	}
-
-	Scene::Scene()
-	{
-		//batches.reserve(2);
-	}
-
 	void Scene::Add(Mesh* mesh)
 	{
 		for (Batch& batch : batches)
@@ -84,22 +35,66 @@ namespace VR
 		batches.back().Add(mesh);
 	}
 
+
+	Scene::Batch::Batch(const Material* material)
+		:material(material), vb(0)
+	{
+	}
+
+	Scene::Batch::Batch(const Batch& batch)
+		:material(batch.material), vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb), meshes(batch.meshes)
+	{
+		for (int i = 0; i < meshes.size(); i++)
+		{
+			meshes[i]->geometry.vertices = meshes[i]->geometry.vertices - batch.vertices.data() + vertices.data();
+		}
+	}
+
+	void Scene::Batch::Add(const Mesh& mesh)
+	{
+		indices.reserve(indices.size() + mesh.geometry.indices_count);
+		for (int i = 0; i < mesh.geometry.indices_count; i++)
+		{
+			indices.push_back(mesh.geometry.indices[i] + vertices.size() / material->attributesLayout.GetStride());
+		}
+		prev_place = vertices.data();
+		vertices.insert(vertices.end(), mesh.geometry.vertices, mesh.geometry.vertices + mesh.geometry.vertices_size);
+		vb.Resize(vertices.size());
+		va.AddBuffer(material->attributesLayout);
+	}
+
+	void Scene::Batch::Add(Mesh* mesh)
+	{
+		Add(*mesh);
+		for (Mesh* m : meshes)
+		{
+			m->geometry.vertices = m->geometry.vertices - prev_place + vertices.data();
+		}
+		meshes.push_back(mesh);
+		mesh->geometry.indices = indices.data() + indices.size() - mesh->geometry.indices_count;
+		mesh->geometry.vertices = vertices.data() + vertices.size() - mesh->geometry.vertices_size;
+	}
+
+
+	Material* Material::BasicMaterial;
+	//Material Material::BasicMaterial("Diffuse.shader");
+
 	Material::Material(const char* shader, const gl::AttribLayout& layout)
 		:shader(shader), attributesLayout(layout)
 	{
 
 	}
 
-	Mesh::Mesh(const Material* material)
+
+	Mesh::Mesh(Material* material)
 		:material(material)
 	{
 	}
 
-	Mesh::Mesh(const Material* material, const Geometry& geometry)
+	Mesh::Mesh(Material* material, const Geometry& geometry)
 		:material(material), geometry(geometry)
 	{
 	}
-
 
 	void Mesh::Move(math::vec3 bias)
 	{
@@ -134,5 +129,55 @@ namespace VR
 			vertex[1] = v.y;
 			vertex[2] = v.z;
 		}
+	}
+
+	Scene::Scene()
+	{
+		Material::BasicMaterial = new Material("Color.shader");
+		Material::BasicMaterial->attributesLayout.Push<float>(3);
+		Material::BasicMaterial->attributesLayout.Push<float>(4);
+	}
+
+	Mesh Scene::AddBasicBox(math::vec3 size, math::vec4 color)
+	{
+		float x = size.x / 2;
+		float y = size.y / 2;
+		float z = size.z / 2;
+
+		float vertices[] =
+		{
+			 x, -y, -z, color.r, color.g, color.b, color.a,
+			-x, -y, -z, color.r, color.g, color.b, color.a,
+			 x,  y, -z, color.r, color.g, color.b, color.a,
+			-x,  y, -z, color.r, color.g, color.b, color.a,
+			 
+			 x, -y,  z, color.r, color.g, color.b, color.a,
+			-x, -y,  z, color.r, color.g, color.b, color.a,
+			 x,  y,  z, color.r, color.g, color.b, color.a,
+			-x,  y,  z, color.r, color.g, color.b, color.a,
+		};
+
+		uint32_t indices[]
+		{
+			2, 1, 0, 3, 1, 2,
+
+			6, 4, 5, 5, 7, 6,
+
+			6, 3, 2, 3, 6, 7,
+
+			3, 5, 1, 5, 3, 7,
+
+			0, 1, 4, 5, 4, 1,
+
+			4, 2, 0, 6, 2, 4
+		};
+
+		Geometry geo({(uint8_t*)vertices, sizeof(vertices), indices, 36});
+
+		Mesh mesh(Material::BasicMaterial, geo);
+
+		Add(&mesh);
+
+		return mesh;
 	}
 }

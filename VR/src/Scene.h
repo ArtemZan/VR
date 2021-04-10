@@ -14,20 +14,25 @@ namespace VR
 	{
 		Material(const char* shader, const gl::AttribLayout& layout = {});
 
+		//uint32_t id;
 		gl::Shader shader;
 		gl::AttribLayout attributesLayout;
+
+		static Material* BasicMaterial;
+		static Material* LambertMaterial;
 	};
 
 	struct Mesh
 	{
-		Mesh(const Material* material);
-		Mesh(const Material* material, const Geometry& geometry);
+		Mesh(Material* material);
+		Mesh(Material* material, const Geometry& geometry);
 
 		void Move(math::vec3 bias);
 		void Rotate(math::vec3 axis, math::vec3 center, float angle);
 
-		const Material* const material;
+		Material* const material;
 		Geometry geometry;
+
 	};
 
 
@@ -53,6 +58,8 @@ namespace VR
 		};
 
 		Scene();
+
+		Mesh AddBasicBox(math::vec3 size, math::vec4 color);
 
 		std::vector<Batch> batches;
 
