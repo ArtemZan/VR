@@ -77,7 +77,7 @@ namespace VR
 
 
 	Material* Material::BasicMaterial;
-	//Material Material::BasicMaterial("Diffuse.shader");
+	Material* Material::LambertMaterial;
 
 	Material::Material(const char* shader, const gl::AttribLayout& layout)
 		:shader(shader), attributesLayout(layout)
@@ -136,6 +136,11 @@ namespace VR
 		Material::BasicMaterial = new Material("Color.shader");
 		Material::BasicMaterial->attributesLayout.Push<float>(3);
 		Material::BasicMaterial->attributesLayout.Push<float>(4);
+		
+		Material::LambertMaterial = new Material("Diffuse.shader");
+		Material::LambertMaterial->attributesLayout.Push<float>(3);
+		Material::LambertMaterial->attributesLayout.Push<float>(4);
+		Material::LambertMaterial->attributesLayout.Push<float>(3);
 	}
 
 	Mesh Scene::AddBasicBox(math::vec3 size, math::vec4 color)
@@ -180,4 +185,9 @@ namespace VR
 
 		return mesh;
 	}
+
+	/*Mesh Scene::LoadMesh(const char* OBJfile)
+	{
+		
+	}*/
 }

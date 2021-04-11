@@ -16,3 +16,4 @@
 #include "Scene.h"
 #include "Camera.h"
 #include "World.h"
+#include "MeshLoader.h"

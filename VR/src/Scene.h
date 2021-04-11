@@ -30,9 +30,8 @@ namespace VR
 		void Move(math::vec3 bias);
 		void Rotate(math::vec3 axis, math::vec3 center, float angle);
 
-		Material* const material;
+		Material* material;
 		Geometry geometry;
-
 	};
 
 

@@ -40,6 +40,12 @@ public:
 		diffuse.shader.SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
 		diffuse.shader.SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);
 
+		Material::LambertMaterial->shader.Bind();
+		Material::LambertMaterial->shader.SetUniform("mvp", math::mat4(1.0f));
+		Material::LambertMaterial->shader.SetUniform("ambientLightColor", 0.1, 0.1, 0.1);
+		Material::LambertMaterial->shader.SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
+		Material::LambertMaterial->shader.SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);
+
 
 		uint32_t btn_indices[]
 		{
@@ -214,8 +220,13 @@ public:
 		meshes.back().Move({ -4.0, 0.0, 3.0 });
 		meshes[1].Move({-2.0, 0.0, 2.0});
 
-		Mesh box = scene.AddBasicBox({ 1.0, 1.0, 1.0 }, { 0.0, 1.0, 0.0, 0.0 });
-		box.Move({0.0, 2.0, 0.0});
+		//Mesh box = scene.AddBasicBox({ 1.0, 1.0, 1.0 }, { 0.0, 1.0, 0.0, 0.0 });
+		//box.Move({0.0, 2.0, 0.0});
+
+		MeshLoader loader;
+		loader.Load("res/cube.obj", "");
+
+		scene.Add(loader.mesh);
 	}
 
 	~TestWorld1()
@@ -290,6 +301,9 @@ public:
 		basicMat.shader.SetUniform("mvp", proj * camera.view);
 		Material::BasicMaterial->shader.Bind();
 		Material::BasicMaterial->shader.SetUniform("mvp", proj * camera.view);
+		Material::LambertMaterial->shader.Bind();
+		Material::LambertMaterial->shader.SetUniform("mvp", proj * camera.view);
+
 		//diffuse.shader.SetUniform("diffuseLight.position", sin(glfwGetTime()) * 3, 0.0, sin(glfwGetTime()));
 		meshes[0].Rotate({ 1.0, 1.0, 1.0 }, { 0.0, 0.0, 0.0 }, 0.001);
 		meshes[1].Rotate({ 0.1, 1.0, 0.0 }, { -2.0, 0.0, 2.0 }, 0.001);
