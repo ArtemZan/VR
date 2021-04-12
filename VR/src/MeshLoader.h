@@ -8,7 +8,6 @@ namespace VR
 	public:
 		void Load(const char* filepath);
 
-
 	private:
 		Geometry geometry;
 	};
@@ -20,6 +19,7 @@ namespace VR
 		void Load(const char* obj, const char* mtl);
 
 		Mesh mesh;
+		LambertMaterial mat;
 	private:
 
 		std::vector<float> vertices;

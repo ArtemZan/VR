@@ -3,18 +3,67 @@
 
 namespace VR
 {
+
+	Scene::Scene()
+	{
+
+	}
+
+	Mesh Scene::AddBox(math::vec3 size, Material* material)
+	{
+		float x = size.x / 2;
+		float y = size.y / 2;
+		float z = size.z / 2;
+
+		float vertices[] =
+		{
+			 x, -y, -z,
+			-x, -y, -z,
+			 x,  y, -z,
+			-x,  y, -z,
+
+			 x, -y,  z,
+			-x, -y,  z,
+			 x,  y,  z,
+			-x,  y,  z,
+		};
+
+		uint32_t indices[]
+		{
+			0, 1, 2, 2, 1, 3,
+
+			5, 4, 6, 6, 7, 5,
+
+			2, 3, 6, 7, 6, 3,
+
+			1, 5, 3, 7, 3, 5,
+
+			4, 1, 0, 1, 4, 5,
+
+			0, 2, 4, 4, 2, 6
+		};
+
+		Geometry geo({ (uint8_t*)vertices, sizeof(vertices), indices, 36 });
+
+		Mesh mesh(material, geo);
+
+		Add(&mesh);
+
+		return mesh;
+	}
+
 	void Scene::Add(Mesh* mesh)
 	{
 		for (Batch& batch : batches)
 		{
-			if (batch.material == mesh->material)
+			if (batch.materialType == mesh->material->GetTypeID())
 			{
 				batch.Add(mesh);
 				return;
 			}
 		}
 
-		batches.emplace_back(mesh->material);
+		batches.emplace_back(*mesh->material);
 		
 		batches.back().Add(mesh);
 	}
@@ -23,26 +72,26 @@ namespace VR
 	{
 		for (Batch& batch : batches)
 		{
-			if (batch.material == mesh.material)
+			if (batch.materialType == mesh.material->GetTypeID())
 			{
 				batch.Add(mesh);
 				return;
 			}
 		}
 
-		batches.emplace_back(mesh.material);
+		batches.emplace_back(*mesh.material);
 
 		batches.back().Add(mesh);
 	}
 
 
-	Scene::Batch::Batch(const Material* material)
-		:material(material), vb(0)
+	Scene::Batch::Batch(const Material& material)
+		:materialType(material.GetTypeID()), attribLayout(material.attributesLayout), shader(material.shader), vb(0)
 	{
 	}
 
 	Scene::Batch::Batch(const Batch& batch)
-		:material(batch.material), vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb), meshes(batch.meshes)
+		:materialType(batch.materialType), attribLayout(batch.attribLayout), shader(batch.shader), vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb), meshes(batch.meshes)
 	{
 		for (int i = 0; i < meshes.size(); i++)
 		{
@@ -50,46 +99,64 @@ namespace VR
 		}
 	}
 
-	void Scene::Batch::Add(const Mesh& mesh)
+	size_t Scene::Batch::Add(const Mesh& mesh)
 	{
 		indices.reserve(indices.size() + mesh.geometry.indices_count);
 		for (int i = 0; i < mesh.geometry.indices_count; i++)
 		{
-			indices.push_back(mesh.geometry.indices[i] + vertices.size() / material->attributesLayout.GetStride());
+			indices.push_back(mesh.geometry.indices[i] + vertices.size() / attribLayout.GetStride());
 		}
-		prev_place = vertices.data();
-		vertices.insert(vertices.end(), mesh.geometry.vertices, mesh.geometry.vertices + mesh.geometry.vertices_size);
+			
+			int vert_size = mesh.material->attributesLayout.GetStride();
+			int vert_count = mesh.geometry.vertices_size / (vert_size - sizeof(math::vec4));
+			int color_offset = mesh.material->GetColorOffset();
+			int new_vert_size = vert_count * vert_size;
+
+		if (mesh.material->GetTypeID() == MATERIAL_TYPE::BASIC
+			|| mesh.material->GetTypeID() == MATERIAL_TYPE::LAMBERT
+			|| mesh.material->GetTypeID() == MATERIAL_TYPE::_2D)
+		{
+
+			math::vec4 color;
+			switch (mesh.material->GetTypeID())
+			{
+			case MATERIAL_TYPE::BASIC: color = ((BasicMaterial*)mesh.material)->color; break;
+			case MATERIAL_TYPE::LAMBERT: color = ((LambertMaterial*)mesh.material)->color; break;
+			case MATERIAL_TYPE::_2D: color = ((_2DMaterial*)mesh.material)->color; break;
+			}
+
+			prev_place = vertices.data();
+			vertices.resize(vertices.size() + new_vert_size);
+			uint8_t* vert_buffer = vertices.data() + vertices.size() - new_vert_size;
+
+			for (int i = 0; i < vert_count; i++)
+			{
+				memcpy(vert_buffer + i * vert_size, mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)), color_offset);
+				*(math::vec4*)(vert_buffer + i * vert_size + color_offset) = color;
+				memcpy(vert_buffer + i * vert_size + color_offset + sizeof(math::vec4), mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)) + color_offset, vert_size - color_offset - sizeof(math::vec4));
+			}
+		}
 		vb.Resize(vertices.size());
-		va.AddBuffer(material->attributesLayout);
+		va.AddBuffer(attribLayout);
+
+		return new_vert_size;
 	}
 
 	void Scene::Batch::Add(Mesh* mesh)
 	{
-		Add(*mesh);
+		size_t added = Add(*mesh);
 		for (Mesh* m : meshes)
 		{
 			m->geometry.vertices = m->geometry.vertices - prev_place + vertices.data();
 		}
 		meshes.push_back(mesh);
 		mesh->geometry.indices = indices.data() + indices.size() - mesh->geometry.indices_count;
-		mesh->geometry.vertices = vertices.data() + vertices.size() - mesh->geometry.vertices_size;
+		mesh->geometry.vertices = vertices.data() + vertices.size() - added;
 	}
 
 
-	Material* Material::BasicMaterial;
-	Material* Material::LambertMaterial;
-
-	Material::Material(const char* shader, const gl::AttribLayout& layout)
-		:shader(shader), attributesLayout(layout)
-	{
-
-	}
 
 
-	Mesh::Mesh(Material* material)
-		:material(material)
-	{
-	}
 
 	Mesh::Mesh(Material* material, const Geometry& geometry)
 		:material(material), geometry(geometry)
@@ -99,7 +166,7 @@ namespace VR
 	void Mesh::Move(math::vec3 bias)
 	{
 		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / vert_size;
+		int vert_count = geometry.vertices_size / (vert_size - sizeof(math::vec4)); // for now;
 		for (int i = 0; i < vert_count; i++)
 		{
 			((float*)(geometry.vertices + i * vert_size))[0] += bias.x;
@@ -131,51 +198,4 @@ namespace VR
 		}
 	}
 
-	Scene::Scene()
-	{
-		
-	}
-
-	Mesh Scene::AddBasicBox(math::vec3 size, math::vec4 color)
-	{
-		float x = size.x / 2;
-		float y = size.y / 2;
-		float z = size.z / 2;
-
-		float vertices[] =
-		{
-			 x, -y, -z, color.r, color.g, color.b, color.a,
-			-x, -y, -z, color.r, color.g, color.b, color.a,
-			 x,  y, -z, color.r, color.g, color.b, color.a,
-			-x,  y, -z, color.r, color.g, color.b, color.a,
-			 
-			 x, -y,  z, color.r, color.g, color.b, color.a,
-			-x, -y,  z, color.r, color.g, color.b, color.a,
-			 x,  y,  z, color.r, color.g, color.b, color.a,
-			-x,  y,  z, color.r, color.g, color.b, color.a,
-		};
-
-		uint32_t indices[]
-		{
-			0, 1, 2, 2, 1, 3,
-
-			5, 4, 6, 6, 7, 5,
-
-			2, 3, 6, 7, 6, 3,
-
-			1, 5, 3, 7, 3, 5,
-
-			4, 1, 0, 1, 4, 5,
-
-			0, 2, 4, 4, 2, 6
-		};
-
-		Geometry geo({(uint8_t*)vertices, sizeof(vertices), indices, 36});
-
-		Mesh mesh(Material::BasicMaterial, geo);
-
-		Add(&mesh);
-
-		return mesh;
-	}
 }

@@ -10,21 +10,10 @@ namespace VR
 		size_t indices_count;
 	};
 
-	struct Material
-	{
-		Material(const char* shader, const gl::AttribLayout& layout = {});
-
-		//uint32_t id;
-		gl::Shader shader;
-		gl::AttribLayout attributesLayout;
-
-		static Material* BasicMaterial;
-		static Material* LambertMaterial;
-	};
 
 	struct Mesh
 	{
-		Mesh(Material* material);
+		Mesh() = default;
 		Mesh(Material* material, const Geometry& geometry);
 
 		void Move(math::vec3 bias);
@@ -39,15 +28,20 @@ namespace VR
 	{
 		struct Batch
 		{
-			Batch(const Material* material);
+			Batch(const Material& material);
 			Batch(const Batch& batch);
 
-			void Add(const Mesh& mesh);
+			//Returns size of added vertices
+			size_t Add(const Mesh& mesh);
 			void Add(Mesh* mesh);
 
-			const Material* const material;
 			std::vector<uint8_t> vertices;
 			std::vector<uint32_t> indices;
+
+			MATERIAL_TYPE materialType;
+			gl::AttribLayout attribLayout;
+			gl::Shader shader;
+
 			gl::VertexArray va;
 			gl::VertexBuffer vb;
 			std::vector<Mesh*> meshes;
@@ -58,7 +52,7 @@ namespace VR
 
 		Scene();
 
-		Mesh AddBasicBox(math::vec3 size, math::vec4 color);
+		Mesh AddBox(math::vec3 size, Material* material);
 
 		std::vector<Batch> batches;
 

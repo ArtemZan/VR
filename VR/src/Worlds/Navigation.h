@@ -6,8 +6,7 @@ using namespace VR;
 
 class Navigation : public World
 {
-	Material btnMat;
-	Material material;
+	_2DMaterial btnMat;
 	std::vector<Mesh> meshes;
 
 	struct Button
@@ -27,10 +26,7 @@ public:
 	int link = -1;
 
 	Navigation()
-		:btnMat("Buttons.shader"), material("Color.shader")
 	{
-		btnMat.attributesLayout.Push<float>(2);
-		btnMat.attributesLayout.Push<float>(4);
 		AddButton({ 0.1, 0.1 }, { -0.9, 0.9 }, { 0.0, 1.0, 0.0, 0.0 });
 		AddButton({ 0.1, 0.1 }, { -0.7, 0.9 }, { 1.0, 0.0, 0.0, 0.0 });
 	}
@@ -86,10 +82,10 @@ public:
 	{
 		float vert[]
 		{
-			pos.x, pos.y, color.r, color.g, color.b, color.a,
-			pos.x, pos.y + size.y, color.r, color.g, color.b, color.a,
-			pos.x + size.x, pos.y, color.r, color.g, color.b, color.a,
-			pos.x + size.x, pos.y + size.y, color.r, color.g, color.b, color.a
+			pos.x, pos.y,
+			pos.x, pos.y + size.y,
+			pos.x + size.x, pos.y,
+			pos.x + size.x, pos.y + size.y,
 		};
 
 		uint32_t indices[]

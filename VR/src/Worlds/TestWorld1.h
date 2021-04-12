@@ -5,9 +5,10 @@ using namespace VR;
 
 class TestWorld1 : public World
 {
-	Material btnMat;
-	Material basicMat;
-	Material diffuse;
+	_2DMaterial btnMat;
+	BasicMaterial basicMat;
+	LambertMaterial diffuse;
+	LambertMaterial monkeyMat;
 
 	math::mat4 proj;
 	math::mat4 mvp;
@@ -16,7 +17,7 @@ class TestWorld1 : public World
 
 public:
 	TestWorld1()
-		:btnMat("Buttons.shader"), diffuse("Diffuse.shader"), basicMat("Color.shader"), mvp(1.0)
+		:mvp(1.0), basicMat({1.0, 1.0, 0.0, 0.0})
 	{
 		int width, height;
 		glfwGetWindowSize(Context::Get()->window, &width, &height);
@@ -24,27 +25,17 @@ public:
 		camera.SetPosition({ -7.0, 0.0, 0.0 });
 		camera.SetRotation({ 5.0, 0.0, 0.0 });
 
-		btnMat.attributesLayout.Push<float>(2);
-		btnMat.attributesLayout.Push<float>(4);
-
-		diffuse.attributesLayout.Push<float>(3);
-		diffuse.attributesLayout.Push<float>(4);
-		diffuse.attributesLayout.Push<float>(3);
-
-		basicMat.attributesLayout.Push<float>(3);
-		basicMat.attributesLayout.Push<float>(4);
-
 		diffuse.shader.Bind();
 		diffuse.shader.SetUniform("mvp", math::mat4(1.0f));
 		diffuse.shader.SetUniform("ambientLightColor", 0.1, 0.1, 0.1);
 		diffuse.shader.SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
 		diffuse.shader.SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);
 
-		Material::LambertMaterial->shader.Bind();
+		/*Material::LambertMaterial->shader.Bind();
 		Material::LambertMaterial->shader.SetUniform("mvp", math::mat4(1.0f));
 		Material::LambertMaterial->shader.SetUniform("ambientLightColor", 0.1, 0.1, 0.1);
 		Material::LambertMaterial->shader.SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
-		Material::LambertMaterial->shader.SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);
+		Material::LambertMaterial->shader.SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);*/
 
 
 		uint32_t btn_indices[]
@@ -55,10 +46,10 @@ public:
 
 		float btn_vert[]
 		{
-			-1.0, 0.95, 1.0, 0.0, 0.0, 0.0,
-			-1.0, 1.0, 1.0, 0.0, 0.0, 0.0,
-			-0.9, 0.95, 1.0, 0.0, 0.0, 0.0,
-			-0.9, 1.0, 1.0, 0.0, 0.0, 0.0
+			-1.0, 0.95,
+			-1.0, 1.0, 
+			-0.9, 0.95,
+			-0.9, 1.0, 
 		};
 
 		Geometry btn_geo;
@@ -74,35 +65,35 @@ public:
 
 		float cube_vert[] =
 		{
-			-0.5f, -0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  -1.0, 0.0, 0.0,
-			-0.5f, -0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  -1.0, 0.0, 0.0,
-			-0.5f,  0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  -1.0, 0.0, 0.0,
-			-0.5f,  0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  -1.0, 0.0, 0.0,
+			-0.5f, -0.5f, -0.5f,  -1.0, 0.0, 0.0,
+			-0.5f, -0.5f,  0.5f,  -1.0, 0.0, 0.0,
+			-0.5f,  0.5f, -0.5f,  -1.0, 0.0, 0.0,
+			-0.5f,  0.5f,  0.5f,  -1.0, 0.0, 0.0,
 
-			 0.5f, -0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  1.0, 0.0, 0.0,
-			 0.5f, -0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  1.0, 0.0, 0.0,
-			 0.5f,  0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  1.0, 0.0, 0.0,
-			 0.5f,  0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  1.0, 0.0, 0.0,
+			 0.5f, -0.5f, -0.5f,  1.0, 0.0, 0.0,
+			 0.5f, -0.5f,  0.5f,  1.0, 0.0, 0.0,
+			 0.5f,  0.5f, -0.5f,  1.0, 0.0, 0.0,
+			 0.5f,  0.5f,  0.5f,  1.0, 0.0, 0.0,
 
-			-0.5f, -0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, -1.0, 0.0,
-			-0.5f, -0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, -1.0, 0.0,
-			 0.5f, -0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, -1.0, 0.0,
-			 0.5f, -0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, -1.0, 0.0,
+			-0.5f, -0.5f, -0.5f,  0.0, -1.0, 0.0,
+			-0.5f, -0.5f,  0.5f,  0.0, -1.0, 0.0,
+			 0.5f, -0.5f, -0.5f,  0.0, -1.0, 0.0,
+			 0.5f, -0.5f,  0.5f,  0.0, -1.0, 0.0,
 
-			-0.5f,  0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 1.0, 0.0,
-			-0.5f,  0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 1.0, 0.0,
-			 0.5f,  0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 1.0, 0.0,
-			 0.5f,  0.5f,  0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 1.0, 0.0,
+			-0.5f,  0.5f, -0.5f,  0.0, 1.0, 0.0,
+			-0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
+			 0.5f,  0.5f, -0.5f,  0.0, 1.0, 0.0,
+			 0.5f,  0.5f,  0.5f,  0.0, 1.0, 0.0,
 
-			-0.5f, -0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, -1.0,
-			-0.5f,  0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, -1.0,
-			 0.5f, -0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, -1.0,
-			 0.5f,  0.5f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, -1.0,
+			-0.5f, -0.5f, -0.5f,  0.0, 0.0, -1.0,
+			-0.5f,  0.5f, -0.5f,  0.0, 0.0, -1.0,
+			 0.5f, -0.5f, -0.5f,  0.0, 0.0, -1.0,
+			 0.5f,  0.5f, -0.5f,  0.0, 0.0, -1.0,
 
-			-0.5f, -0.5f, 0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, 1.0,
-			-0.5f,  0.5f, 0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, 1.0,
-			 0.5f, -0.5f, 0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, 1.0,
-			 0.5f,  0.5f, 0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 0.0, 1.0,
+			-0.5f, -0.5f,  0.5f,  0.0, 0.0, 1.0,
+			-0.5f,  0.5f,  0.5f,  0.0, 0.0, 1.0,
+			 0.5f, -0.5f,  0.5f,  0.0, 0.0, 1.0,
+			 0.5f,  0.5f,  0.5f,  0.0, 0.0, 1.0,
 		};
 
 		uint32_t indices[]
@@ -182,21 +173,22 @@ public:
 		octahedron.vertices_size = sizeof(octahedron_vert);*/
 
 
-		Mesh l = scene.AddBasicBox({ 1.0, 1.0, 1.0 }, {1.0, 1.0, 1.0, 1.0});
-		l.Move({ -4.0, 0.0, 3.0 });
+		Mesh l = scene.AddBox({ 2.0, 2.0, 0.5 }, &basicMat);
+		l.Move({ 0.0, 1.0, -2.0 });
 
 		meshes.emplace_back(&diffuse, cube_geo);
 		scene.Add(&meshes.back());
 		meshes.back().Move({ 0.0, 0.0, 2.0 });
 
-		Mesh box = scene.AddBasicBox({ 1.0, 1.0, 1.0 }, { 0.0, 1.0, 0.0, 0.0 });
+		Mesh box = scene.AddBox({ 1.0, 1.0, 1.0 }, &basicMat);
 		box.Move({0.0, 2.0, 0.0});
 
 		MeshLoader loader;
 		loader.Load("res/monkey.obj", "");
-		loader.mesh.Move({ -2.0, 0.0, 0.0 });
 		scene.Add(&loader.mesh);
 		meshes.push_back(loader.mesh);
+		meshes.back().Move({ -2.0, 0.0, 0.0 });
+		monkeyMat = loader.mat;
 	}
 
 	~TestWorld1()
@@ -240,12 +232,16 @@ public:
 		diffuse.shader.SetUniform("mvp", proj * camera.view);
 		basicMat.shader.Bind();
 		basicMat.shader.SetUniform("mvp", proj * camera.view);
-		Material::BasicMaterial->shader.Bind();
+		//basicMat.shader.Bind();
+		//basicMat.shader.SetUniform("mvp", proj * camera.view);
+		
+		/*Material::BasicMaterial->shader.Bind();
 		Material::BasicMaterial->shader.SetUniform("mvp", proj * camera.view);
 		Material::LambertMaterial->shader.Bind();
-		Material::LambertMaterial->shader.SetUniform("mvp", proj * camera.view);
+		Material::LambertMaterial->shader.SetUniform("mvp", proj * camera.view);*/
+		meshes.back().Move({ -2.0, 0.0, 0.0 });
 
-		meshes.back().Rotate({ 0.0, 1.0, 0.0 }, { -2.0, 0.0, 0.0 }, 0.001);
+		//meshes.back().Rotate({ 0.0, 1.0, 0.0 }, { -2.0, 0.0, 0.0 }, 0.001);
 
 		Render();
 

@@ -12,8 +12,8 @@ class TestWorld : public World
 	math::mat4 rotY;
 	math::mat4 mvp;
 
-	Material btnMat;
-	Material material;
+	_2DMaterial btnMat;
+	BasicMaterial material;
 	std::vector<Mesh> meshes;
 
 	int wWidth;
@@ -21,7 +21,6 @@ class TestWorld : public World
 public:
 
 	TestWorld()
-		:btnMat("Buttons.shader"), material("Color.shader")
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
 

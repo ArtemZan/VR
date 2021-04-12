@@ -13,6 +13,7 @@
 #include "OpenGL/VertexBuffer.h"
 
 #include "Context.h"
+#include "Materials.h"
 #include "Scene.h"
 #include "Camera.h"
 #include "World.h"

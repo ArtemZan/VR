@@ -172,6 +172,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Materials.h" />
     <ClInclude Include="src\MeshLoader.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Context.h" />
@@ -193,6 +194,7 @@
     <ClInclude Include="src\Worlds\TestWorld1.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Materials.cpp" />
     <ClCompile Include="src\MeshLoader.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Context.cpp" />
