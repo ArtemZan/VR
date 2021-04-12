@@ -25,9 +25,22 @@ void VR::World::Render()
 
 	for (const Scene::Batch& batch : scene.batches)
 	{
+		if (batch.vertices.size() == 960)
+		{
+			struct Vert
+			{
+				math::vec3 p;
+				math::vec4 c;
+				math::vec3 n;
+			};
+			Vert vert[24];
+			memcpy(vert, batch.vertices.data(), 960);
+			std::cout << "";
+		}
 		batch.material->shader.Bind();
 		batch.vb.Bind();
 		batch.va.Bind();
+		batch.va.AddBuffer(batch.material->attributesLayout);
 		batch.vb.Data(batch.vertices.size(), batch.vertices.data());
 		GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
 	}

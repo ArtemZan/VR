@@ -133,14 +133,7 @@ namespace VR
 
 	Scene::Scene()
 	{
-		Material::BasicMaterial = new Material("Color.shader");
-		Material::BasicMaterial->attributesLayout.Push<float>(3);
-		Material::BasicMaterial->attributesLayout.Push<float>(4);
 		
-		Material::LambertMaterial = new Material("Diffuse.shader");
-		Material::LambertMaterial->attributesLayout.Push<float>(3);
-		Material::LambertMaterial->attributesLayout.Push<float>(4);
-		Material::LambertMaterial->attributesLayout.Push<float>(3);
 	}
 
 	Mesh Scene::AddBasicBox(math::vec3 size, math::vec4 color)
@@ -164,17 +157,17 @@ namespace VR
 
 		uint32_t indices[]
 		{
-			2, 1, 0, 3, 1, 2,
+			0, 1, 2, 2, 1, 3,
 
-			6, 4, 5, 5, 7, 6,
+			5, 4, 6, 6, 7, 5,
 
-			6, 3, 2, 3, 6, 7,
+			2, 3, 6, 7, 6, 3,
 
-			3, 5, 1, 5, 3, 7,
+			1, 5, 3, 7, 3, 5,
 
-			0, 1, 4, 5, 4, 1,
+			4, 1, 0, 1, 4, 5,
 
-			4, 2, 0, 6, 2, 4
+			0, 2, 4, 4, 2, 6
 		};
 
 		Geometry geo({(uint8_t*)vertices, sizeof(vertices), indices, 36});
@@ -185,9 +178,4 @@ namespace VR
 
 		return mesh;
 	}
-
-	/*Mesh Scene::LoadMesh(const char* OBJfile)
-	{
-		
-	}*/
 }

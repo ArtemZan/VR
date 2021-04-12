@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Context.h"
+#include "VR.h"
 
 namespace VR
 {
@@ -32,13 +32,22 @@ namespace VR
 
 		GLCall(glEnable(GL_DEPTH_TEST));
 
-		GLCall(glEnable(GL_CULL_FACE));
-		GLCall(glCullFace(GL_FRONT));
+		//GLCall(glEnable(GL_CULL_FACE));
+		//GLCall(glCullFace(GL_BACK));
 
 		//GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
 
 		GLCall(glDisable(GL_BLEND));
 		//GLCall(glBlendFunc())
+
+		Material::BasicMaterial = new Material("Color.shader");
+		Material::BasicMaterial->attributesLayout.Push<float>(3);
+		Material::BasicMaterial->attributesLayout.Push<float>(4);
+
+		Material::LambertMaterial = new Material("Diffuse.shader");
+		Material::LambertMaterial->attributesLayout.Push<float>(3);
+		Material::LambertMaterial->attributesLayout.Push<float>(4);
+		Material::LambertMaterial->attributesLayout.Push<float>(3);
 	}
 
 	Context::~Context()

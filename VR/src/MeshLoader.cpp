@@ -118,7 +118,7 @@ namespace VR
 					indices[indices.size() - 6] = f_ind;
 					indices[indices.size() - 5] = f_ind + 1;
 					indices[indices.size() - 4] = f_ind + 2;
-					indices[indices.size() - 3] = f_ind + 1;
+					indices[indices.size() - 3] = f_ind;
 					indices[indices.size() - 2] = f_ind + 2;
 					indices[indices.size() - 1] = f_ind + 3;
 				}

@@ -94,8 +94,8 @@ public:
 
 		uint32_t indices[]
 		{
-			0, 1, 2,
-			3, 2, 1
+			2, 1, 0,
+			1, 2, 3
 		};
 
 		Geometry geo;
