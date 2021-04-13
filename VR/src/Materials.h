@@ -16,8 +16,11 @@ namespace VR
 		virtual inline MATERIAL_TYPE GetTypeID() const = 0;
 		virtual inline int GetColorOffset() const = 0;
 
-		gl::Shader shader;
+		gl::Shader* shader;
 		gl::AttribLayout attributesLayout;
+
+	private:
+		static std::map<const char*, gl::Shader> shaders;
 	};
 
 	struct BasicMaterial : public Material

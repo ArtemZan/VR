@@ -101,6 +101,8 @@ namespace VR
 
 	size_t Scene::Batch::Add(const Mesh& mesh)
 	{
+		mesh.material->shader->DontDelete();
+
 		indices.reserve(indices.size() + mesh.geometry.indices_count);
 		for (int i = 0; i < mesh.geometry.indices_count; i++)
 		{
@@ -152,9 +154,13 @@ namespace VR
 		meshes.push_back(mesh);
 		mesh->geometry.indices = indices.data() + indices.size() - mesh->geometry.indices_count;
 		mesh->geometry.vertices = vertices.data() + vertices.size() - added;
+		mesh->geometry.vertices_size = added;
 	}
 
+	Scene::Batch::~Batch()
+	{
 
+	}
 
 
 

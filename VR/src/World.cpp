@@ -43,7 +43,7 @@ void VR::World::Render()
 		Vert vert[8];
 		memcpy(vert, batch.vertices.data(), 192);*/
 
-		batch.shader.Bind();
+		batch.shader->Bind();
 		batch.vb.Bind();
 		batch.va.Bind();
 		batch.va.AddBuffer(batch.attribLayout);
@@ -61,5 +61,5 @@ void VR::World::Update()
 
 	glfwPollEvents();
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(0));
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }

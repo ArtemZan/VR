@@ -21,11 +21,9 @@ class TestWorld : public World
 public:
 
 	TestWorld()
+		:material({0.5, 0.2, 0.2, 0.0})
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
-
-		btnMat.attributesLayout.Push<float>(2);
-		btnMat.attributesLayout.Push<float>(4);
 
 		uint32_t btn_indices[]
 		{
@@ -35,10 +33,10 @@ public:
 
 		float btn_vert[]
 		{
-			-1.0, 0.95, 1.0, 0.0, 0.0, 0.0,
-			-1.0, 1.0, 1.0, 0.0, 0.0, 0.0,
-			-0.9, 0.95, 1.0, 0.0, 0.0, 0.0,
-			-0.9, 1.0, 1.0, 0.0, 0.0, 0.0
+			-1.0, 0.95,
+			-1.0, 1.0, 
+			-0.9, 0.95,
+			-0.9, 1.0, 
 		};
 
 		Geometry geo;
@@ -66,15 +64,15 @@ public:
 
 		float data[] =
 		{
-			 0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, -0.5f,
+			-0.5f, -0.5f, -0.5f,
+			 0.5f,  0.5f, -0.5f,
+			-0.5f,  0.5f, -0.5f,
 
-			 0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			-0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f,
-			 0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, 0.5f, 
+			-0.5f, -0.5f, 0.5f, 
+			 0.5f,  0.5f, 0.5f, 
+			-0.5f,  0.5f, 0.5f, 
 		};
 
 
@@ -94,9 +92,6 @@ public:
 		};
 
 		SetClearColor({ 0.7, 0.9, 0.5, 0.0 });
-
-		material.attributesLayout.Push<float>(3);
-		material.attributesLayout.Push<float>(4); 
 		
 		Geometry geometry;
 		geometry.vertices = (uint8_t*)data;
@@ -182,8 +177,8 @@ public:
 
 		//camera.SetPosition(math::vec3(sin(glfwGetTime()) * 5, 0.0, cos(glfwGetTime()) * 5));
 		mvp = proj * camera.view * model;
-		material.shader.Bind();
-		material.shader.SetUniform("mvp", mvp);
+		material.shader->Bind();
+		material.shader->SetUniform("mvp", mvp);
 
 		Render();
 

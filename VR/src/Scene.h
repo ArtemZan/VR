@@ -30,6 +30,7 @@ namespace VR
 		{
 			Batch(const Material& material);
 			Batch(const Batch& batch);
+			~Batch();
 
 			//Returns size of added vertices
 			size_t Add(const Mesh& mesh);
@@ -40,7 +41,7 @@ namespace VR
 
 			MATERIAL_TYPE materialType;
 			gl::AttribLayout attribLayout;
-			gl::Shader shader;
+			gl::Shader* shader;
 
 			gl::VertexArray va;
 			gl::VertexBuffer vb;

@@ -3,9 +3,21 @@
 
 namespace VR
 {
+	std::map<const char*, gl::Shader> Material::shaders;
+
 	Material::Material(const char* shader, const gl::AttribLayout& layout)
-		:shader(shader), attributesLayout(layout)
+		:attributesLayout(layout)
 	{
+		auto i = shaders.find(shader);
+		if (i == shaders.end())
+		{
+			shaders.emplace(shader, shader);
+			this->shader = &shaders.find(shader)->second;
+		}
+		else
+		{
+			this->shader = &i->second;
+		}
 	}
 
 	BasicMaterial::BasicMaterial(const math::vec4& color)

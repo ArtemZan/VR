@@ -39,15 +39,6 @@ namespace VR
 
 		GLCall(glDisable(GL_BLEND));
 		//GLCall(glBlendFunc())
-
-		/*Material::BasicMaterial = new Material("Color.shader");
-		Material::BasicMaterial->attributesLayout.Push<float>(3);
-		Material::BasicMaterial->attributesLayout.Push<float>(4);
-
-		Material::LambertMaterial = new Material("Diffuse.shader");
-		Material::LambertMaterial->attributesLayout.Push<float>(3);
-		Material::LambertMaterial->attributesLayout.Push<float>(4);
-		Material::LambertMaterial->attributesLayout.Push<float>(3);*/
 	}
 
 	Context::~Context()

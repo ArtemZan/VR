@@ -7,6 +7,7 @@ class TestWorld1 : public World
 {
 	_2DMaterial btnMat;
 	BasicMaterial basicMat;
+	BasicMaterial lightMat;
 	LambertMaterial diffuse;
 	LambertMaterial monkeyMat;
 
@@ -17,7 +18,7 @@ class TestWorld1 : public World
 
 public:
 	TestWorld1()
-		:mvp(1.0), basicMat({1.0, 1.0, 0.0, 0.0})
+		:mvp(1.0), basicMat({ 1.0, 1.0, 0.0, 0.0 }), lightMat({1.0, 1.0, 1.0, 1.0})
 	{
 		int width, height;
 		glfwGetWindowSize(Context::Get()->window, &width, &height);
@@ -25,18 +26,25 @@ public:
 		camera.SetPosition({ -7.0, 0.0, 0.0 });
 		camera.SetRotation({ 5.0, 0.0, 0.0 });
 
-		diffuse.shader.Bind();
-		diffuse.shader.SetUniform("mvp", math::mat4(1.0f));
-		diffuse.shader.SetUniform("ambientLightColor", 0.1, 0.1, 0.1);
-		diffuse.shader.SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
-		diffuse.shader.SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);
+		diffuse.shader->Bind();
+		diffuse.shader->SetUniform("mvp", math::mat4(1.0f));
+		diffuse.shader->SetUniform("ambientLightColor", 0.1, 0.1, 0.1);
+		diffuse.shader->SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
+		diffuse.shader->SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);
 
-		/*Material::LambertMaterial->shader.Bind();
-		Material::LambertMaterial->shader.SetUniform("mvp", math::mat4(1.0f));
-		Material::LambertMaterial->shader.SetUniform("ambientLightColor", 0.1, 0.1, 0.1);
-		Material::LambertMaterial->shader.SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
-		Material::LambertMaterial->shader.SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);*/
 
+		MeshLoader loader;
+		loader.Load("res/cube.obj", "");
+		meshes.push_back(loader.mesh);
+		scene.Add(&meshes.back());
+		monkeyMat = loader.mat;
+		meshes.back().material = &monkeyMat;
+		meshes.back().Move({ -5.0, 0.0, 0.0 });
+		monkeyMat.shader->Bind();
+		monkeyMat.shader->SetUniform("mvp", math::mat4(1.0f));
+		monkeyMat.shader->SetUniform("ambientLightColor", 0.1, 0.1, 0.1);
+		monkeyMat.shader->SetUniform("diffuseLight.color", 0.9, 0.9, 0.9);
+		monkeyMat.shader->SetUniform("diffuseLight.position", -4.0, 0.0, 3.0);
 
 		uint32_t btn_indices[]
 		{
@@ -112,7 +120,7 @@ public:
 		};
 
 
-		/*float octahedron_vert[]
+		float octahedron_vert[]
 		{
 			-0.5f,  0.0f, -0.5f,  0.0, 1.0, 1.0, 0.0,  0.0, 1.0, -1.0,
 			 0.0f,  0.5f,  0.0f,  0.0, 1.0, 1.0, 0.0,  0.0, 1.0, -1.0,
@@ -152,13 +160,15 @@ public:
 		for (int i = 0; i < 8 * 3; i++)
 		{
 			octahedron_ind[i] = i;
-		}*/
+		}
 
 		Geometry cube_geo;
 		cube_geo.indices = indices;
-		cube_geo.indices_count = 36;
+		cube_geo.indices_count = 36; 
 		cube_geo.vertices = (uint8_t*)cube_vert;
 		cube_geo.vertices_size = sizeof(cube_vert);
+		meshes.emplace_back(&diffuse, cube_geo);
+		scene.Add(&meshes.back());
 
 		/*Geometry light_cube_geo;
 		light_cube_geo.indices = light_ind;
@@ -172,23 +182,17 @@ public:
 		octahedron.vertices = (uint8_t*)octahedron_vert;
 		octahedron.vertices_size = sizeof(octahedron_vert);*/
 
+		//meshes.emplace_back(&diffuse, cube_geo);
+		//scene.Add(&meshes.back());
+		//meshes.back().Move({ 0.0, 0.0, 2.0 });
 
-		Mesh l = scene.AddBox({ 2.0, 2.0, 0.5 }, &basicMat);
-		l.Move({ 0.0, 1.0, -2.0 });
+		Mesh l = scene.AddBox({ 0.5, 0.5, 0.5 }, &lightMat);
+		l.Move({ -4.0, 0.0, 3.0 });
 
-		meshes.emplace_back(&diffuse, cube_geo);
-		scene.Add(&meshes.back());
-		meshes.back().Move({ 0.0, 0.0, 2.0 });
+		/*Mesh box = scene.AddBox({ 1.0, 1.0, 1.0 }, &basicMat);
+		box.Move({0.0, 2.0, 0.0});*/
 
-		Mesh box = scene.AddBox({ 1.0, 1.0, 1.0 }, &basicMat);
-		box.Move({0.0, 2.0, 0.0});
-
-		MeshLoader loader;
-		loader.Load("res/monkey.obj", "");
-		scene.Add(&loader.mesh);
-		meshes.push_back(loader.mesh);
-		meshes.back().Move({ -2.0, 0.0, 0.0 });
-		monkeyMat = loader.mat;
+		
 	}
 
 	~TestWorld1()
@@ -222,26 +226,26 @@ public:
 				w->Detach();
 			}
 			});
+
 	}
 
 	void OnUpdate(float dTime) override
 	{
-		Input();
+		//meshes.back().Move({ -0.001, 0.0, 0.0 });
+		//std::cout << (int*)scene.batches[2].vertices.data() << " " << scene.batches[2].vertices.size() << std::endl;
+		Input(dTime);
 
-		diffuse.shader.Bind();
-		diffuse.shader.SetUniform("mvp", proj * camera.view);
-		basicMat.shader.Bind();
-		basicMat.shader.SetUniform("mvp", proj * camera.view);
-		//basicMat.shader.Bind();
-		//basicMat.shader.SetUniform("mvp", proj * camera.view);
-		
-		/*Material::BasicMaterial->shader.Bind();
-		Material::BasicMaterial->shader.SetUniform("mvp", proj * camera.view);
-		Material::LambertMaterial->shader.Bind();
-		Material::LambertMaterial->shader.SetUniform("mvp", proj * camera.view);*/
-		meshes.back().Move({ -2.0, 0.0, 0.0 });
+		for (Scene::Batch& batch : scene.batches)
+		{
+			if (batch.materialType != MATERIAL_TYPE::_2D)
+			{
+			batch.shader->Bind();
+			batch.shader->SetUniform("mvp", proj * camera.view);
 
-		//meshes.back().Rotate({ 0.0, 1.0, 0.0 }, { -2.0, 0.0, 0.0 }, 0.001);
+			}
+		}
+
+		//meshes[0].Rotate({ 0.0, 1.0, 0.0 }, { -5.0, 0.0, 0.0 }, 0.0005 * dTime);
 
 		Render();
 
@@ -251,46 +255,46 @@ public:
 		}
 	}
 
-	void Input()
+	void Input(float dTime)
 	{
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			camera.Move({ camera.dir.x / 100, 0.0, camera.dir.z / 100 });
+			camera.Move({ camera.dir.x / 100 * dTime, 0.0, camera.dir.z / 100 * dTime });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			camera.Move({ -camera.dir.x / 100, 0.0, -camera.dir.z / 100 });
+			camera.Move({ -camera.dir.x / 100 * dTime, 0.0, -camera.dir.z / 100 * dTime });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			camera.Move({ camera.dir.z / 100, 0.0, -camera.dir.x / 100 });
+			camera.Move({ camera.dir.z / 100 * dTime, 0.0, -camera.dir.x / 100 * dTime });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			camera.Move({ -camera.dir.z / 100, 0.0, camera.dir.x / 100 });
+			camera.Move({ -camera.dir.z / 100 * dTime, 0.0, camera.dir.x / 100 * dTime });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			camera.Rotate({ 0.0, 1.0, 0.0 }, 0.005);
+			camera.Rotate({ 0.0, 1.0, 0.0 }, 0.005 * dTime);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
-			camera.Rotate({ 0.0, 1.0, 0.0 }, -0.005);
+			camera.Rotate({ 0.0, 1.0, 0.0 }, -0.005 * dTime);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_UP) == GLFW_PRESS)
 		{
-			camera.Move({ 0.0, 0.005, 0.0 });
+			camera.Move({ 0.0, 0.005f * dTime, 0.0 });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		{
-			camera.Move({ 0.0, -0.005, 0.0 });
+			camera.Move({ 0.0, -0.005f * dTime, 0.0 });
 		}
 	}
 };

@@ -7,16 +7,7 @@ using namespace VR;
 
 int main()
 {
-	Context::Create(960, 540, "Hello world");
-
-	constexpr int worlds = 1;
-
-	/*gl::AttribLayout layout;
-	layout.Push<float>(2);
-	layout.Push<float>(4);
-	Material mat("Button.shader", layout);
-	Geometry geo;*/
-	
+	Context::Create(960, 540, "Hello world");	
 	
 
 	{

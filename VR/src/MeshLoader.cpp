@@ -3,11 +3,6 @@
 
 namespace VR
 {
-	void OBJLoader::Load(const char* filepath)
-	{
-		
-	}
-
 	MeshLoader::MeshLoader()
 	{
 	}

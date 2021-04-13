@@ -20,6 +20,7 @@ namespace VR
 			//Tells GL to use default program
 			static void Unbind();
 
+			inline void DontDelete() const { m_deleteProgram = false; }
 
 			inline unsigned int GetID() const { return m_glID; }
 

@@ -2,16 +2,6 @@
 
 namespace VR
 {
-	class OBJLoader
-	{
-
-	public:
-		void Load(const char* filepath);
-
-	private:
-		Geometry geometry;
-	};
-
 	class MeshLoader
 	{
 	public:
