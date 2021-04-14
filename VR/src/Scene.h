@@ -18,6 +18,7 @@ namespace VR
 
 		void Move(math::vec3 bias);
 		void Rotate(math::vec3 axis, math::vec3 center, float angle);
+		void Scale(const math::vec3& scale, const math::vec3& center);
 
 		Material* material;
 		Geometry geometry;
@@ -53,7 +54,7 @@ namespace VR
 
 		Scene();
 
-		Mesh AddBox(math::vec3 size, Material* material);
+		void AddBox(math::vec3 size, Material* material, Mesh* mesh_buffer);
 
 		std::vector<Batch> batches;
 

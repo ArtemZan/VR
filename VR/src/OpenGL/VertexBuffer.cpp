@@ -38,8 +38,6 @@ namespace VR
 
 		void VertexBuffer::Resize(size_t new_size)
 		{
-			//GLCall(glDeleteBbuffers(1, &m_glID));
-			//GLCall(glGenBuffers(1, &m_glID));
 			Bind();
 			GLCall(glBufferData(GL_ARRAY_BUFFER, new_size, nullptr, GL_DYNAMIC_DRAW));
 		}

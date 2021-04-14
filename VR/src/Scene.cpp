@@ -9,7 +9,7 @@ namespace VR
 
 	}
 
-	Mesh Scene::AddBox(math::vec3 size, Material* material)
+	void Scene::AddBox(math::vec3 size, Material* material, Mesh* mesh)
 	{
 		float x = size.x / 2;
 		float y = size.y / 2;
@@ -45,11 +45,10 @@ namespace VR
 
 		Geometry geo({ (uint8_t*)vertices, sizeof(vertices), indices, 36 });
 
-		Mesh mesh(material, geo);
+		mesh->material = material;
+		mesh->geometry = geo;
 
-		Add(&mesh);
-
-		return mesh;
+		Add(mesh);
 	}
 
 	void Scene::Add(Mesh* mesh)
@@ -101,18 +100,16 @@ namespace VR
 
 	size_t Scene::Batch::Add(const Mesh& mesh)
 	{
-		mesh.material->shader->DontDelete();
-
 		indices.reserve(indices.size() + mesh.geometry.indices_count);
 		for (int i = 0; i < mesh.geometry.indices_count; i++)
 		{
 			indices.push_back(mesh.geometry.indices[i] + vertices.size() / attribLayout.GetStride());
 		}
 			
-			int vert_size = mesh.material->attributesLayout.GetStride();
-			int vert_count = mesh.geometry.vertices_size / (vert_size - sizeof(math::vec4));
-			int color_offset = mesh.material->GetColorOffset();
-			int new_vert_size = vert_count * vert_size;
+		int vert_size = mesh.material->attributesLayout.GetStride();
+		int vert_count = mesh.geometry.vertices_size / (vert_size - sizeof(math::vec4));
+		int color_offset = mesh.material->GetColorOffset();
+		int new_vert_size = vert_count * vert_size;
 
 		if (mesh.material->GetTypeID() == MATERIAL_TYPE::BASIC
 			|| mesh.material->GetTypeID() == MATERIAL_TYPE::LAMBERT
@@ -134,8 +131,10 @@ namespace VR
 			for (int i = 0; i < vert_count; i++)
 			{
 				memcpy(vert_buffer + i * vert_size, mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)), color_offset);
-				*(math::vec4*)(vert_buffer + i * vert_size + color_offset) = color;
-				memcpy(vert_buffer + i * vert_size + color_offset + sizeof(math::vec4), mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)) + color_offset, vert_size - color_offset - sizeof(math::vec4));
+				memcpy(vert_buffer + i * vert_size + color_offset, &color, sizeof(math::vec4));
+
+				if(color_offset + sizeof(math::vec4) < vert_size)
+					memcpy(vert_buffer + i * vert_size + color_offset + sizeof(math::vec4), mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)) + color_offset, vert_size - color_offset - sizeof(math::vec4));
 			}
 		}
 		vb.Resize(vertices.size());
@@ -172,7 +171,7 @@ namespace VR
 	void Mesh::Move(math::vec3 bias)
 	{
 		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / (vert_size - sizeof(math::vec4)); // for now;
+		int vert_count = geometry.vertices_size / vert_size;
 		for (int i = 0; i < vert_count; i++)
 		{
 			((float*)(geometry.vertices + i * vert_size))[0] += bias.x;
@@ -194,7 +193,7 @@ namespace VR
 			v -= center;
 			v *= m;
 			v += center;
-			if (vert_size == 10 * sizeof(float))//for now
+			if (material->GetTypeID() == MATERIAL_TYPE::LAMBERT)
 			{
 				*(math::vec3*)((float*)(vertex)+7) *= m;
 			}
@@ -204,4 +203,24 @@ namespace VR
 		}
 	}
 
+	void Mesh::Scale(const math::vec3& scale, const math::vec3& center)
+	{
+		int vert_size = material->attributesLayout.GetStride();
+		int vert_count = geometry.vertices_size / vert_size;
+		for (int i = 0; i < vert_count; i++)
+		{
+			math::vec3& pos = *(math::vec3*)(geometry.vertices + i * vert_size);
+			pos.x -= center.x;
+			pos.y -= center.y;
+			pos.z -= center.z;
+
+			pos.x *= scale.x;
+			pos.y *= scale.y;
+			pos.z *= scale.z;
+
+			pos.x += center.x;
+			pos.y += center.y;
+			pos.z += center.z;
+		}
+	}
 }

@@ -45,9 +45,9 @@ void VR::World::Render()
 
 		batch.shader->Bind();
 		batch.vb.Bind();
+		batch.vb.Data(batch.vertices.size(), batch.vertices.data());
 		batch.va.Bind();
 		batch.va.AddBuffer(batch.attribLayout);
-		batch.vb.Data(batch.vertices.size(), batch.vertices.data());
 		GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
 	}
 

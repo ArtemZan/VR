@@ -5,15 +5,13 @@ using namespace VR;
 
 class TestWorld : public World
 {
-	math::mat4 model;
 	math::mat4 proj;
 	math::mat4 view;
-	math::mat4 rotX;
-	math::mat4 rotY;
 	math::mat4 mvp;
 
 	_2DMaterial btnMat;
-	BasicMaterial material;
+	BasicMaterial sunMat;
+	LambertMaterial earthMat;
 	std::vector<Mesh> meshes;
 
 	int wWidth;
@@ -21,9 +19,14 @@ class TestWorld : public World
 public:
 
 	TestWorld()
-		:material({0.5, 0.2, 0.2, 0.0})
+		:sunMat({ 1.0, 1.0, 0.0, 0.0 }), earthMat({0.0, 0.1, 0.8, 1.0})
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
+
+		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.1, 100.0f);
+
+		camera.SetPosition(math::vec3(0.0, 4.0, 5));
+		camera.SetRotation(math::vec3(0.0, -0.4, -1.0));
 
 		uint32_t btn_indices[]
 		{
@@ -46,23 +49,16 @@ public:
 		geo.vertices_size = sizeof(btn_vert);
 
 		Mesh button(&btnMat, geo);
-
 		scene.Add(button);
 
-		
+		MeshLoader loader;
+		loader.Load("res/sphere.obj", "");
+		loader.mesh.material = &sunMat;
+		meshes.push_back(loader.mesh);
+		scene.Add(&meshes.back());
+		meshes.back().Scale({ 0.5, 0.5, 0.5 }, {0.0, 0.0, 0.0});
 
-
-		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.1, 100.0f);
-
-		camera.SetPosition(math::vec3(0.0, 4.0, 5));
-		camera.SetRotation(math::vec3(0.0, -0.4, -1.0));
-
-		model = math::mat4(1.0f);
-
-		rotX = math::mat4(1.0f);
-		rotY = math::mat4(1.0f);
-
-		float data[] =
+		/*float data[] =
 		{
 			 0.5f, -0.5f, -0.5f,
 			-0.5f, -0.5f, -0.5f,
@@ -89,34 +85,7 @@ public:
 			 0, 1, 4, 5, 4, 1,
 
 			 4, 2, 0, 6, 2, 4
-		};
-
-		SetClearColor({ 0.7, 0.9, 0.5, 0.0 });
-		
-		Geometry geometry;
-		geometry.vertices = (uint8_t*)data;
-		geometry.vertices_size = sizeof(data);
-		geometry.indices = indices;
-		geometry.indices_count = 36;
-
-		meshes.emplace_back(&material, geometry);
-		meshes.emplace_back(&material, geometry);
-		meshes.emplace_back(&material, geometry);
-		meshes.emplace_back(&material, geometry);
-
-		scene.Add(&meshes[0]);
-		scene.Add(&meshes[1]);
-		scene.Add(&meshes[2]);
-		scene.Add(&meshes[3]);
-
-		for (int i = 0; i < 8; i++)
-		{
-			((float*)meshes[0].geometry.vertices)[i * 7] -= 2;
-			((float*)meshes[1].geometry.vertices)[i * 7] += 2;
-			((float*)meshes[2].geometry.vertices)[i * 7 + 2] += 2;
-			((float*)meshes[3].geometry.vertices)[i * 7 + 2] -= 2;
-		}
-		
+		};	*/	
 	}
 
 	~TestWorld()
@@ -149,42 +118,79 @@ public:
 				w->Detach();
 			}
 			});
+		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
+			TestWorld* w = (TestWorld*)glfwGetWindowUserPointer(window);
+			w->OnResize(width, height);
+			});
 	}
 
 	void OnUpdate(float dTime) override
 	{
-		/*((float*)meshes[0].geometry.vertices)[7 * 0] += 0.001;
-		((float*)meshes[0].geometry.vertices)[7 * 2] += 0.001;
-		((float*)meshes[0].geometry.vertices)[7 * 4] += 0.001;
-		((float*)meshes[0].geometry.vertices)[7 * 6] += 0.001;*/
-
-		meshes[0].Move({ sin((float)glfwGetTime()) / 1000.0f, 0.0f, 0.0f });
-		meshes[1].Move({ 0.0f, sin((float)glfwGetTime()) / 1000.0f, 0.0f });
-		meshes[2].Move({ 0.0f, 0.0f, sin((float)glfwGetTime()) / 1000.0f });
-		meshes[3].Rotate({ 1.0f, 1.0, 1.0 }, {0.0, 0.0, -2.0}, 0.001);
-
-		rotX.y.y = cos(dTime / 1000.0f);
-		rotX.y.z = -sin(dTime / 1000.0f);
-		rotX.z.y = sin(dTime / 1000.0f);
-		rotX.z.z = cos(dTime / 1000.0f);
-
-		rotY.x.x = cos(dTime / 1000.0f);
-		rotY.x.z = sin(dTime / 1000.0f);
-		rotY.z.x = -sin(dTime / 1000.0f);
-		rotY.z.z = cos(dTime / 1000.0f);
-
-		//model *= rotY *rotX;
-
-		//camera.SetPosition(math::vec3(sin(glfwGetTime()) * 5, 0.0, cos(glfwGetTime()) * 5));
-		mvp = proj * camera.view * model;
-		material.shader->Bind();
-		material.shader->SetUniform("mvp", mvp);
+		Input(dTime);
+		//camera.SetPosition(math::vec3(sin(glfwGetTime()) * 2.f, 0.0f, cos(glfwGetTime()) * 2.f));
+		//camera.SetRotation(math::vec3(-sin(glfwGetTime()), 0.0f, -cos(glfwGetTime())));
+		mvp = proj * camera.view;
+		sunMat.shader->Bind();
+		sunMat.shader->SetUniform("mvp", mvp);
+		earthMat.shader->Bind();
+		earthMat.shader->SetUniform("mvp", mvp);
 
 		Render();
 
 		if (glfwWindowShouldClose(Context::Get()->window))
 		{
 			Detach();
+		}
+	}
+
+	void OnResize(int width, int height)
+	{
+		wWidth = width;
+		wHeight = height;
+		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.1, 100.0f);
+		glViewport(0, 0, width, height);
+	}
+
+	void Input(float dTime)
+	{
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			camera.Move({ camera.dir.x / 100 * dTime, 0.0, camera.dir.z / 100 * dTime });
+		}
+
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			camera.Move({ -camera.dir.x / 100 * dTime, 0.0, -camera.dir.z / 100 * dTime });
+		}
+
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			camera.Move({ camera.dir.z / 100 * dTime, 0.0, -camera.dir.x / 100 * dTime });
+		}
+
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			camera.Move({ -camera.dir.z / 100 * dTime, 0.0, camera.dir.x / 100 * dTime });
+		}
+
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			camera.Rotate({ 0.0, 1.0, 0.0 }, 0.005 * dTime);
+		}
+
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			camera.Rotate({ 0.0, 1.0, 0.0 }, -0.005 * dTime);
+		}
+
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			camera.Move({ 0.0, 0.005f * dTime, 0.0 });
+		}
+
+		if (glfwGetKey(Context::Get()->window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			camera.Move({ 0.0, -0.005f * dTime, 0.0 });
 		}
 	}
 };

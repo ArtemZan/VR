@@ -9,6 +9,7 @@ namespace VR
 
 	struct Material
 	{
+		friend class Context;
 	protected:
 		Material(const char* shader, const gl::AttribLayout& layout = {});
 

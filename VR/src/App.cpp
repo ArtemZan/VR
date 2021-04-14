@@ -8,7 +8,7 @@ using namespace VR;
 int main()
 {
 	Context::Create(960, 540, "Hello world");	
-	
+
 
 	{
 		Navigation nav;

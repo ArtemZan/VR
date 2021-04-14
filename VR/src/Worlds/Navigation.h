@@ -6,7 +6,8 @@ using namespace VR;
 
 class Navigation : public World
 {
-	_2DMaterial btnMat;
+	_2DMaterial btnMat0;
+	_2DMaterial btnMat1;
 	std::vector<Mesh> meshes;
 
 	struct Button
@@ -26,9 +27,10 @@ public:
 	int link = -1;
 
 	Navigation()
+		:btnMat0({0.0, 1.0, 0.0, 0.0}), btnMat1({1.0, 0.0, 0.0, 0.0})
 	{
-		AddButton({ 0.1, 0.1 }, { -0.9, 0.9 }, { 0.0, 1.0, 0.0, 0.0 });
-		AddButton({ 0.1, 0.1 }, { -0.7, 0.9 }, { 1.0, 0.0, 0.0, 0.0 });
+		AddButton({ 0.1, 0.1 }, { -0.9, 0.9 }, &btnMat0);
+		AddButton({ 0.1, 0.1 }, { -0.7, 0.9 }, &btnMat1);
 	}
 
 	~Navigation()
@@ -78,7 +80,7 @@ public:
 		}
 	}
 
-	void AddButton(const math::vec2& size, const math::vec2& pos, const math::vec4& color)
+	void AddButton(const math::vec2& size, const math::vec2& pos, Material* material)
 	{
 		float vert[]
 		{
@@ -100,7 +102,7 @@ public:
 		geo.vertices = (uint8_t*)vert;
 		geo.vertices_size = sizeof(vert);
 
-		meshes.emplace_back(&btnMat, geo);
+		meshes.emplace_back(material, geo);
 
 		buttons.emplace_back(pos, size);
 
