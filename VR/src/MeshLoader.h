@@ -6,7 +6,7 @@ namespace VR
 	{
 	public:
 		MeshLoader();
-		void Load(const char* obj, const char* mtl);
+		void Load(const char* obj, Material* material);
 
 		Mesh mesh;
 		LambertMaterial mat;

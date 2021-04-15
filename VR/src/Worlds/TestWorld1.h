@@ -34,11 +34,10 @@ public:
 
 
 			MeshLoader loader;
-			loader.Load("res/monkey.obj", "");
+			loader.Load("res/monkey.obj", &monkeyMat);
 			meshes.push_back(loader.mesh);
 			scene.Add(&meshes.back());
 			monkeyMat = loader.mat;
-			meshes.back().material = &monkeyMat;
 			meshes.back().Move({ -5.0, 0.0, 0.0 });
 			monkeyMat.shader->Bind();
 			monkeyMat.shader->SetUniform("mvp", math::mat4(1.0f));
