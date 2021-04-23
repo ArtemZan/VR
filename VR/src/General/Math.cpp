@@ -55,9 +55,9 @@ namespace VR
 			return vec2(x * k, y * k);
 		}
 
-		vec2 vec2::operator+(const vec2& vec) const
+		vec2 vec2::operator*(const vec2& vec) const
 		{
-			return vec2(x + vec.x, y + vec.y);
+			return {x * vec.x, y * vec.y};
 		}
 
 		void vec2::normalize()
@@ -113,9 +113,14 @@ namespace VR
 			return vec3(x * k, y * k, z * k);
 		}
 
-		inline vec3 vec3::operator+(const vec3& vec) const
+		vec3 vec3::operator*(const vec3 vec) const
 		{
-			return vec3(x + vec.x, y + vec.y, z + vec.z);
+			return {x * vec.x, y * vec.y, z * vec.z};
+		}
+
+		vec3 vec3::operator/(float k) const
+		{
+			return vec3(x / k, y / k, z / k);
 		}
 
 		void vec3::normalize()

@@ -1,13 +1,11 @@
 #pragma once
-#pragma once
 #include "VR.h"
 
 using namespace VR;
 
 class Navigation : public World
 {
-	_2DMaterial btnMat0;
-	_2DMaterial btnMat1;
+	GUIMaterial btnMat;
 	std::vector<Mesh> meshes;
 
 	struct Button
@@ -27,10 +25,15 @@ public:
 	int link = -1;
 
 	Navigation()
-		:btnMat0({0.0, 1.0, 0.0, 0.0}), btnMat1({1.0, 0.0, 0.0, 0.0})
+		:btnMat({0.0, 1.0, 0.0, 0.0})
 	{
-		AddButton({ 0.1, 0.1 }, { -0.9, 0.9 }, &btnMat0);
-		AddButton({ 0.1, 0.1 }, { -0.7, 0.9 }, &btnMat1);
+		AddButton({ 0.1, 0.1 }, { -0.9, 0.9 }, &btnMat);
+		btnMat.color = {0.2, 0.8, 0.0, 0.0};
+		AddButton({ 0.1, 0.1 }, { -0.7, 0.9 }, &btnMat);
+		btnMat.color = { 0.4, 0.6, 0.0, 0.0 };
+		AddButton({ 0.1, 0.1 }, { -0.5, 0.9 }, &btnMat);
+		btnMat.color = { 0.6, 0.4, 0.0, 0.0 };
+		AddButton({ 0.1, 0.1 }, { -0.3, 0.9 }, &btnMat);
 	}
 
 	~Navigation()
@@ -62,22 +65,29 @@ public:
 					w->buttons[i].pos.y + w->buttons[i].size.y > mY)
 				{
 					w->link = i;
-					w->Detach();
+					w->OnDetach();
 					break;
 				}
 			}
 			});
+		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
+			Navigation* w = (Navigation*)glfwGetWindowUserPointer(window);
+			w->OnResize(width, height);
+			});
 
+		Render();
+	}
+
+	void OnResize(int width, int height)
+	{
+		//proj = math::perspective(1.f, float(wWidth) / wHeight, 0.0, 1000.0f);
+		glViewport(0, 0, width, height);
 		Render();
 	}
 
 	void OnUpdate(float dTime) override
 	{
 
-		if (glfwWindowShouldClose(Context::Get()->window))
-		{
-			Detach();
-		}
 	}
 
 	void AddButton(const math::vec2& size, const math::vec2& pos, Material* material)
@@ -107,6 +117,12 @@ public:
 		buttons.emplace_back(pos, size);
 
 		scene.Add(&meshes.back());
+	}
+
+	void OnDetach()
+	{
+		Detach();
+		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow*, int, int) {});
 	}
 };
 

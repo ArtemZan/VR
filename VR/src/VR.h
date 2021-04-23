@@ -11,6 +11,7 @@
 #include "OpenGL/Texture.h"
 #include "OpenGL/VertexArray.h"
 #include "OpenGL/VertexBuffer.h"
+#include "OpenGL/Shadow.h"
 
 #include "Context.h"
 #include "Materials.h"

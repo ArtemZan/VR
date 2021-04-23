@@ -1,6 +1,8 @@
 #include "VR.h"
-#include "Worlds/TestWorld.h"
+#include "Worlds/SolarSystem.h"
 #include "Worlds/TestWorld1.h"
+#include "Worlds/Pendulum.h"
+#include "Worlds/Labyrinth.h"
 #include "Worlds/Navigation.h"
 
 using namespace VR;
@@ -12,8 +14,10 @@ int main()
 
 	{
 		Navigation nav;
-		TestWorld testWorld;
+		SolarSystem solarSystem;
 		TestWorld1 testWorld1;
+		Pendulum pendulum;
+		Labyrinth labyrinth;
 		nav.Run();
 
 		int& link = nav.link;
@@ -26,10 +30,16 @@ int main()
 			switch (l)
 			{
 			case 0:
-				testWorld.Run();
+				solarSystem.Run();
 				break;
 			case 1:
 				testWorld1.Run();
+				break;
+			case 2:
+				pendulum.Run();
+				break;
+			case 3:
+				labyrinth.Run();
 				break;
 			default: world_found = false;
 			}

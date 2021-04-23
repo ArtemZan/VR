@@ -1,11 +1,10 @@
 #pragma once
-#include "VR.h"
 
 using namespace VR;
 
 class TestWorld1 : public World
 {
-	_2DMaterial btnMat;
+	GUIMaterial btnMat;
 	BasicMaterial basicMat;
 	BasicMaterial lightMat;
 	LambertMaterial diffuse;

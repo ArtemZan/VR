@@ -36,7 +36,14 @@ namespace VR
 	}
 
 	_2DMaterial::_2DMaterial(const math::vec4& color)
-		:Material("Buttons.shader"), color(color)
+		:Material("2D.shader"), color(color)
+	{
+		attributesLayout.Push<float>(2);
+		attributesLayout.Push<float>(4);
+	}
+
+	GUIMaterial::GUIMaterial(const math::vec4& color)
+		:Material("GUI.shader"), color(color)
 	{
 		attributesLayout.Push<float>(2);
 		attributesLayout.Push<float>(4);

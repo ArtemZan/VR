@@ -28,15 +28,24 @@ namespace VR
 
             vec2 operator*(const mat2& matrix) const;
             vec2 operator*(float k) const;
-            inline vec2 operator+(const vec2& vec) const;
+            vec2 operator*(const vec2& vec) const;
+            inline vec2 operator/(float k) const { return { x / k, y / k }; }
+            inline vec2 operator+(const vec2& vec) const { return {x + vec.x, y + vec.y}; }
+            inline vec2 operator-(const vec2& vec) const { return {x - vec.x, y - vec.y}; }
 
             inline void operator*=(const mat2& matrix) { *this = *this * matrix; }
+            inline void operator*=(float k) { *this = *this * k; }
+            inline void operator*=(const vec2& vec) { *this = *this * vec; }
+            inline void operator/=(float k) { *this = *this / k; }
             inline void operator+=(const vec2& vec) { *this = *this + vec; }
+            inline void operator-=(const vec2& vec) { *this = *this - vec; }
 
             void normalize();
+            inline float distance(const vec2& vec) { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2)); }
         };
 
         vec2 normalize(const vec2& vec);
+        inline float distance(const vec2& v1, const vec2& v2) { return sqrt(pow(v1.x - v2.x, 2) + pow(v1.y - v2.y, 2)); }
 
         struct vec3
         {
@@ -62,10 +71,13 @@ namespace VR
 
             vec3 operator*(const mat3& matrix) const;
             vec3 operator*(float k) const;
-            inline vec3 operator+(const vec3& vec) const;
+            vec3 operator*(const vec3 vec) const;
+            vec3 operator/(float k) const;
+            inline vec3 operator+(const vec3& vec) const { return vec3(x + vec.x, y + vec.y, z + vec.z); }
             inline vec3 operator-(const vec3& vec) const { return vec3(x - vec.x, y - vec.y, z - vec.z); }
 
             inline void operator*=(const mat3& matrix) { *this = *this * matrix; }
+            inline void operator*=(const vec3& vec) { *this = *this * vec; }
             inline void operator+=(const vec3& vec) { *this = *this + vec; }
             inline void operator-=(const vec3& vec) { *this = *this - vec; }
 

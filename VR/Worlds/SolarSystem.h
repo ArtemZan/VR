@@ -1,17 +1,16 @@
 #pragma once
-#include "VR.h"
 
 using namespace VR;
 
 constexpr float G = 6.6708e-11;
 
-class TestWorld : public World
+class SolarSystem : public World
 {
 	math::mat4 proj;
 	math::mat4 view;
 	math::mat4 mvp;
 
-	_2DMaterial btnMat;
+	GUIMaterial btnMat;
 	BasicMaterial sunMat;
 	LambertMaterial planetMat;
 	std::vector<Mesh> meshes;
@@ -25,6 +24,7 @@ class TestWorld : public World
 		}
 		math::vec3 pos; // 1e6 km
 		math::vec3 v;	// 1e6 km/s
+		math::vec3 a;	// 1e6 km/s2
 		float diameter; // 1e6 km
 		float mass;		// 1e18 kg
 		Mesh mesh;
@@ -38,7 +38,7 @@ class TestWorld : public World
 	float timeWarp = 1.0;
 public:
 
-	TestWorld()
+	SolarSystem()
 		:sunMat({ 1.0, 1.0, 0.2, 0.0 })
 	{
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
@@ -81,9 +81,12 @@ public:
 
 		loader.Load("res/sphere.obj", &planetMat);
 
-		AddObject(loader.mesh, { 0.3, 0.3, 0.3, 0.0 }, { 57.9, 0.0, 0.0 }, 328'500, 4.879e-1, { 0.0, 0.0, 47.4e-6 });
-		AddObject(loader.mesh, { 0.9, 0.6, 0.4, 0.0 }, { 108.2, 0.0, 0.0 }, 4'870'000, 12.104e-1, { 0.0, 0.0, 35.0e-6 });
-		AddObject(loader.mesh, { 0.3, 0.6, 0.9, 0.0 }, { 149.6, 0.0, 0.0 }, 5'970'000, 12.756e-1, { 0.0, 0.0, 29.8e-6 });
+		//AddObject(loader.mesh, { 0.3, 0.3, 0.3, 0.0 }, { 57.9, 0.0, 0.005 }, 328'500, 4.879e-3, { 0.0, 0.0, 0.0 });
+		//AddObject(loader.mesh, { 0.3, 0.3, 0.3, 0.0 }, { 57.9, 0.0, -0.005 }, 328'500, 4.879e-3, {0.0, 0.0, 0.0 });
+		AddObject(loader.mesh, { 0.3, 0.3, 0.3, 0.0 }, { 57.9, 0.0, 0.0 }, 328'500, 4.879e-2, { 0.0, 0.0, -47.4e-6 });
+		AddObject(loader.mesh, { 0.9, 0.6, 0.4, 0.0 }, { 108.2, 0.0, 0.0 }, 4'870'000, 12.104e-2, { 0.0, 0.0, -35.0e-6 });
+		AddObject(loader.mesh, { 0.3, 0.6, 0.9, 0.0 }, { 149.6, 0.0, 0.0 }, 5'970'000, 12.756e-2, { 0.0, 0.0, -29.8e-6 });
+		AddObject(loader.mesh, { 0.3, 0.3, 0.3, 0.0 }, { 149.6f, (float)sin(5.0 / 180.0 * 3.14) * 0.362f, -(float)cos(5.0 / 180.0 * 3.14) * 0.362f }, 73'420.0f, 1.737e-2, { -1.082e-6f, 0.0f, -29.8e-6f });
 
 		/*planets.push_back(loader.mesh);
 		planetMat.color = ;
@@ -118,7 +121,7 @@ public:
 		planetMat.shader->SetUniform("diffuseLight.color", 1.0, 1.0, 0.8);
 	}
 
-	~TestWorld()
+	~SolarSystem()
 	{
 	}
 
@@ -126,7 +129,7 @@ public:
 	{
 		glfwSetWindowUserPointer(Context::Get()->window, this);
 		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mods) {
-			TestWorld* w = (TestWorld*)glfwGetWindowUserPointer(window);
+			SolarSystem* w = (SolarSystem*)glfwGetWindowUserPointer(window);
 
 			double mX, mY;
 			glfwGetCursorPos(window, &mX, &mY);
@@ -149,7 +152,7 @@ public:
 			}
 			});
 		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
-			TestWorld* w = (TestWorld*)glfwGetWindowUserPointer(window);
+			SolarSystem* w = (SolarSystem*)glfwGetWindowUserPointer(window);
 			w->OnResize(width, height);
 			});
 	}
@@ -158,7 +161,6 @@ public:
 	{
 		Input(dTime);
 
-		dTime *= timeWarp;
 
 		planetMat.shader->Bind();
 		planetMat.shader->SetUniform("diffuseLight.position", 0.0, 0.0, 0.0);
@@ -171,20 +173,30 @@ public:
 
 		for (int i = 0; i < objects.size(); i++)
 		{
+			math::vec3 dPos;
 			Object& object = objects[i];
-			object.mesh.Move(object.v * dTime * 1e-3 * 1e3);
-			object.pos += object.v * dTime * 1e-3;
 			math::vec3 a;
-			for (int j = 0; j < objects.size(); j++)
+			for (int t = 0; t < timeWarp; t++)
 			{
-				if (i == j) continue;
-				math::vec3 d = objects[j].pos - object.pos;
-				a += normalize(d) * (objects[j].mass * 1e18 * G / (d.x * d.x + d.y * d.y + d.z * d.z) / 1e18);
-				if (abs(d.x) < 1e-5) a.x = 0;
-				if (abs(d.y) < 1e-5) a.y = 0;
-				if (abs(d.z) < 1e-5) a.z = 0;
+				for (int j = 0; j < objects.size(); j++)
+				{
+					if (i == j) continue;
+					math::vec3 d = objects[j].pos - object.pos;
+
+					float r2 = d.x * d.x + d.y * d.y + d.z * d.z;
+					if (r2 > 1e-6)
+						a = normalize(d) * (objects[j].mass * 1e18 * G / r2 / 1e18);
+					else
+						a = object.a;
+				}
+				a *= 1e-9; // 1e6 km
+				//a = {(float)sin(glfwGetTime()), 0.0, 0.0};
+				object.pos += (((a + object.a) / 6.0 + object.a / 2.0f) * dTime / 1000.0 + object.v) * dTime / 1000.0;
+				dPos += (((a + object.a) / 6.0 + object.a / 2.0f) * dTime / 1000.0 + object.v) * dTime / 1000.0;
+				object.v += ((a - object.a) / 2.0 + object.a) * dTime / 1000.0;
+				object.a = a;
 			}
-			object.v += a * 1e-9 * dTime * 1e-3;
+			object.mesh.Move(dPos * 1e3/*to simulation units*/);
 		}
 
 		Render();
@@ -250,12 +262,12 @@ public:
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_UP) == GLFW_PRESS)
 		{
-			camera.Move({ 0.0, 0.005f * dTime, 0.0 });
+			camera.Move({ 0.0, 0.05f * dTime, 0.0 });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		{
-			camera.Move({ 0.0, -0.005f * dTime, 0.0 });
+			camera.Move({ 0.0, -0.05f * dTime, 0.0 });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_M) == GLFW_PRESS 
@@ -281,12 +293,12 @@ public:
 		
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_EQUAL) == GLFW_PRESS)
 		{
-			timeWarp *= 1.1;
+			timeWarp *= 2.0;
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_MINUS) == GLFW_PRESS)
 		{
-			timeWarp /= 1.1;
+			timeWarp /= 2.0;
 		}
 	}
 

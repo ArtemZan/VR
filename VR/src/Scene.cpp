@@ -9,46 +9,79 @@ namespace VR
 
 	}
 
+	void Scene::AddBox(math::vec2 size, Material* material, Mesh* mesh)
+	{
+		if (material->GetTypeID() == MATERIAL_TYPE::_2D || material->GetTypeID() == MATERIAL_TYPE::GUI)
+		{
+			float x = size.x / 2;
+			float y = size.y / 2;
+
+			float vertices[] =
+			{
+				 x, -y,
+				-x, -y,
+				 x,  y,
+				-x,  y,
+			};
+
+			uint32_t indices[]
+			{
+				2, 1, 0,
+				1, 2, 3
+			};
+
+			Geometry geo({ (uint8_t*)vertices, sizeof(vertices), indices, 6 });
+
+			mesh->material = material;
+			mesh->geometry = geo;
+
+			Add(mesh);
+		}
+	}
+
 	void Scene::AddBox(math::vec3 size, Material* material, Mesh* mesh)
 	{
-		float x = size.x / 2;
-		float y = size.y / 2;
-		float z = size.z / 2;
-
-		float vertices[] =
+		if (material->GetTypeID() != MATERIAL_TYPE::_2D && material->GetTypeID() != MATERIAL_TYPE::GUI)
 		{
-			 x, -y, -z,
-			-x, -y, -z,
-			 x,  y, -z,
-			-x,  y, -z,
+			float x = size.x / 2;
+			float y = size.y / 2;
+			float z = size.z / 2;
 
-			 x, -y,  z,
-			-x, -y,  z,
-			 x,  y,  z,
-			-x,  y,  z,
-		};
+			float vertices[] =
+			{
+				 x, -y, -z,
+				-x, -y, -z,
+				 x,  y, -z,
+				-x,  y, -z,
 
-		uint32_t indices[]
-		{
-			0, 1, 2, 2, 1, 3,
+				 x, -y,  z,
+				-x, -y,  z,
+				 x,  y,  z,
+				-x,  y,  z,
+			};
 
-			5, 4, 6, 6, 7, 5,
+			uint32_t indices[]
+			{
+				0, 1, 2, 2, 1, 3,
 
-			2, 3, 6, 7, 6, 3,
+				5, 4, 6, 6, 7, 5,
 
-			1, 5, 3, 7, 3, 5,
+				2, 3, 6, 7, 6, 3,
 
-			4, 1, 0, 1, 4, 5,
+				1, 5, 3, 7, 3, 5,
 
-			0, 2, 4, 4, 2, 6
-		};
+				4, 1, 0, 1, 4, 5,
 
-		Geometry geo({ (uint8_t*)vertices, sizeof(vertices), indices, 36 });
+				0, 2, 4, 4, 2, 6
+			};
 
-		mesh->material = material;
-		mesh->geometry = geo;
+			Geometry geo({ (uint8_t*)vertices, sizeof(vertices), indices, 36 });
 
-		Add(mesh);
+			mesh->material = material;
+			mesh->geometry = geo;
+
+			Add(mesh);
+		}
 	}
 
 	void Scene::Add(Mesh* mesh)
@@ -113,7 +146,8 @@ namespace VR
 
 		if (mesh.material->GetTypeID() == MATERIAL_TYPE::BASIC
 			|| mesh.material->GetTypeID() == MATERIAL_TYPE::LAMBERT
-			|| mesh.material->GetTypeID() == MATERIAL_TYPE::_2D)
+			|| mesh.material->GetTypeID() == MATERIAL_TYPE::_2D
+			|| mesh.material->GetTypeID() == MATERIAL_TYPE::GUI)
 		{
 
 			math::vec4 color;
@@ -122,6 +156,7 @@ namespace VR
 			case MATERIAL_TYPE::BASIC: color = ((BasicMaterial*)mesh.material)->color; break;
 			case MATERIAL_TYPE::LAMBERT: color = ((LambertMaterial*)mesh.material)->color; break;
 			case MATERIAL_TYPE::_2D: color = ((_2DMaterial*)mesh.material)->color; break;
+			case MATERIAL_TYPE::GUI: color = ((GUIMaterial*)mesh.material)->color; break;
 			}
 
 			prev_place = vertices.data();
@@ -168,8 +203,11 @@ namespace VR
 	{
 	}
 
-	void Mesh::Move(math::vec3 bias)
+	void Mesh::Move(const math::vec3& bias)
 	{
+		if (material->GetTypeID() == MATERIAL_TYPE::_2D || material->GetTypeID() == MATERIAL_TYPE::GUI)
+			return;
+
 		int vert_size = material->attributesLayout.GetStride();
 		int vert_count = geometry.vertices_size / vert_size;
 		for (int i = 0; i < vert_count; i++)
@@ -180,7 +218,21 @@ namespace VR
 		}
 	}
 
-	void Mesh::Rotate(math::vec3 axis, math::vec3 center, float angle)
+	void Mesh::Move(const math::vec2& bias)
+	{
+		if (material->GetTypeID() != MATERIAL_TYPE::_2D && material->GetTypeID() != MATERIAL_TYPE::GUI)
+			return;
+
+		int vert_size = material->attributesLayout.GetStride();
+		int vert_count = geometry.vertices_size / vert_size;
+		for (int i = 0; i < vert_count; i++)
+		{
+			((float*)(geometry.vertices + i * vert_size))[0] += bias.x;
+			((float*)(geometry.vertices + i * vert_size))[1] += bias.y;
+		}
+	}
+
+	void Mesh::Rotate(const math::vec3& axis, const math::vec3& center, float angle)
 	{
 		math::mat3 m = math::rotate(axis, angle);
 
@@ -203,6 +255,25 @@ namespace VR
 		}
 	}
 
+	void Mesh::Rotate(const math::vec2& center, float angle)
+	{
+		//TO DO
+		math::mat2 m;
+
+		int vert_size = material->attributesLayout.GetStride();
+		int vert_count = geometry.vertices_size / vert_size;
+		for (int i = 0; i < vert_count; i++)
+		{
+			float* vertex = ((float*)(geometry.vertices + i * vert_size));
+			math::vec2 v(vertex[0], vertex[1]);
+			v -= center;
+			v *= m;
+			v += center;
+			vertex[0] = v.x;
+			vertex[1] = v.y;
+		}
+	}
+
 	void Mesh::Scale(const math::vec3& scale, const math::vec3& center)
 	{
 		int vert_size = material->attributesLayout.GetStride();
@@ -210,17 +281,26 @@ namespace VR
 		for (int i = 0; i < vert_count; i++)
 		{
 			math::vec3& pos = *(math::vec3*)(geometry.vertices + i * vert_size);
-			pos.x -= center.x;
-			pos.y -= center.y;
-			pos.z -= center.z;
+			pos -= center;
 
-			pos.x *= scale.x;
-			pos.y *= scale.y;
-			pos.z *= scale.z;
+			pos *= scale;
 
-			pos.x += center.x;
-			pos.y += center.y;
-			pos.z += center.z;
+			pos += center;
+		}
+	}
+
+	void Mesh::Scale(const math::vec2& scale, const math::vec2& center)
+	{
+		int vert_size = material->attributesLayout.GetStride();
+		int vert_count = geometry.vertices_size / vert_size;
+		for (int i = 0; i < vert_count; i++)
+		{
+			math::vec2& pos = *(math::vec2*)(geometry.vertices + i * vert_size);
+			pos -= center;
+
+			pos *= scale;
+
+			pos += center;
 		}
 	}
 }

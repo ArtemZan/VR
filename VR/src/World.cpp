@@ -61,5 +61,8 @@ void VR::World::Update()
 
 	glfwPollEvents();
 
+	if (glfwWindowShouldClose(Context::Get()->window))
+		Detach();
+
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }

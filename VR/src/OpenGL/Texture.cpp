@@ -17,7 +17,6 @@ namespace VR
 				_filepath = std::string("res\\Textures\\") + filepath;
 			file.close();
 
-			//Stbi library allows us to read image files
 			unsigned char* buffer = stbi_load(_filepath.c_str(), &m_width, &m_height, &m_BPP, 4);
 
 			if (buffer == nullptr)
@@ -25,10 +24,8 @@ namespace VR
 				std::cout << "Couldn't load texture \"" << filepath << "\"\n";
 			}
 
-			//Creates new GL texture
 			GLCall(glGenTextures(1, &m_glID));
 
-			//Tells GL to use this texture and apply parameters to it
 			GLCall(glBindTexture(GL_TEXTURE_2D, m_glID));
 
 			//Set some parameters
@@ -63,7 +60,7 @@ namespace VR
 			//Sets source and some properties
 			GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, src));
 
-			//Unbind texture (not compVRory but why not)
+			//Unbind texture (not compulsory but why not)
 			GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 		}
 

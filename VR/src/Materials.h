@@ -4,7 +4,10 @@ namespace VR
 {
 	enum class MATERIAL_TYPE
 	{
-		BASIC, LAMBERT, _2D
+		BASIC, 
+		LAMBERT, 
+		_2D, 
+		GUI
 	};
 
 	struct Material
@@ -19,7 +22,7 @@ namespace VR
 
 		gl::Shader* shader;
 		gl::AttribLayout attributesLayout;
-
+		
 	private:
 		static std::map<const char*, gl::Shader> shaders;
 	};
@@ -49,6 +52,16 @@ namespace VR
 		_2DMaterial(const math::vec4& color = { 1.0, 1.0, 1.0, 1.0 });
 
 		inline MATERIAL_TYPE GetTypeID() const override { return MATERIAL_TYPE::_2D; }
+		inline int GetColorOffset() const override { return 8; }
+
+		math::vec4 color;
+	};
+
+	struct GUIMaterial : public Material
+	{
+		GUIMaterial(const math::vec4& color = { 1.0, 1.0, 1.0, 1.0 });
+
+		inline MATERIAL_TYPE GetTypeID() const override { return MATERIAL_TYPE::GUI; }
 		inline int GetColorOffset() const override { return 8; }
 
 		math::vec4 color;
