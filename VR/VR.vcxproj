@@ -188,6 +188,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\General\Timer.h" />
+    <ClInclude Include="Worlds\Gravitation.h" />
     <ClInclude Include="Worlds\Labyrinth.h" />
     <ClInclude Include="Worlds\Navigation.h" />
     <ClInclude Include="Worlds\Pendulum.h" />

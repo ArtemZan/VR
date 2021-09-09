@@ -67,6 +67,19 @@ namespace VR
 			y /= l;
 		}
 
+		float vec2::cos(const vec2& vec) const
+		{
+			float l = magnitude();
+			if (l < 1e-9)
+				return -1;
+
+			float l1 = vec.magnitude();
+			if (l1 < 1e-9)
+				return -1;
+
+			return dot(vec) / magnitude() / vec.magnitude();
+		}
+
 		vec2 normalize(const vec2& vec)
 		{
 			vec2 res = vec;

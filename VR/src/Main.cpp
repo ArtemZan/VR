@@ -4,6 +4,7 @@
 #include "Worlds/Pendulum.h"
 #include "Worlds/Labyrinth.h"
 #include "Worlds/Navigation.h"
+#include "Worlds/Gravitation.h"
 
 using namespace VR;
 
@@ -18,6 +19,8 @@ int main()
 		TestWorld1 testWorld1;
 		Pendulum pendulum;
 		Labyrinth labyrinth;
+		Gravitation gravitation;
+		
 		nav.Run();
 
 		int& link = nav.link;
@@ -40,6 +43,9 @@ int main()
 				break;
 			case 3:
 				labyrinth.Run();
+				break;
+			case 4:
+				gravitation.Run();
 				break;
 			default: world_found = false;
 			}

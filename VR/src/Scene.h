@@ -15,6 +15,7 @@ namespace VR
 	{
 		Mesh() = default;
 		Mesh(Material* material, const Geometry& geometry);
+		Mesh(Material* material);
 
 		void Move(const math::vec3& bias);
 		void Move(const math::vec2& bias);
@@ -38,7 +39,7 @@ namespace VR
 
 			//Returns size of added vertices
 			size_t Add(const Mesh& mesh);
-			void Add(Mesh* mesh);
+			size_t Add(Mesh* mesh);
 
 			std::vector<uint8_t> vertices;
 			std::vector<uint32_t> indices;
@@ -52,12 +53,12 @@ namespace VR
 			std::vector<Mesh*> meshes;
 
 		private:
-			uint8_t* prev_place;
+			uint8_t* prev_vert_location;
 		};
 
 		Scene();
 
-		void AddBox(math::vec2 size, Material* material, Mesh* mesh);
+		void AddBox(math::vec2 size, Material* material, Mesh* mesh_buffer);
 		void AddBox(math::vec3 size, Material* material, Mesh* mesh_buffer);
 
 		std::vector<Batch> batches;

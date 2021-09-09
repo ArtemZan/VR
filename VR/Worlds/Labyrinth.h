@@ -49,18 +49,18 @@ public:
 	void OnAttach() override
 	{
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
 		glDisable(GL_DEPTH_TEST);
 
 		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
 		guiMat.color = {0.6, 0.5, 0.2, 0.5};
-		scene.AddBox({ 0.3f, 0.3 }, &guiMat, &box.mesh);
+		m_scene.AddBox({ 0.3f, 0.3 }, &guiMat, &box.mesh);
 		box.size = {0.3, 0.3};
 		box.Scale({float(wHeight) / wWidth, 1.0});
 		box.Move({1.f - 0.3f * float(wHeight) / wWidth / 2.0f, 0.85f});
 
 		guiMat.color = { 0.0, 1.0, 0.0, 0.5 };
-		scene.AddBox({ 0.15f, 0.1f }, &guiMat, &solve.mesh);
+		m_scene.AddBox({ 0.15f, 0.1f }, &guiMat, &solve.mesh);
 		solve.MoveTo({ 0.0, 0.95 });
 
 		OnResize(wWidth, wHeight);
@@ -244,7 +244,7 @@ public:
 			{
 				move_box = true;
 				boxes.emplace_back();
-				scene.AddBox({ 0.3, 0.3 }, &material, &boxes.back().mesh);
+				m_scene.AddBox({ 0.3, 0.3 }, &material, &boxes.back().mesh);
 				boxes.back().size = { 0.3, 0.3 };
 
 				/*if (boxes.size() == 1)
@@ -322,6 +322,10 @@ public:
 							bool below = false;
 							for (int ov = 0; ov < 4; ov++)
 							{
+								//float min = math::dot(graph[from * 4 + v0].pos - math::vec2(0.0, b), graph[obst * 4 + ov].pos);
+								//float max = math::dot(graph[to * 4 + v1].pos - math::vec2(0.0, b), graph[obst * 4 + ov].pos)
+								//if(math::normalize(graph[obst * 4 + ov].pos).)
+
 								if ((from == obst && ov == v0) || (to == obst && ov == v1))
 									continue;
 								if (a * graph[obst * 4 + ov].pos.x + b > graph[obst * 4 + ov].pos.y)
@@ -370,7 +374,7 @@ public:
 				{
 					path.emplace_back();
 
-					scene.AddBox({ 0.0, 0.0 }, &material, &path.back().mesh);
+					m_scene.AddBox({ 0.0, 0.0 }, &material, &path.back().mesh);
 
 					float* vert = (float*)path.back().mesh.geometry.vertices;
 					int fpv = path.back().mesh.material->attributesLayout.GetStride() / sizeof(float);

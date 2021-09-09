@@ -6,7 +6,7 @@ using namespace VR;
 class Navigation : public World
 {
 	GUIMaterial btnMat;
-	std::vector<Mesh> meshes;
+	std::list<Mesh> meshes;
 
 	struct Button
 	{
@@ -25,15 +25,21 @@ public:
 	int link = -1;
 
 	Navigation()
-		:btnMat({0.0, 1.0, 0.0, 0.0})
 	{
+		btnMat.color = { 0.0, 1.0, 0.0, 0.0 };
 		AddButton({ 0.1, 0.1 }, { -0.9, 0.9 }, &btnMat);
+
 		btnMat.color = {0.2, 0.8, 0.0, 0.0};
 		AddButton({ 0.1, 0.1 }, { -0.7, 0.9 }, &btnMat);
+
 		btnMat.color = { 0.4, 0.6, 0.0, 0.0 };
 		AddButton({ 0.1, 0.1 }, { -0.5, 0.9 }, &btnMat);
+
 		btnMat.color = { 0.6, 0.4, 0.0, 0.0 };
 		AddButton({ 0.1, 0.1 }, { -0.3, 0.9 }, &btnMat);
+
+		btnMat.color = { 0.8, 0.2, 0.0, 0.0 };
+		AddButton({ 0.1, 0.1 }, { -0.1, 0.9 }, &btnMat);
 	}
 
 	~Navigation()
@@ -80,7 +86,6 @@ public:
 
 	void OnResize(int width, int height)
 	{
-		//proj = math::perspective(1.f, float(wWidth) / wHeight, 0.0, 1000.0f);
 		glViewport(0, 0, width, height);
 		Render();
 	}
@@ -92,37 +97,16 @@ public:
 
 	void AddButton(const math::vec2& size, const math::vec2& pos, Material* material)
 	{
-		float vert[]
-		{
-			pos.x, pos.y,
-			pos.x, pos.y + size.y,
-			pos.x + size.x, pos.y,
-			pos.x + size.x, pos.y + size.y,
-		};
-
-		uint32_t indices[]
-		{
-			2, 1, 0,
-			1, 2, 3
-		};
-
-		Geometry geo;
-		geo.indices = indices;
-		geo.indices_count = 6;
-		geo.vertices = (uint8_t*)vert;
-		geo.vertices_size = sizeof(vert);
-
-		meshes.emplace_back(material, geo);
-
+		meshes.emplace_back(material);
 		buttons.emplace_back(pos, size);
 
-		scene.Add(&meshes.back());
+		m_scene.AddBox(size, material, &meshes.back());
+		meshes.back().Move(pos + size / 2.0f);
 	}
 
 	void OnDetach()
 	{
 		Detach();
-		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow*, int, int) {});
 	}
 };
 

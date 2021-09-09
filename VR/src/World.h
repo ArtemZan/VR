@@ -58,10 +58,15 @@ namespace VR
 		}
 	};
 
+
 	class World
 	{
 	public:
 		void Run();
+
+		static World* currentWorld;
+
+		void WindowResized(int width, int height);
 
 	protected:
 		World();
@@ -74,19 +79,29 @@ namespace VR
 
 		void Render();
 
-		inline void Detach() { m_attached = false; }
+		void Detach();
 
 		virtual void OnUpdate(float dTime) = 0;
-		virtual void OnAttach() {};
+		virtual void OnPhysicsUpdate(float dTime) {};
+		virtual void OnAttach() {}
+		virtual void OnWindowResize() {}
 
-		Scene scene;
-		Camera camera;
+		Scene m_scene;
+		Camera m_camera;
+
+		float m_wWidth;
+		float m_wHeight;
 
 	private:
 		void Update();
-
 		bool m_attached = false;
+		
 		Timer m_timer;
+		Timer m_fixedTimer;
+		
 		math::vec4 m_clearColor;
+
+		std::thread physicsUpdate;
+		std::mutex physicsUpdateMutex;
 	};
 }

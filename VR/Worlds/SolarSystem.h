@@ -45,8 +45,8 @@ public:
 
 		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.0, 1000.0f);
 
-		camera.SetPosition(math::vec3(0.0, 0.0, 5));
-		camera.SetRotation(math::vec3(0.0, 0.0, -1.0));
+		m_camera.SetPosition(math::vec3(0.0, 0.0, 5));
+		m_camera.SetRotation(math::vec3(0.0, 0.0, -1.0));
 
 		uint32_t btn_indices[]
 		{
@@ -69,14 +69,14 @@ public:
 		geo.vertices_size = sizeof(btn_vert);
 
 		Mesh button(&btnMat, geo);
-		scene.Add(button);
+		m_scene.Add(button);
 
 		objects.reserve(5);
 
 		MeshLoader loader;
 		loader.Load("res/sphere.obj", &sunMat);
 		objects.emplace_back(math::vec3(0.0, 0.0, 0.0), math::vec3(0.0, 0.0, 0.0), 0.695 * 2, 1'988'500e6, loader.mesh);
-		scene.Add(&objects.back().mesh);
+		m_scene.Add(&objects.back().mesh);
 		objects.back().mesh.Scale(math::vec3( 1.0, 1.0, 1.0 ) * 0.695f * 1e3, {0.0, 0.0, 0.0});
 
 		loader.Load("res/sphere.obj", &planetMat);
@@ -165,7 +165,7 @@ public:
 		planetMat.shader->Bind();
 		planetMat.shader->SetUniform("diffuseLight.position", 0.0, 0.0, 0.0);
 
-		mvp = proj * camera.view;
+		mvp = proj * m_camera.view;
 		sunMat.shader->Bind();
 		sunMat.shader->SetUniform("mvp", mvp);
 		planetMat.shader->Bind();
@@ -231,64 +231,64 @@ public:
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			camera.Move({ camera.dir.x * dTime * 1e-3f * speed, 0.0, camera.dir.z * dTime * 1e-3f * speed });
+			m_camera.Move({ m_camera.dir.x * dTime * 1e-3f * speed, 0.0, m_camera.dir.z * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			camera.Move({ -camera.dir.x * dTime * 1e-3f * speed, 0.0, -camera.dir.z * dTime * 1e-3f * speed });
+			m_camera.Move({ -m_camera.dir.x * dTime * 1e-3f * speed, 0.0, -m_camera.dir.z * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			camera.Move({ camera.dir.z * dTime * 1e-3f * speed, 0.0, -camera.dir.x * dTime * 1e-3f * speed });
+			m_camera.Move({ m_camera.dir.z * dTime * 1e-3f * speed, 0.0, -m_camera.dir.x * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			camera.Move({ -camera.dir.z * dTime * 1e-3f * speed, 0.0, camera.dir.x * dTime * 1e-3f * speed });
+			m_camera.Move({ -m_camera.dir.z * dTime * 1e-3f * speed, 0.0, m_camera.dir.x * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			camera.Rotate({ 0.0, 1.0, 0.0 }, 0.003 * dTime);
+			m_camera.Rotate({ 0.0, 1.0, 0.0 }, 0.003 * dTime);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
 			float k = -0.003 * dTime;
-			camera.Rotate({ 0.0, 1.0, 0.0 }, k);
+			m_camera.Rotate({ 0.0, 1.0, 0.0 }, k);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_UP) == GLFW_PRESS)
 		{
-			camera.Move({ 0.0, 0.05f * dTime, 0.0 });
+			m_camera.Move({ 0.0, 0.05f * dTime, 0.0 });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		{
-			camera.Move({ 0.0, -0.05f * dTime, 0.0 });
+			m_camera.Move({ 0.0, -0.05f * dTime, 0.0 });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_M) == GLFW_PRESS 
 			&& (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS
 			|| glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS))
 		{
-			camera.SetPosition(objects[1].pos * 1e3);
+			m_camera.SetPosition(objects[1].pos * 1e3);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_V) == GLFW_PRESS 
 			&& (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS
 			|| glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS))
 		{
-			camera.SetPosition(objects[2].pos * 1e3);
+			m_camera.SetPosition(objects[2].pos * 1e3);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_E) == GLFW_PRESS 
 			&& (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS
 			|| glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS))
 		{
-			camera.SetPosition(objects[3].pos * 1e3);
+			m_camera.SetPosition(objects[3].pos * 1e3);
 		}
 		
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_EQUAL) == GLFW_PRESS)
@@ -306,7 +306,7 @@ public:
 	{
 		objects.emplace_back(position, velocity, diameter, mass, mesh);
 		planetMat.color = color;
-		scene.Add(&objects.back().mesh);
+		m_scene.Add(&objects.back().mesh);
 		objects.back().mesh.Scale(math::vec3(1.0, 1.0, 1.0) * diameter * 0.5 * 1e3, { 0.0, 0.0, 0.0 });
 		objects.back().mesh.Move(position * 1e3);
 	}

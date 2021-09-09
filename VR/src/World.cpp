@@ -1,68 +1,105 @@
 #include "pch.h"
 #include "VR.h"
 
-VR::World::World()
+namespace VR
 {
-}
+	World* World::currentWorld;
 
-void VR::World::Run()
-{
-	GLCall(glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a));
-
-	OnAttach();
-
-	m_attached = true;
-
-	while (m_attached)
+	void World::WindowResized(int width, int height)
 	{
-		Update();
+		glViewport(0, 0, width, height);
+		m_wWidth = width;
+		m_wHeight = height;
+		OnWindowResize();
 	}
-}
 
-void VR::World::Render()
-{
-	GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-	for (const Scene::Batch& batch : scene.batches)
+	World::World()
 	{
-		/*
-			struct Vert
+		int width, height;
+		glfwGetWindowSize(Context::Get()->window, &width, &height);
+		m_wWidth = width;
+		m_wHeight = height;
+	}
+
+	void World::Run()
+	{
+		currentWorld = this;
+
+		GLCall(glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a));
+
+
+		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mode) {});
+
+		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
+			World::currentWorld->WindowResized(width, height);
+			});
+
+		OnAttach();
+
+		m_attached = true;
+
+		m_timer.Update();
+		m_fixedTimer.Update();
+
+		physicsUpdate = std::thread([this]() {
+			while (m_attached)
 			{
-				math::vec3 p;
-				math::vec4 c;
-				math::vec3 n;
-			};
-			Vert vert[24];
-			memcpy(vert, batch.vertices.data(), 960);
-		*/
-		/*struct Vert
-		{
-			math::vec2 p;
-			math::vec4 c;
-		};
-		Vert vert[8];
-		memcpy(vert, batch.vertices.data(), 192);*/
+				OnPhysicsUpdate(m_fixedTimer.Update());
+			}
+		});
 
-		batch.shader->Bind();
-		batch.vb.Bind();
-		batch.vb.Data(batch.vertices.size(), batch.vertices.data());
-		batch.va.Bind();
-		batch.va.AddBuffer(batch.attribLayout);
-		GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
+		while (m_attached)
+		{
+			Update();
+		}
 	}
 
-	glfwSwapBuffers(Context::Get()->window);
+	void World::Render()
+	{
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-}
+		for (const Scene::Batch& batch : m_scene.batches)
+		{
+			batch.shader->Bind();
 
-void VR::World::Update()
-{
-	OnUpdate(m_timer.Update());
+			batch.vb.Bind();
+			batch.vb.Data(batch.vertices.size(), batch.vertices.data());
+			/*for (int i = 0; i < batch.vertices.size(); i+=4)
+			{
+				std::cout << *(float*)(&batch.vertices[i]) << std::endl;
+			}*/
+			batch.va.Bind();
+			batch.va.AddBuffer(batch.attribLayout);
+			GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
+		}
 
-	glfwPollEvents();
+		glfwSwapBuffers(Context::Get()->window);
 
-	if (glfwWindowShouldClose(Context::Get()->window))
-		Detach();
+	}
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	void World::Detach()
+	{
+		m_attached = false;
+
+		if(physicsUpdate.joinable())
+			physicsUpdate.join();
+	}
+
+	void World::Update()
+	{
+		float dt = m_timer.Update();
+
+		OnUpdate(dt);
+
+		glfwPollEvents();
+
+		if (glfwWindowShouldClose(Context::Get()->window))
+			Detach();
+
+		std::this_thread::sleep_for(std::chrono::microseconds(1'000'000 / 60'000 - int(dt * 1000)));
+		if (dt > 1'000.0 / 60.0)
+		{
+			std::cout << "FPS: " << 1000.0 / dt << std::endl;
+		}
+	}
 }

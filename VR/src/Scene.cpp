@@ -125,30 +125,31 @@ namespace VR
 	Scene::Batch::Batch(const Batch& batch)
 		:materialType(batch.materialType), attribLayout(batch.attribLayout), shader(batch.shader), vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb), meshes(batch.meshes)
 	{
-		for (int i = 0; i < meshes.size(); i++)
+		for (Mesh* m : meshes)
 		{
-			meshes[i]->geometry.vertices = meshes[i]->geometry.vertices - batch.vertices.data() + vertices.data();
+			m->geometry.vertices = m->geometry.vertices - batch.vertices.data() + vertices.data();
 		}
 	}
 
+	//returns size of added vertices
 	size_t Scene::Batch::Add(const Mesh& mesh)
 	{
-		indices.reserve(indices.size() + mesh.geometry.indices_count);
-		for (int i = 0; i < mesh.geometry.indices_count; i++)
-		{
-			indices.push_back(mesh.geometry.indices[i] + vertices.size() / attribLayout.GetStride());
-		}
-			
-		int vert_size = mesh.material->attributesLayout.GetStride();
-		int vert_count = mesh.geometry.vertices_size / (vert_size - sizeof(math::vec4));
-		int color_offset = mesh.material->GetColorOffset();
-		int new_vert_size = vert_count * vert_size;
-
 		if (mesh.material->GetTypeID() == MATERIAL_TYPE::BASIC
 			|| mesh.material->GetTypeID() == MATERIAL_TYPE::LAMBERT
 			|| mesh.material->GetTypeID() == MATERIAL_TYPE::_2D
 			|| mesh.material->GetTypeID() == MATERIAL_TYPE::GUI)
 		{
+			indices.reserve(indices.size() + mesh.geometry.indices_count);
+
+			for (int i = 0; i < mesh.geometry.indices_count; i++)
+			{
+				indices.push_back(mesh.geometry.indices[i] + vertices.size() / attribLayout.GetStride());
+			}
+
+			int vert_size = mesh.material->attributesLayout.GetStride();
+			int vert_count = mesh.geometry.vertices_size / (vert_size - sizeof(math::vec4));
+			int color_offset = mesh.material->GetColorOffset();
+			int new_vert_size = vert_count * vert_size;
 
 			math::vec4 color;
 			switch (mesh.material->GetTypeID())
@@ -159,7 +160,7 @@ namespace VR
 			case MATERIAL_TYPE::GUI: color = ((GUIMaterial*)mesh.material)->color; break;
 			}
 
-			prev_place = vertices.data();
+			prev_vert_location = vertices.data();
 			vertices.resize(vertices.size() + new_vert_size);
 			uint8_t* vert_buffer = vertices.data() + vertices.size() - new_vert_size;
 
@@ -168,27 +169,42 @@ namespace VR
 				memcpy(vert_buffer + i * vert_size, mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)), color_offset);
 				memcpy(vert_buffer + i * vert_size + color_offset, &color, sizeof(math::vec4));
 
-				if(color_offset + sizeof(math::vec4) < vert_size)
+				if (color_offset + sizeof(math::vec4) < vert_size)
 					memcpy(vert_buffer + i * vert_size + color_offset + sizeof(math::vec4), mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)) + color_offset, vert_size - color_offset - sizeof(math::vec4));
 			}
-		}
-		vb.Resize(vertices.size());
-		va.AddBuffer(attribLayout);
 
-		return new_vert_size;
+			std::vector<float> testV;
+			for (int i = 0; i < vertices.size(); i+=4)
+			{
+				testV.push_back(*(float*)(&vertices[i]));
+			}
+
+			vb.Resize(vertices.size());
+			va.AddBuffer(attribLayout);
+
+			for (Mesh* m : meshes)
+			{
+				m->geometry.vertices = m->geometry.vertices - prev_vert_location + vertices.data();
+			}
+
+			return new_vert_size;
+		}
+
+		return 0;
 	}
 
-	void Scene::Batch::Add(Mesh* mesh)
+	//returns size of added vertices
+	size_t Scene::Batch::Add(Mesh* mesh)
 	{
 		size_t added = Add(*mesh);
-		for (Mesh* m : meshes)
-		{
-			m->geometry.vertices = m->geometry.vertices - prev_place + vertices.data();
-		}
+
 		meshes.push_back(mesh);
+
 		mesh->geometry.indices = indices.data() + indices.size() - mesh->geometry.indices_count;
 		mesh->geometry.vertices = vertices.data() + vertices.size() - added;
 		mesh->geometry.vertices_size = added;
+
+		return added;
 	}
 
 	Scene::Batch::~Batch()
@@ -200,6 +216,11 @@ namespace VR
 
 	Mesh::Mesh(Material* material, const Geometry& geometry)
 		:material(material), geometry(geometry)
+	{
+	}
+
+	Mesh::Mesh(Material* material)
+		:material(material)
 	{
 	}
 

@@ -41,11 +41,16 @@ namespace VR
             inline void operator-=(const vec2& vec) { *this = *this - vec; }
 
             void normalize();
-            inline float distance(const vec2& vec) { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2)); }
+            inline float distance(const vec2& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2)); }
+            inline float magnitude() const { return distance({ 0.0, 0.0 }); }
+            inline float dot(const vec2& vec) const { return x * vec.x + y * vec.y; }
+            float cos(const vec2& vec) const;
         };
 
         vec2 normalize(const vec2& vec);
-        inline float distance(const vec2& v1, const vec2& v2) { return sqrt(pow(v1.x - v2.x, 2) + pow(v1.y - v2.y, 2)); }
+        inline float distance(const vec2& v1, const vec2& v2) { return v1.distance(v2); }
+        inline float magnitude(const vec2& vec) { return vec.distance({ 0.0, 0.0 }); }
+        inline float dot(const vec2& v1, const vec2& v2) { return v1.x * v2.x + v1.y * v2.y; }
 
         struct vec3
         {
@@ -82,9 +87,13 @@ namespace VR
             inline void operator-=(const vec3& vec) { *this = *this - vec; }
 
             void normalize();
+            inline float distance(const vec3& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2) + pow(z - vec.z, 2)); }
+            inline float magnitude() const { return distance({ 0.0, 0.0, 0.0 }); }
         };
 
         vec3 normalize(const vec3& vec);
+        inline float distance(const vec3& v1, const vec3& v2) { return v1.distance(v2); }
+        inline float magnitude(const vec3& vec) { return vec.distance({ 0.0, 0.0, 0.0 }); }
 
 
         struct vec4
