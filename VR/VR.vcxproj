@@ -97,7 +97,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(ProjectDir);$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -117,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(ProjectDir);$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -137,7 +137,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(ProjectDir);$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -157,7 +157,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(ProjectDir);$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -172,9 +172,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Rendering\Renderer.h" />
+    <ClInclude Include="src\Materials.h" />
+    <ClInclude Include="src\MeshLoader.h" />
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Context.h" />
+    <ClInclude Include="src\OpenGL\Shadow.h" />
+    <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\General\Buffers.h" />
-    <ClInclude Include="src\General\UlsMath.h" />
+    <ClInclude Include="src\General\Math.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
     <ClInclude Include="src\OpenGL\AttribLayout.h" />
     <ClInclude Include="src\OpenGL\VertexArray.h" />
@@ -183,16 +188,27 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\OpenGL\Texture.h" />
     <ClInclude Include="src\General\Timer.h" />
-    <ClInclude Include="VR.h" />
+    <ClInclude Include="Worlds\Gravitation.h" />
+    <ClInclude Include="Worlds\Labyrinth.h" />
+    <ClInclude Include="Worlds\Navigation.h" />
+    <ClInclude Include="Worlds\Pendulum.h" />
+    <ClInclude Include="Worlds\SolarSystem.h" />
+    <ClInclude Include="src\VR.h" />
+    <ClInclude Include="src\World.h" />
+    <ClInclude Include="Worlds\TestWorld1.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Rendering\Renderer.cpp" />
+    <ClCompile Include="src\Materials.cpp" />
+    <ClCompile Include="src\MeshLoader.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Context.cpp" />
     <ClCompile Include="src\General\Buffers.cpp" />
-    <ClCompile Include="src\General\UlsMath.cpp" />
+    <ClCompile Include="src\General\Math.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
     <ClCompile Include="src\OpenGL\AttribLayout.cpp" />
+    <ClCompile Include="src\OpenGL\Shadow.cpp" />
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
-    <ClCompile Include="src\App.cpp">
+    <ClCompile Include="src\Main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -211,8 +227,14 @@
     </ClCompile>
     <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\General\Timer.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\Shaders\2D.shader" />
+    <None Include="res\Shaders\Depth.shader" />
+    <None Include="res\Shaders\Diffuse.shader" />
+    <None Include="res\Shaders\GUI.shader" />
     <None Include="res\Shaders\Test.shader" />
     <None Include="res\Shaders\Color.shader" />
   </ItemGroup>

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "../VR.h"
+#include "VR.h"
 
 namespace VR
 {
@@ -34,9 +34,9 @@ namespace VR
 			GLCall(glUseProgram(0));
 		}
 
-		void Shader::SetUniform(const char* name, float x, float y)
+		void Shader::SetUniform(const char* name, int v)
 		{
-			GLCall(glUniform2f(GetUniformLocation(name), x, y));
+			GLCall(glUniform1i(GetUniformLocation(name), v));
 		}
 
 		void Shader::SetUniform(const char* name, float v)
@@ -44,14 +44,29 @@ namespace VR
 			GLCall(glUniform1f(GetUniformLocation(name), v));
 		}
 
+		void Shader::SetUniform(const char* name, float x, float y)
+		{
+			GLCall(glUniform2f(GetUniformLocation(name), x, y));
+		}
+
+		void Shader::SetUniform(const char* name, float x, float y, float z)
+		{
+			GLCall(glUniform3f(GetUniformLocation(name), x, y, z));
+		}
+
 		void Shader::SetUniform(const char* name, const int* data, size_t count)
 		{
 			GLCall(glUniform1iv(GetUniformLocation(name), count, data));
 		}
 
-		void Shader::SetUniform(const char* name, glm::mat4x4 matrix)
+		void Shader::SetUniform(const char* name, const math::mat4& matrix)
 		{
-			GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, &matrix[0].x));
+			GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, &matrix.x.x));
+		}
+
+		void Shader::SetUniform(const char* name, const math::mat3& matrix)
+		{
+			GLCall(glUniformMatrix3fv(GetUniformLocation(name), 1, false, &matrix.x.x));
 		}
 
 		unsigned int Shader::CompileShader(unsigned int type, const std::string& source) const
