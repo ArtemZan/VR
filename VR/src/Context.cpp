@@ -4,8 +4,9 @@
 namespace VR
 {
 	Context* Context::context;
+	Window Context::m_window;
 
-	Context::Context(int window_width, int window_height, const char* title)
+	Context::Context(int window_width, int window_height, const char* window_title)
 	{
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -16,14 +17,14 @@ namespace VR
 			std::cout << "Couldn't init glfw\n";
 		}
 
-		window = glfwCreateWindow(window_width, window_height, title, nullptr, nullptr);
+		m_window.params.width = window_width;
+		m_window.params.height = window_height;
+		m_window.params.title = window_title;
+		m_window.Create();
+		window = m_window.m_window;
 
-		if (window == nullptr)
-		{
-			std::cout << "Couldn't create window!\n";
-		}
-
-		glfwMakeContextCurrent(window);
+		Events::Init();
+		IO::Init();
 
 		if (GLenum err = glewInit())
 		{

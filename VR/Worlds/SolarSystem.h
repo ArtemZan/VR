@@ -32,8 +32,6 @@ class SolarSystem : public World
 
 	std::vector<Object> objects;
 
-	int wWidth;
-	int wHeight;
 
 	float timeWarp = 1.0;
 public:
@@ -41,9 +39,10 @@ public:
 	SolarSystem()
 		:sunMat({ 1.0, 1.0, 0.2, 0.0 })
 	{
-		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
+		IO* io = IO::Get();
+		math::vec2i wSize = io->WindowSize();
 
-		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.0, 1000.0f);
+		proj = math::perspective(1.f, float(wSize.width) / wSize.height, 0.0, 1000.0f);
 
 		m_camera.SetPosition(math::vec3(0.0, 0.0, 5));
 		m_camera.SetRotation(math::vec3(0.0, 0.0, -1.0));
@@ -127,34 +126,47 @@ public:
 
 	void OnAttach() override
 	{
-		glfwSetWindowUserPointer(Context::Get()->window, this);
-		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mods) {
-			SolarSystem* w = (SolarSystem*)glfwGetWindowUserPointer(window);
+		AddHandler(this);
+	}
 
-			double mX, mY;
-			glfwGetCursorPos(window, &mX, &mY);
-			int width, height;
-			glfwGetWindowSize(window, &width, &height);
-			mX -= width / 2;
-			mX /= width / 2;
-			mY = height / 2 - mY;
-			mY /= height / 2;
+	void OnDetach() override
+	{
+	}
 
-			bool inside = false;
+	void OnMouseDown(GLint button, GLint mods)
+	{
+		std::cout << "Mouse down in solar system :)\n";
+		IO* io = IO::Get();
+
+		math::vec2 mPos = io->MousePos();
+		math::vec2i wSize = io->WindowSize();
+
+		double mX = mPos.x, mY = mPos.y;
+		int width = wSize.width, height = wSize.height;
+		mX -= width / 2;
+		mX /= width / 2;
+		mY = height / 2 - mY;
+		mY /= height / 2;
+
+		bool inside = false;
 
 
-			if (-1.0 < mX &&
-				-0.9 > mX &&
-				 1.0 > mY &&
-				 0.95 < mY)
-			{
-				w->Detach();
-			}
-			});
-		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
-			SolarSystem* w = (SolarSystem*)glfwGetWindowUserPointer(window);
-			w->OnResize(width, height);
-			});
+		if (-1.0 < mX &&
+			-0.9 > mX &&
+			1.0 > mY &&
+			0.95 < mY)
+		{
+			Detach();
+		}
+	}
+
+	void OnWindowResize(int width, int height)
+	{
+		IO* io = IO::Get();
+		math::vec2i wSize = io->WindowSize();
+
+		proj = math::perspective(1.f, float(wSize.width) / wSize.height, 0.0, 1000.0f);
+		glViewport(0, 0, width, height);
 	}
 
 	void OnUpdate(float dTime) override
@@ -200,20 +212,9 @@ public:
 		}
 
 		Render();
-
-		if (glfwWindowShouldClose(Context::Get()->window))
-		{
-			Detach();
-		}
+		MustUpdate();
 	}
 
-	void OnResize(int width, int height)
-	{
-		wWidth = width;
-		wHeight = height;
-		proj = math::perspective(1.f, float(wWidth) / wHeight, 0.0, 1000.0f);
-		glViewport(0, 0, width, height);
-	}
 
 	void Input(float dTime)
 	{

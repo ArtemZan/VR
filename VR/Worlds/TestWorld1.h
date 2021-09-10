@@ -19,8 +19,10 @@ public:
 	TestWorld1()
 		:mvp(1.0), basicMat({ 1.0, 1.0, 0.0, 0.0 }), lightMat({1.0, 1.0, 1.0, 1.0})
 	{
-			int width, height;
-			glfwGetWindowSize(Context::Get()->window, &width, &height);
+			IO* io = IO::Get();
+			math::vec2i wSize = io->WindowSize();
+			int width = wSize.width, height = wSize.height;
+
 			proj = math::perspective(1.0, (float)width / height, 0.01, 100.0f);
 			m_camera.SetPosition({ -7.0, 0.0, 0.0 });
 			m_camera.SetRotation({ 5.0, 0.0, 0.0 });
@@ -190,32 +192,33 @@ public:
 	}
 
 	void OnAttach() override
+	{			
+		AddHandler(this);
+	}
+
+	void OnMouseDown(GLint button, GLint mods) override
 	{
-		glfwSetWindowUserPointer(Context::Get()->window, this);
-		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mods) {
-			TestWorld1* w = (TestWorld1*)glfwGetWindowUserPointer(window);
+		IO* io = IO::Get();
+		math::vec2 mPos = io->MousePos();
+		math::vec2i wSize = io->WindowSize();
 
-			double mX, mY;
-			glfwGetCursorPos(window, &mX, &mY);
-			int width, height;
-			glfwGetWindowSize(window, &width, &height);
-			mX -= width / 2;
-			mX /= width / 2;
-			mY = height / 2 - mY;
-			mY /= height / 2;
+		double mX = mPos.x, mY = mPos.y;
+		int width = wSize.width, height = wSize.height;
+		mX -= width / 2;
+		mX /= width / 2;
+		mY = height / 2 - mY;
+		mY /= height / 2;
 
-			bool inside = false;
+		bool inside = false;
 
 
-			if (-1.0 < mX &&
-				-0.9 > mX &&
-				1.0 > mY &&
-				0.95 < mY)
-			{
-				w->Detach();
-			}
-			});
-
+		if (-1.0 < mX &&
+			-0.9 > mX &&
+			1.0 > mY &&
+			0.95 < mY)
+		{
+			Detach();
+		}
 	}
 
 	void OnUpdate(float dTime) override
@@ -228,8 +231,8 @@ public:
 			{
 				if (batch.materialType != MATERIAL_TYPE::_2D)
 				{
-					batch.shader->Bind();
-					batch.shader->SetUniform("mvp", proj * m_camera.view);
+					diffuse.shader->Bind();
+					diffuse.shader->SetUniform("mvp", proj * m_camera.view);
 
 				}
 			}
@@ -237,11 +240,7 @@ public:
 			//meshes[0].Rotate({ 0.0, 1.0, 0.0 }, { -5.0, 0.0, 0.0 }, 0.0005 * dTime);
 
 			Render();
-
-			if (glfwWindowShouldClose(Context::Get()->window))
-			{
-				Detach();
-			}
+			MustUpdate();
 	}
 
 	void Input(float dTime)

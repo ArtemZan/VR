@@ -19,6 +19,8 @@ namespace VR
 {
 	namespace math
 	{
+		// vec2
+
 		vec2::vec2()
 			:x(0), y(0)
 		{
@@ -27,13 +29,16 @@ namespace VR
 		vec2::vec2(float x, float y)
 			: x(x), y(y)
 		{
-
 		}
 
 		vec2::vec2(const vec2& vec2)
 			: x(vec2.x), y(vec2.y)
 		{
+		}
 
+		vec2::vec2(const vec2i& vec)
+			:x(vec.x), y(vec.y)
+		{
 		}
 
 		void vec2::operator=(const vec2& vec)
@@ -41,6 +46,7 @@ namespace VR
 			x = vec.x;
 			y = vec.y;
 		}
+
 
 		vec2 vec2::operator*(const mat2& matrix) const
 		{
@@ -57,7 +63,7 @@ namespace VR
 
 		vec2 vec2::operator*(const vec2& vec) const
 		{
-			return {x * vec.x, y * vec.y};
+			return { x * vec.x, y * vec.y };
 		}
 
 		void vec2::normalize()
@@ -86,6 +92,34 @@ namespace VR
 			res.normalize();
 			return res;
 		}
+
+
+		//vec2i
+		vec2i::vec2i()
+			:x(0), y(0)
+		{
+		}
+
+		vec2i::vec2i(int x, int y)
+			:x(x), y(y)
+		{
+		}
+
+		vec2i::vec2i(const vec2i& vec)
+			:x(vec.x), y(vec.y)
+		{
+		}
+
+		vec2i::vec2i(const vec2& vec)
+		{
+		}
+
+		void vec2i::operator=(const vec2i& vec)
+		{
+			x = vec.x;
+			y = vec.y;
+		}
+
 
 
 		vec3::vec3()
@@ -128,7 +162,7 @@ namespace VR
 
 		vec3 vec3::operator*(const vec3 vec) const
 		{
-			return {x * vec.x, y * vec.y, z * vec.z};
+			return { x * vec.x, y * vec.y, z * vec.z };
 		}
 
 		vec3 vec3::operator/(float k) const
@@ -328,6 +362,7 @@ namespace VR
 
 			return rotZ * rotY * rotX;
 		}
+
 
 	}
 }

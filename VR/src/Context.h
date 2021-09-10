@@ -23,6 +23,7 @@ namespace VR
 			return context;
 		}
 
+		static Window m_window;
 		GLFWwindow* window;
 
 	private:

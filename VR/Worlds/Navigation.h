@@ -48,43 +48,44 @@ public:
 
 	void OnAttach() override
 	{
-		glfwSetWindowUserPointer(Context::Get()->window, this);
-		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mode) {
-			Navigation* w = (Navigation*)glfwGetWindowUserPointer(window);
-			for (int i = 0; i < w->meshes.size(); i++)
-			{
-				double mX, mY;
-				glfwGetCursorPos(window, &mX, &mY);
-				int width, height;
-				glfwGetWindowSize(window, &width, &height);
-				mX -= width / 2;
-				mX /= width / 2;
-				mY = height / 2 - mY;
-				mY /= height / 2;
-
-				bool inside = false;
-
-
-				if (w->buttons[i].pos.x < mX &&
-					w->buttons[i].pos.x + w->buttons[i].size.x > mX &&
-					w->buttons[i].pos.y < mY &&
-					w->buttons[i].pos.y + w->buttons[i].size.y > mY)
-				{
-					w->link = i;
-					w->OnDetach();
-					break;
-				}
-			}
-			});
-		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
-			Navigation* w = (Navigation*)glfwGetWindowUserPointer(window);
-			w->OnResize(width, height);
-			});
+		AddHandler(this);
 
 		Render();
 	}
 
-	void OnResize(int width, int height)
+	void OnMouseDown(int button, int mods) override
+	{
+		std::cout << "Mouse down\n";
+
+		IO* io = IO::Get();
+
+		for (int i = 0; i < meshes.size(); i++)
+		{
+			math::vec2 mPos = io->MousePos();
+			
+			math::vec2i wSize = io->WindowSize();
+			mPos.x -= wSize.width / 2;
+			mPos.x /= wSize.width / 2;
+			mPos.y = wSize.height / 2 - mPos.y;
+			mPos.y /= wSize.height / 2;
+
+			bool inside = false;
+
+
+			if (buttons[i].pos.x < mPos.x &&
+				buttons[i].pos.x + buttons[i].size.x > mPos.x &&
+				buttons[i].pos.y < mPos.y &&
+				buttons[i].pos.y + buttons[i].size.y > mPos.y)
+			{
+				link = i;
+				std::cout << "Detaching...\n";
+				Detach();
+				break;
+			}
+		}
+	}
+
+	void OnWindowResize(int width, int height) override
 	{
 		glViewport(0, 0, width, height);
 		Render();
@@ -102,11 +103,6 @@ public:
 
 		m_scene.AddBox(size, material, &meshes.back());
 		meshes.back().Move(pos + size / 2.0f);
-	}
-
-	void OnDetach()
-	{
-		Detach();
 	}
 };
 

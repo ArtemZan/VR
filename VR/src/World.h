@@ -59,7 +59,7 @@ namespace VR
 	};
 
 
-	class World
+	class World : public Events
 	{
 	public:
 		void Run();
@@ -67,6 +67,8 @@ namespace VR
 		static World* currentWorld;
 
 		void WindowResized(int width, int height);
+
+		
 
 	protected:
 		World();
@@ -80,21 +82,23 @@ namespace VR
 		void Render();
 
 		void Detach();
+		inline void MustUpdate() { m_updateNow = true; }
 
 		virtual void OnUpdate(float dTime) = 0;
 		virtual void OnPhysicsUpdate(float dTime) {};
 		virtual void OnAttach() {}
-		virtual void OnWindowResize() {}
+		virtual void OnDetach() {}
+		virtual void OnWindowResize(int width, int height) override;
+		virtual void OnWindowClose() override;
 
 		Scene m_scene;
 		Camera m_camera;
 
-		float m_wWidth;
-		float m_wHeight;
-
 	private:
 		void Update();
+
 		bool m_attached = false;
+		bool m_updateNow = true;
 		
 		Timer m_timer;
 		Timer m_fixedTimer;

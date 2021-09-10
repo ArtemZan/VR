@@ -79,13 +79,15 @@ public:
 
 	void SetView()
 	{
-		view.x.x = m_wHeight / m_wWidth * scale;
+		IO* io = IO::Get();
+		math::vec2i wSize = io->WindowSize();
+		view.x.x = wSize.height / wSize.width * scale;
 		view.y.y = scale;
 		mat.shader->Bind();
 		mat.shader->SetUniform("view", view);
 	}
 
-	void OnWindowResize() override
+	void OnWindowResize(int width, int height) override
 	{
 		SetView();
 	}
@@ -113,6 +115,8 @@ public:
 
 	void OnAttach()
 	{
+		AddHandler(this);
+
 		mat.shader->Bind();
 		mat.shader->SetUniform("view", view);
 

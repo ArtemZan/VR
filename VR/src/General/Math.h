@@ -8,12 +8,14 @@ namespace VR
         struct mat3;
         struct mat4;
 
+        struct vec2i;
 
         struct vec2
         {
             vec2();
             vec2(float x, float y);
-            vec2(const vec2& vec2);
+            vec2(const vec2& vec);
+            vec2(const vec2i& vec);
 
             union
             {
@@ -51,6 +53,31 @@ namespace VR
         inline float distance(const vec2& v1, const vec2& v2) { return v1.distance(v2); }
         inline float magnitude(const vec2& vec) { return vec.distance({ 0.0, 0.0 }); }
         inline float dot(const vec2& v1, const vec2& v2) { return v1.x * v2.x + v1.y * v2.y; }
+
+        struct vec2i
+        {
+            vec2i();
+            vec2i(int x, int y);
+            vec2i(const vec2i& vec);
+            vec2i(const vec2& vec);
+
+            union
+            {
+                int x, s, r, width;
+            };
+            union
+            {
+                int y, t, g, height;
+            };
+
+            void operator=(const vec2i& vec);
+
+            inline vec2i operator+(const vec2i& vec) const { return { x + vec.x, y + vec.y }; }
+            inline vec2i operator-(const vec2i& vec) const { return { x - vec.x, y - vec.y }; }
+
+            inline void operator+=(const vec2i& vec) { *this = *this + vec; }
+            inline void operator-=(const vec2i& vec) { *this = *this - vec; }
+        };
 
         struct vec3
         {

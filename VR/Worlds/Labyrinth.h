@@ -33,11 +33,6 @@ class Labyrinth : public World
 	bool rightResize = false;
 
 	bool leftMouseButtonDown = false;
-	double mouseX;
-	double mouseY;
-
-	int wWidth;
-	int wHeight;
 
 public:
 	Labyrinth()
@@ -52,40 +47,22 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_SRC_ALPHA);
 		glDisable(GL_DEPTH_TEST);
 
-		glfwGetWindowSize(Context::Get()->window, &wWidth, &wHeight);
+		AddHandler(this);
+
+		IO* io = IO::Get();
+		math::vec2i wSize = io->WindowSize();
+
 		guiMat.color = {0.6, 0.5, 0.2, 0.5};
 		m_scene.AddBox({ 0.3f, 0.3 }, &guiMat, &box.mesh);
-		box.size = {0.3, 0.3};
-		box.Scale({float(wHeight) / wWidth, 1.0});
-		box.Move({1.f - 0.3f * float(wHeight) / wWidth / 2.0f, 0.85f});
+		box.size = {0.3f, 0.3f};
+		box.Scale({float(wSize.height) / wSize.width, 1.0});
+		box.Move({1.f - 0.3f * float(wSize.height) / wSize.width / 2.0f, 0.85f});
 
 		guiMat.color = { 0.0, 1.0, 0.0, 0.5 };
 		m_scene.AddBox({ 0.15f, 0.1f }, &guiMat, &solve.mesh);
 		solve.MoveTo({ 0.0, 0.95 });
 
-		OnResize(wWidth, wHeight);
-
-		glfwSetWindowUserPointer(Context::Get()->window, this);
-		glfwSetCursorPosCallback(Context::Get()->window, [](GLFWwindow* window, double x, double y) {
-			Labyrinth* w = (Labyrinth*)glfwGetWindowUserPointer(window);
-			w->OnMouseMove(x, y);
-			});
-		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mods) {
-			Labyrinth* w = (Labyrinth*)glfwGetWindowUserPointer(window);
-			switch (action)
-			{
-			case GLFW_PRESS:
-			w->OnMouseDown(button, mods);
-			break;
-			case GLFW_RELEASE:
-			w->OnMouseUp(button, mods);
-			break;
-			}
-			});
-		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
-			Labyrinth* w = (Labyrinth*)glfwGetWindowUserPointer(window);
-			w->OnResize(width, height);
-			});
+		OnWindowResize(wSize.width, wSize.height);
 
 		Render();
 	}
@@ -95,14 +72,21 @@ public:
 		//Render();
 	}
 
-	void OnMouseMove(double x, double y)
+	void OnMouseMove(math::vec2 pos) override
 	{
-		x /= wWidth / 2;
+		float x = pos.x;
+		float y = pos.y;
+
+		IO* io = IO::Get();
+		math::vec2i wSize = io->WindowSize();
+		math::vec2i prevPos = io->MousePos(); //stupid
+
+		x /= wSize.width / 2;
 		x -= 1;
-		y /= -wHeight / 2;
+		y /= -wSize.height / 2;
 		y += 1;
 
-		float wh = float(wWidth) / wHeight;
+		float wh = float(wSize.width) / wSize.height;
 
 		if (move_box)
 		{
@@ -114,7 +98,7 @@ public:
 		if (leftMouseButtonDown)
 		{
 			float* vert = (float*)boxes.back().mesh.geometry.vertices;
-			float dMousePos = x - mouseX;
+			float dMousePos = x - x;
 
 			if (leftResize)
 			{
@@ -132,7 +116,7 @@ public:
 				boxes.back().size.x += dMousePos * wh;
 			}
 
-			dMousePos = y - mouseY;
+			dMousePos = y - y;
 
 			if (topResize)
 			{
@@ -158,7 +142,7 @@ public:
 		}
 		else
 		{
-			if (x > 1.0 - 0.3 * wHeight / float(wWidth) && y > 0.7)
+			if (x > 1.0 - 0.3 * wSize.height / float(wSize.width) && y > 0.7)
 			{
 				glfwSetCursor(Context::Get()->window, glfwCreateStandardCursor(GLFW_HAND_CURSOR));
 			}
@@ -209,12 +193,9 @@ public:
 				}
 			}
 		}
-
-		mouseX = x;
-		mouseY = y;
 	}
 
-	void OnMouseDown(int button, int mods)
+	void OnMouseDown(int button, int mods) override
 	{
 		double mX, mY;
 		glfwGetCursorPos(Context::Get()->window, &mX, &mY);
@@ -254,6 +235,15 @@ public:
 					guiMat.color = { 0.6, 0.5, 0.2, 0.0 };
 				}*/
 			}
+		}
+	}
+
+	void OnMouseUp(int button, int mods) override
+	{
+		if (button == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			move_box = false;
+			leftMouseButtonDown = false;
 		}
 	}
 
@@ -389,28 +379,17 @@ public:
 		Render();
 	}
 
-	void OnMouseUp(int button, int mods)
-	{
-		if (button == GLFW_MOUSE_BUTTON_LEFT)
-		{
-			move_box = false;
-			leftMouseButtonDown = false;
-		}
-	}
 
-	void OnResize(int width, int height)
+	void OnWindowResize(int width, int height) override
 	{
-		wWidth = width;
-		wHeight = height;
-
-		view.x.x = 1.0f / wWidth * wHeight;
+		view.x.x = 1.0f / width * height;
 		material.shader->Bind();
 		material.shader->SetUniform("view", view);
 
 		glViewport(0, 0, width, height);
 
-		box.Scale({ float(wHeight) / wWidth / box.scale.x, 1.0 });
-		box.MoveTo({ 1.f - 0.3f * float(wHeight) / wWidth / 2.0f, 0.85f });
+		box.Scale({ float(height) / width / box.scale.x, 1.0 });
+		box.MoveTo({ 1.f - 0.3f * float(height) / width / 2.0f, 0.85f });
 
 		Render();
 	}

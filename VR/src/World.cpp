@@ -5,21 +5,21 @@ namespace VR
 {
 	World* World::currentWorld;
 
-	void World::WindowResized(int width, int height)
-	{
-		glViewport(0, 0, width, height);
-		m_wWidth = width;
-		m_wHeight = height;
-		OnWindowResize();
-	}
-
 	World::World()
 	{
-		int width, height;
-		glfwGetWindowSize(Context::Get()->window, &width, &height);
-		m_wWidth = width;
-		m_wHeight = height;
+
 	}
+
+	void World::OnWindowResize(int width, int height)
+	{
+		glViewport(0, 0, width, height);
+	}
+
+	void World::OnWindowClose()
+	{
+		Detach();
+	}
+
 
 	void World::Run()
 	{
@@ -28,30 +28,33 @@ namespace VR
 		GLCall(glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a));
 
 
-		glfwSetMouseButtonCallback(Context::Get()->window, [](GLFWwindow* window, int button, int action, int mode) {});
+		/*glfwSetMouseButtonCallback(Context::Get()->m_window.m_window, [](GLFWwindow* window, int button, int action, int mode) {});
 
-		glfwSetWindowSizeCallback(Context::Get()->window, [](GLFWwindow* window, int width, int height) {
+		glfwSetWindowSizeCallback(Context::Get()->m_window.m_window, [](GLFWwindow* window, int width, int height) {
 			World::currentWorld->WindowResized(width, height);
-			});
+			});*/
 
+		std::cout << "Attaching\n";
 		OnAttach();
 
 		m_attached = true;
 
 		m_timer.Update();
-		m_fixedTimer.Update();
+		/*m_fixedTimer.Update();
 
 		physicsUpdate = std::thread([this]() {
 			while (m_attached)
 			{
 				OnPhysicsUpdate(m_fixedTimer.Update());
 			}
-		});
+		});*/
 
 		while (m_attached)
 		{
 			Update();
 		}
+
+		OnDetach();
 	}
 
 	void World::Render()
@@ -73,7 +76,7 @@ namespace VR
 			GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
 		}
 
-		glfwSwapBuffers(Context::Get()->window);
+		glfwSwapBuffers(Context::Get()->m_window.m_window);
 
 	}
 
@@ -83,23 +86,33 @@ namespace VR
 
 		if(physicsUpdate.joinable())
 			physicsUpdate.join();
+
+		RemoveHandler(this);
 	}
 
 	void World::Update()
 	{
 		float dt = m_timer.Update();
 
+		m_updateNow = false;
+
 		OnUpdate(dt);
 
-		glfwPollEvents();
+		if (m_updateNow)
+		{
+			glfwPollEvents();
+		}
+		else
+		{
+			glfwWaitEvents();
+		}
 
-		if (glfwWindowShouldClose(Context::Get()->window))
-			Detach();
+		//std::cout << "Update\n";
 
-		std::this_thread::sleep_for(std::chrono::microseconds(1'000'000 / 60'000 - int(dt * 1000)));
+		/*std::this_thread::sleep_for(std::chrono::microseconds(1'000'000 / 60'000 - int(dt * 1000)));
 		if (dt > 1'000.0 / 60.0)
 		{
 			std::cout << "FPS: " << 1000.0 / dt << std::endl;
-		}
+		}*/
 	}
 }

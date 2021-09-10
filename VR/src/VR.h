@@ -13,6 +13,9 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/Shadow.h"
 
+#include "Window.h"
+#include "Events.h"
+#include "IO.h"
 #include "Context.h"
 #include "Materials.h"
 #include "Scene.h"
