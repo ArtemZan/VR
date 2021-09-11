@@ -172,77 +172,68 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\IO.h" />
-    <ClInclude Include="src\Events.h" />
-    <ClInclude Include="src\Materials.h" />
-    <ClInclude Include="src\MeshLoader.h" />
+    <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Context.h" />
-    <ClInclude Include="src\OpenGL\Shadow.h" />
-    <ClInclude Include="src\Scene.h" />
+    <ClInclude Include="src\Events.h" />
     <ClInclude Include="src\General\Buffers.h" />
     <ClInclude Include="src\General\Math.h" />
-    <ClInclude Include="src\OpenGL\Shader.h" />
+    <ClInclude Include="src\General\Timer.h" />
+    <ClInclude Include="src\IO.h" />
+    <ClInclude Include="src\Materials.h" />
+    <ClInclude Include="src\MeshLoader.h" />
+    <ClInclude Include="src\Mesh\Geometry.h" />
+    <ClInclude Include="src\Mesh\Material.h" />
+    <ClInclude Include="src\Mesh\Mesh.h" />
     <ClInclude Include="src\OpenGL\AttribLayout.h" />
-    <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\Debug.h" />
+    <ClInclude Include="src\OpenGL\Shader.h" />
+    <ClInclude Include="src\OpenGL\Shadow.h" />
+    <ClInclude Include="src\OpenGL\Texture.h" />
+    <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\OpenGL\Texture.h" />
-    <ClInclude Include="src\General\Timer.h" />
+    <ClInclude Include="src\Scene.h" />
+    <ClInclude Include="src\VR.h" />
     <ClInclude Include="src\Window.h" />
+    <ClInclude Include="src\World.h" />
     <ClInclude Include="Worlds\Gravitation.h" />
     <ClInclude Include="Worlds\Labyrinth.h" />
     <ClInclude Include="Worlds\Navigation.h" />
     <ClInclude Include="Worlds\Pendulum.h" />
     <ClInclude Include="Worlds\SolarSystem.h" />
-    <ClInclude Include="src\VR.h" />
-    <ClInclude Include="src\World.h" />
     <ClInclude Include="Worlds\TestWorld1.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\IO.cpp" />
-    <ClCompile Include="src\Events.cpp" />
-    <ClCompile Include="src\Materials.cpp" />
-    <ClCompile Include="src\MeshLoader.cpp" />
+    <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Context.cpp" />
+    <ClCompile Include="src\Events.cpp" />
     <ClCompile Include="src\General\Buffers.cpp" />
     <ClCompile Include="src\General\Math.cpp" />
-    <ClCompile Include="src\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\General\Timer.cpp" />
+    <ClCompile Include="src\IO.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Materials.cpp" />
+    <ClCompile Include="src\MeshLoader.cpp" />
+    <ClCompile Include="src\Mesh\Geometry.cpp" />
+    <ClCompile Include="src\Mesh\Material.cpp" />
+    <ClCompile Include="src\Mesh\Mesh.cpp" />
     <ClCompile Include="src\OpenGL\AttribLayout.cpp" />
+    <ClCompile Include="src\OpenGL\Shader.cpp" />
     <ClCompile Include="src\OpenGL\Shadow.cpp" />
+    <ClCompile Include="src\OpenGL\Texture.cpp" />
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
-    <ClCompile Include="src\Main.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\OpenGL\Texture.cpp" />
-    <ClCompile Include="src\General\Timer.cpp" />
     <ClCompile Include="src\Scene.cpp" />
-    <ClCompile Include="src\World.cpp" />
     <ClCompile Include="src\Window.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\Shaders\2D.shader" />
-    <None Include="res\Shaders\Depth.shader" />
-    <None Include="res\Shaders\Diffuse.shader" />
-    <None Include="res\Shaders\GUI.shader" />
-    <None Include="res\Shaders\Test.shader" />
-    <None Include="res\Shaders\Color.shader" />
+    <ClCompile Include="src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GLEW\GLEW.vcxproj">

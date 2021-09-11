@@ -25,8 +25,8 @@ namespace VR
 
 			void SetUniform(const char* name, int v);
 			void SetUniform(const char* name, float v);
-			void SetUniform(const char* name, float x, float y);
-			void SetUniform(const char* name, float x, float y, float z);
+			void SetUniform(const char* name, math::vec2 v);
+			void SetUniform(const char* name, math::vec3 v);
 			void SetUniform(const char* name, const int* data, size_t count);
 			void SetUniform(const char* name, const math::mat4& matrix);
 			void SetUniform(const char* name, const math::mat3& matrix);

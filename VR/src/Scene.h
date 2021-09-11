@@ -2,31 +2,7 @@
 
 namespace VR
 {
-	struct Geometry
-	{
-		uint8_t* vertices;
-		size_t vertices_size;
-		uint32_t* indices;
-		size_t indices_count;
-	};
 
-
-	struct Mesh
-	{
-		Mesh() = default;
-		Mesh(Material* material, const Geometry& geometry);
-		Mesh(Material* material);
-
-		void Move(const math::vec3& bias);
-		void Move(const math::vec2& bias);
-		void Rotate(const math::vec3& axis, const math::vec3& center, float angle);
-		void Rotate(const math::vec2& center, float angle);
-		void Scale(const math::vec3& scale, const math::vec3& center);
-		void Scale(const math::vec2& scale, const math::vec2& center);
-
-		Material* material;
-		Geometry geometry;
-	};
 
 
 	struct Scene
@@ -44,9 +20,7 @@ namespace VR
 			std::vector<uint8_t> vertices;
 			std::vector<uint32_t> indices;
 
-			MATERIAL_TYPE materialType;
-			gl::AttribLayout attribLayout;
-			gl::Shader* shader;
+			Material material;
 
 			gl::VertexArray va;
 			gl::VertexBuffer vb;

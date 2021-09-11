@@ -4,16 +4,20 @@ namespace VR
 {
 	namespace gl
 	{
+		//Attribute properties
+		struct VertexAttrib
+		{
+			VertexAttrib(size_t count, GLenum type);
+			size_t count;
+			GLenum type;
+
+			size_t SizeOfType() const;
+			inline size_t Size() const { return SizeOfType() * count; }
+		};
+
 		// Class to define layout of data (attributes) in vertices
 		class AttribLayout
 		{
-			//Attribute properties
-			struct VertexAttrib
-			{
-				VertexAttrib(size_t count, GLenum type);
-				size_t count;
-				GLenum type;
-			};
 
 			std::vector<VertexAttrib>	m_attributes;
 			size_t						m_stride;
@@ -58,6 +62,7 @@ namespace VR
 
 			inline const std::vector<VertexAttrib>& GetAttributes() const { return m_attributes; }
 			inline size_t GetStride() const { return m_stride; }
+			size_t GetOffset(size_t pos) const;
 		};
 	}
 }

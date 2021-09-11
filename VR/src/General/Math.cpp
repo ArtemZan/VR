@@ -338,7 +338,6 @@ namespace VR
 
 		mat3 rotate(const vec3& axis, float angle)
 		{
-
 			vec3 a = normalize(axis);
 
 			math::mat3 rotX(1.0f);
@@ -361,6 +360,18 @@ namespace VR
 			rotZ.x.y = sin(angle * a.z);
 
 			return rotZ * rotY * rotX;
+		}
+
+		mat2 rotate(float angle)
+		{
+			mat2 res;
+
+			res.x.x = cos(angle);
+			res.x.y = sin(angle);
+			res.y.x = -sin(angle);
+			res.y.y = cos(angle);
+
+			return res;
 		}
 
 

@@ -204,6 +204,8 @@ namespace VR
 
         mat3 rotate(const vec3& axis, float angle);
 
+        mat2 rotate(float angle);
+
 
         //Area of triangle
         inline double area(const vec2& A, const vec2& B, const vec2& C)

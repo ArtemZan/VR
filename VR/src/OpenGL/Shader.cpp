@@ -44,14 +44,14 @@ namespace VR
 			GLCall(glUniform1f(GetUniformLocation(name), v));
 		}
 
-		void Shader::SetUniform(const char* name, float x, float y)
+		void Shader::SetUniform(const char* name, math::vec2 v)
 		{
-			GLCall(glUniform2f(GetUniformLocation(name), x, y));
+			GLCall(glUniform2f(GetUniformLocation(name), v.x, v.y));
 		}
 
-		void Shader::SetUniform(const char* name, float x, float y, float z)
+		void Shader::SetUniform(const char* name, math::vec3 v)
 		{
-			GLCall(glUniform3f(GetUniformLocation(name), x, y, z));
+			GLCall(glUniform3f(GetUniformLocation(name), v.x, v.y, v.z));
 		}
 
 		void Shader::SetUniform(const char* name, const int* data, size_t count)
@@ -104,6 +104,12 @@ namespace VR
 			std::ifstream file(std::string("..\\..\\..\\Unleashed\\res\\Shaders\\") + filepath);
 			if (file.fail())
 				file = std::ifstream(std::string("res\\Shaders\\")  + filepath);
+
+			if (file.fail())
+			{
+				std::cout << "Couldn't find shader \"" << filepath << std::endl;
+				return -1;
+			}
 
 			std::stringstream fragment;
 			std::stringstream vertex;

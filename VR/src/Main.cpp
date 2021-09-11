@@ -1,10 +1,11 @@
+#include "pch.h"
 #include "VR.h"
-#include "Worlds/SolarSystem.h"
-#include "Worlds/TestWorld1.h"
-#include "Worlds/Pendulum.h"
-#include "Worlds/Labyrinth.h"
+//#include "Worlds/SolarSystem.h"
+//#include "Worlds/TestWorld1.h"
+//#include "Worlds/Pendulum.h"
+//#include "Worlds/Labyrinth.h"
 #include "Worlds/Navigation.h"
-#include "Worlds/Gravitation.h"
+//#include "Worlds/Gravitation.h"
 
 using namespace VR;
 
@@ -15,11 +16,11 @@ int main()
 
 	{
 		Navigation nav;
-		SolarSystem solarSystem;
+		/*SolarSystem solarSystem;
 		TestWorld1 testWorld1;
 		Pendulum pendulum;
 		Labyrinth labyrinth;
-		Gravitation gravitation;
+		Gravitation gravitation;*/
 		
 		nav.Run();
 
@@ -33,23 +34,23 @@ int main()
 			switch (l)
 			{
 			case 0:
-				solarSystem.Run();
+				//solarSystem.Run();
 				break;
 			case 1:
-				testWorld1.Run();
+				//testWorld1.Run();
 				break;
 			case 2:
-				pendulum.Run();
+				//pendulum.Run();
 				break;
 			case 3:
-				labyrinth.Run();
+				//labyrinth.Run();
 				break;
 			case 4:
-				gravitation.Run();
+				//gravitation.Run();
 				break;
 			default: world_found = false;
 			}
-			if (world_found && !glfwWindowShouldClose(Context::Get()->window))
+			if (world_found)
 			{
 				nav.Run();
 			}

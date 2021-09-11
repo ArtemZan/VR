@@ -11,7 +11,7 @@ namespace VR
 
 	void Scene::AddBox(math::vec2 size, Material* material, Mesh* mesh)
 	{
-		if (material->GetTypeID() == MATERIAL_TYPE::_2D || material->GetTypeID() == MATERIAL_TYPE::GUI)
+		/*if (material->GetTypeID() == MATERIAL_TYPE::_2D || material->GetTypeID() == MATERIAL_TYPE::GUI)
 		{
 			float x = size.x / 2;
 			float y = size.y / 2;
@@ -36,14 +36,12 @@ namespace VR
 			mesh->geometry = geo;
 
 			Add(mesh);
-		}
+		}*/
 	}
 
 	void Scene::AddBox(math::vec3 size, Material* material, Mesh* mesh)
 	{
-		if (material->GetTypeID() != MATERIAL_TYPE::_2D && material->GetTypeID() != MATERIAL_TYPE::GUI)
-		{
-			float x = size.x / 2;
+			/*float x = size.x / 2;
 			float y = size.y / 2;
 			float z = size.z / 2;
 
@@ -80,22 +78,21 @@ namespace VR
 			mesh->material = material;
 			mesh->geometry = geo;
 
-			Add(mesh);
-		}
+			Add(mesh);*/
 	}
 
 	void Scene::Add(Mesh* mesh)
 	{
 		for (Batch& batch : batches)
 		{
-			if (batch.materialType == mesh->material->GetTypeID())
+			if (batch.material.GetShaderId() == mesh->material.GetShaderId())
 			{
 				batch.Add(mesh);
 				return;
 			}
 		}
 
-		batches.emplace_back(*mesh->material);
+		batches.emplace_back(mesh->material);
 		
 		batches.back().Add(mesh);
 	}
@@ -104,26 +101,26 @@ namespace VR
 	{
 		for (Batch& batch : batches)
 		{
-			if (batch.materialType == mesh.material->GetTypeID())
+			if (batch.material.GetShaderId() == mesh.material.GetShaderId())
 			{
 				batch.Add(mesh);
 				return;
 			}
 		}
 
-		batches.emplace_back(*mesh.material);
+		batches.emplace_back(mesh.material);
 
 		batches.back().Add(mesh);
 	}
 
 
 	Scene::Batch::Batch(const Material& material)
-		:materialType(material.GetTypeID()), attribLayout(material.attributesLayout), shader(material.shader), vb(0)
+		:material(material), vb(0)
 	{
 	}
 
 	Scene::Batch::Batch(const Batch& batch)
-		:materialType(batch.materialType), attribLayout(batch.attribLayout), shader(batch.shader), vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb), meshes(batch.meshes)
+		:material(batch.material), vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb)/* SUS */, meshes(batch.meshes)
 	{
 		for (Mesh* m : meshes)
 		{
@@ -134,63 +131,50 @@ namespace VR
 	//returns size of added vertices
 	size_t Scene::Batch::Add(const Mesh& mesh)
 	{
-		if (mesh.material->GetTypeID() == MATERIAL_TYPE::BASIC
-			|| mesh.material->GetTypeID() == MATERIAL_TYPE::LAMBERT
-			|| mesh.material->GetTypeID() == MATERIAL_TYPE::_2D
-			|| mesh.material->GetTypeID() == MATERIAL_TYPE::GUI)
+		indices.reserve(indices.size() + mesh.geometry.indices_count);
+
+		for (int i = 0; i < mesh.geometry.indices_count; i++)
 		{
-			indices.reserve(indices.size() + mesh.geometry.indices_count);
-
-			for (int i = 0; i < mesh.geometry.indices_count; i++)
-			{
-				indices.push_back(mesh.geometry.indices[i] + vertices.size() / attribLayout.GetStride());
-			}
-
-			int vert_size = mesh.material->attributesLayout.GetStride();
-			int vert_count = mesh.geometry.vertices_size / (vert_size - sizeof(math::vec4));
-			int color_offset = mesh.material->GetColorOffset();
-			int new_vert_size = vert_count * vert_size;
-
-			math::vec4 color;
-			switch (mesh.material->GetTypeID())
-			{
-			case MATERIAL_TYPE::BASIC: color = ((BasicMaterial*)mesh.material)->color; break;
-			case MATERIAL_TYPE::LAMBERT: color = ((LambertMaterial*)mesh.material)->color; break;
-			case MATERIAL_TYPE::_2D: color = ((_2DMaterial*)mesh.material)->color; break;
-			case MATERIAL_TYPE::GUI: color = ((GUIMaterial*)mesh.material)->color; break;
-			}
-
-			prev_vert_location = vertices.data();
-			vertices.resize(vertices.size() + new_vert_size);
-			uint8_t* vert_buffer = vertices.data() + vertices.size() - new_vert_size;
-
-			for (int i = 0; i < vert_count; i++)
-			{
-				memcpy(vert_buffer + i * vert_size, mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)), color_offset);
-				memcpy(vert_buffer + i * vert_size + color_offset, &color, sizeof(math::vec4));
-
-				if (color_offset + sizeof(math::vec4) < vert_size)
-					memcpy(vert_buffer + i * vert_size + color_offset + sizeof(math::vec4), mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)) + color_offset, vert_size - color_offset - sizeof(math::vec4));
-			}
-
-			std::vector<float> testV;
-			for (int i = 0; i < vertices.size(); i+=4)
-			{
-				testV.push_back(*(float*)(&vertices[i]));
-			}
-
-			vb.Resize(vertices.size());
-			va.AddBuffer(attribLayout);
-
-			for (Mesh* m : meshes)
-			{
-				m->geometry.vertices = m->geometry.vertices - prev_vert_location + vertices.data();
-			}
-
-			return new_vert_size;
+			indices.push_back(mesh.geometry.indices[i] + vertices.size() / mesh.material.GetVertexSize());
 		}
 
-		return 0;
+		int vert_size = mesh.material.GetVertexSize();
+		int vert_count = mesh.geometry.vertices_size / (vert_size - sizeof(math::vec4));
+		//int color_offset = mesh.material->GetColorOffset();
+		int new_vert_size = vert_count * vert_size;
+
+		math::vec4 color = mesh.material.GetColor();
+
+		prev_vert_location = vertices.data();
+		vertices.resize(vertices.size() + new_vert_size);
+		uint8_t* vert_buffer = vertices.data() + vertices.size() - new_vert_size;
+
+		for (int i = 0; i < vert_count; i++)
+		{
+			//Very bad stuff here
+			memcpy(vert_buffer + i * vert_size, mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)), mesh.material.GetVertexSize() - sizeof(math::vec4));
+			memcpy(vert_buffer + i * vert_size + (mesh.material.GetVertexSize() - sizeof(math::vec4)), &color, sizeof(math::vec4));
+
+			//if (mesh.material.GetVertexSize() - sizeof(math::vec4) + sizeof(math::vec4) < vert_size)
+				//memcpy(vert_buffer + i * vert_size + color_offset + sizeof(math::vec4), mesh.geometry.vertices + i * (vert_size - sizeof(math::vec4)) + color_offset, vert_size - color_offset - sizeof(math::vec4));
+		}
+
+		std::vector<float> testV;
+		for (int i = 0; i < vertices.size(); i += 4)
+		{
+			testV.push_back(*(float*)(&vertices[i]));
+		}
+
+		vb.Resize(vertices.size());
+		va.AddBuffer(mesh.material.GetLayout());
+
+		for (Mesh* m : meshes)
+		{
+			m->geometry.vertices = m->geometry.vertices - prev_vert_location + vertices.data();
+		}
+
+		return new_vert_size;
+		//return 0;
 	}
 
 	//returns size of added vertices
@@ -214,114 +198,5 @@ namespace VR
 
 
 
-	Mesh::Mesh(Material* material, const Geometry& geometry)
-		:material(material), geometry(geometry)
-	{
-	}
-
-	Mesh::Mesh(Material* material)
-		:material(material)
-	{
-	}
-
-	void Mesh::Move(const math::vec3& bias)
-	{
-		if (material->GetTypeID() == MATERIAL_TYPE::_2D || material->GetTypeID() == MATERIAL_TYPE::GUI)
-			return;
-
-		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / vert_size;
-		for (int i = 0; i < vert_count; i++)
-		{
-			((float*)(geometry.vertices + i * vert_size))[0] += bias.x;
-			((float*)(geometry.vertices + i * vert_size))[1] += bias.y;
-			((float*)(geometry.vertices + i * vert_size))[2] += bias.z;
-		}
-	}
-
-	void Mesh::Move(const math::vec2& bias)
-	{
-		if (material->GetTypeID() != MATERIAL_TYPE::_2D && material->GetTypeID() != MATERIAL_TYPE::GUI)
-			return;
-
-		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / vert_size;
-		for (int i = 0; i < vert_count; i++)
-		{
-			((float*)(geometry.vertices + i * vert_size))[0] += bias.x;
-			((float*)(geometry.vertices + i * vert_size))[1] += bias.y;
-		}
-	}
-
-	void Mesh::Rotate(const math::vec3& axis, const math::vec3& center, float angle)
-	{
-		math::mat3 m = math::rotate(axis, angle);
-
-		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / vert_size;
-		for (int i = 0; i < vert_count; i++)
-		{
-			float* vertex = ((float*)(geometry.vertices + i * vert_size));
-			math::vec3 v(vertex[0], vertex[1], vertex[2]);
-			v -= center;
-			v *= m;
-			v += center;
-			if (material->GetTypeID() == MATERIAL_TYPE::LAMBERT)
-			{
-				*(math::vec3*)((float*)(vertex)+7) *= m;
-			}
-			vertex[0] = v.x;
-			vertex[1] = v.y;
-			vertex[2] = v.z;
-		}
-	}
-
-	void Mesh::Rotate(const math::vec2& center, float angle)
-	{
-		//TO DO
-		math::mat2 m;
-
-		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / vert_size;
-		for (int i = 0; i < vert_count; i++)
-		{
-			float* vertex = ((float*)(geometry.vertices + i * vert_size));
-			math::vec2 v(vertex[0], vertex[1]);
-			v -= center;
-			v *= m;
-			v += center;
-			vertex[0] = v.x;
-			vertex[1] = v.y;
-		}
-	}
-
-	void Mesh::Scale(const math::vec3& scale, const math::vec3& center)
-	{
-		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / vert_size;
-		for (int i = 0; i < vert_count; i++)
-		{
-			math::vec3& pos = *(math::vec3*)(geometry.vertices + i * vert_size);
-			pos -= center;
-
-			pos *= scale;
-
-			pos += center;
-		}
-	}
-
-	void Mesh::Scale(const math::vec2& scale, const math::vec2& center)
-	{
-		int vert_size = material->attributesLayout.GetStride();
-		int vert_count = geometry.vertices_size / vert_size;
-		for (int i = 0; i < vert_count; i++)
-		{
-			math::vec2& pos = *(math::vec2*)(geometry.vertices + i * vert_size);
-			pos -= center;
-
-			pos *= scale;
-
-			pos += center;
-		}
-	}
+	
 }

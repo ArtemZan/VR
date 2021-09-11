@@ -13,11 +13,15 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/Shadow.h"
 
-#include "Window.h"
 #include "Events.h"
+#include "Mesh/Material.h"
+#include "Mesh/Geometry.h"
+#include "Mesh/Mesh.h"
+#include "Object.h"
+
+#include "Window.h"
 #include "IO.h"
 #include "Context.h"
-#include "Materials.h"
 #include "Scene.h"
 #include "Camera.h"
 #include "World.h"

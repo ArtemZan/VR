@@ -15,6 +15,16 @@ namespace VR
 
 		}
 
+		size_t AttribLayout::GetOffset(size_t pos) const
+		{
+			size_t offset = 0;
+
+			while (--pos)
+				offset += m_attributes[pos].Size();
+
+			return offset;
+		}
+
 		template <>
 		void AttribLayout::Push<uint32_t>(size_t count)
 		{
@@ -64,10 +74,22 @@ namespace VR
 			m_stride += count * 4;
 		}
 
-		AttribLayout::VertexAttrib::VertexAttrib(size_t count, GLenum type)
+		VertexAttrib::VertexAttrib(size_t count, GLenum type)
 			:count(count), type(type)
 		{
 
+		}
+
+		size_t VertexAttrib::SizeOfType() const
+		{
+			switch (type)
+			{
+			case GL_SHORT:
+			case GL_UNSIGNED_SHORT: return 2;
+			case GL_BYTE:
+			case GL_UNSIGNED_BYTE:	return 1;
+			default:				return 4; //float, int32_t and uint32_t
+			}
 		}
 	}
 }

@@ -4,10 +4,15 @@
 namespace VR
 {
 	MeshLoader::MeshLoader()
+		:mesh(Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Diffuse.shader", {}), {})
 	{
+		mesh.material.PushAttrib<float>(3);
+		mesh.material.PushAttrib<float>(4);
+		mesh.material.PushAttrib<float>(3);
 	}
 
-	void MeshLoader::Load(const char* obj, Material* material)
+	//To do: load materials
+	void MeshLoader::Load(const char* obj)
 	{
 		std::ifstream file;
 		file.open(obj);
@@ -16,8 +21,7 @@ namespace VR
 			std::cout << "Couldn't open \"" << obj << "\"\n";
 		}
 
-		bool have_normals = material->GetTypeID() == MATERIAL_TYPE::LAMBERT;
-		int vert_size = (material->attributesLayout.GetStride() - sizeof(math::vec4)) / sizeof(float);
+		int vert_size = (mesh.material.GetVertexSize() - sizeof(math::vec4)) / sizeof(float);
 
 		std::string line;
 
@@ -38,7 +42,7 @@ namespace VR
 				}
 				case 'n':
 				{
-					if (have_normals)
+					if (mesh.material.HasNormals())
 					{
 						vn.emplace_back();
 						sscanf_s(line.c_str(), "vn %f %f %f", &vn.back().x, &vn.back().y, &vn.back().z);
@@ -74,7 +78,7 @@ namespace VR
 						vertBuf[i * vert_size + 1] = v[vert[i].v - 1].y;
 						vertBuf[i * vert_size + 2] = v[vert[i].v - 1].z;
 
-						if (material->GetTypeID() == MATERIAL_TYPE::LAMBERT)
+						if (mesh.material.HasNormals())
 						{
 							vertBuf[i * 6 + 3] = vn[vert[i].vn - 1].x;
 							vertBuf[i * 6 + 4] = vn[vert[i].vn - 1].y;
@@ -103,7 +107,7 @@ namespace VR
 						vertBuf[i * vert_size + 1] = v[vert[i].v - 1].y;
 						vertBuf[i * vert_size + 2] = v[vert[i].v - 1].z;
 
-						if (have_normals)
+						if (mesh.material.HasNormals())
 						{
 							vertBuf[i * 6 + 3] = vn[vert[i].vn - 1].x;
 							vertBuf[i * 6 + 4] = vn[vert[i].vn - 1].y;
@@ -125,7 +129,5 @@ namespace VR
 		mesh.geometry.indices_count = indices.size();
 		mesh.geometry.vertices = (uint8_t*)vertices.data();
 		mesh.geometry.vertices_size = vertices.size() * sizeof(float);
-
-		mesh.material = material;
 	}
 }

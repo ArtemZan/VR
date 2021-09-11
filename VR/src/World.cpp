@@ -61,9 +61,10 @@ namespace VR
 	{
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		for (const Scene::Batch& batch : m_scene.batches)
+		for (Scene::Batch& batch : m_scene.batches)
 		{
-			batch.shader->Bind();
+			batch.material.BindShader();
+			batch.material.SetShaderUniforms();
 
 			batch.vb.Bind();
 			batch.vb.Data(batch.vertices.size(), batch.vertices.data());
@@ -72,7 +73,7 @@ namespace VR
 				std::cout << *(float*)(&batch.vertices[i]) << std::endl;
 			}*/
 			batch.va.Bind();
-			batch.va.AddBuffer(batch.attribLayout);
+			batch.va.AddBuffer(batch.material.GetLayout());
 			GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
 		}
 

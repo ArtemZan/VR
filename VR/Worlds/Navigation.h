@@ -98,7 +98,7 @@ public:
 
 	void AddButton(const math::vec2& size, const math::vec2& pos, Material* material)
 	{
-		meshes.emplace_back(material);
+		meshes.emplace_back(*material, Geometry());
 		buttons.emplace_back(pos, size);
 
 		m_scene.AddBox(size, material, &meshes.back());

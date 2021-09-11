@@ -6,10 +6,9 @@ namespace VR
 	{
 	public:
 		MeshLoader();
-		void Load(const char* obj, Material* material);
+		void Load(const char* obj);
 
 		Mesh mesh;
-		LambertMaterial mat;
 	private:
 
 		std::vector<float> vertices;
