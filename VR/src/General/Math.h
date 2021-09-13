@@ -4,6 +4,9 @@ namespace VR
 {
     namespace math
     {
+        constexpr float PI = 3.14159;
+
+
         struct mat2;
         struct mat3;
         struct mat4;
@@ -12,7 +15,7 @@ namespace VR
 
         struct vec2
         {
-            vec2();
+            vec2(float scale = 0);
             vec2(float x, float y);
             vec2(const vec2& vec);
             vec2(const vec2i& vec);
@@ -81,7 +84,7 @@ namespace VR
 
         struct vec3
         {
-            vec3();
+            vec3(float scale = 0);
             vec3(float x, float y, float z);
             vec3(const vec3& vec3);
 

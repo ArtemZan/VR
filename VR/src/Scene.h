@@ -9,7 +9,8 @@ namespace VR
 	{
 		struct Batch
 		{
-			Batch(const Material& material);
+			//Batch(const Material& material);
+			Batch();
 			Batch(const Batch& batch);
 			~Batch();
 
@@ -19,8 +20,6 @@ namespace VR
 
 			std::vector<uint8_t> vertices;
 			std::vector<uint32_t> indices;
-
-			Material material;
 
 			gl::VertexArray va;
 			gl::VertexBuffer vb;
@@ -32,8 +31,8 @@ namespace VR
 
 		Scene();
 
-		void AddBox(math::vec2 size, Material* material, Mesh* mesh_buffer);
-		void AddBox(math::vec3 size, Material* material, Mesh* mesh_buffer);
+		//void AddBox(math::vec2 size, Material* material, Mesh* mesh_buffer);
+		//void AddBox(math::vec3 size, Material* material, Mesh* mesh_buffer);
 
 		std::vector<Batch> batches;
 

@@ -4,16 +4,20 @@
 namespace VR
 {
 	MeshLoader::MeshLoader()
-		:mesh(Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Diffuse.shader", {}), {})
-	{
-		mesh.material.PushAttrib<float>(3);
-		mesh.material.PushAttrib<float>(4);
-		mesh.material.PushAttrib<float>(3);
+		:mat("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Diffuse.shader")
+	{		
 	}
 
 	//To do: load materials
 	void MeshLoader::Load(const char* obj)
 	{
+		mat.PushAttrib<float>(3);
+		mat.PushAttrib<float>(4);
+		mat.PushAttrib<float>(3);
+		mat.SetPosOffset(0);
+		mat.SetColorOffset(1);
+		mat.SetNormalOffset(2);
+
 		std::ifstream file;
 		file.open(obj);
 		if (!file.is_open())
@@ -21,7 +25,7 @@ namespace VR
 			std::cout << "Couldn't open \"" << obj << "\"\n";
 		}
 
-		int vert_size = (mesh.material.GetVertexSize() - sizeof(math::vec4)) / sizeof(float);
+		int vert_size = (mat.GetVertexSize() - sizeof(math::vec4)) / sizeof(float);
 
 		std::string line;
 
@@ -42,7 +46,7 @@ namespace VR
 				}
 				case 'n':
 				{
-					if (mesh.material.HasNormals())
+					if (mat.HasNormals())
 					{
 						vn.emplace_back();
 						sscanf_s(line.c_str(), "vn %f %f %f", &vn.back().x, &vn.back().y, &vn.back().z);
@@ -78,7 +82,7 @@ namespace VR
 						vertBuf[i * vert_size + 1] = v[vert[i].v - 1].y;
 						vertBuf[i * vert_size + 2] = v[vert[i].v - 1].z;
 
-						if (mesh.material.HasNormals())
+						if (mat.HasNormals())
 						{
 							vertBuf[i * 6 + 3] = vn[vert[i].vn - 1].x;
 							vertBuf[i * 6 + 4] = vn[vert[i].vn - 1].y;
@@ -103,15 +107,11 @@ namespace VR
 
 					for (int i = 0; i < 4; i++)
 					{
-						vertBuf[i * vert_size + 0] = v[vert[i].v - 1].x;
-						vertBuf[i * vert_size + 1] = v[vert[i].v - 1].y;
-						vertBuf[i * vert_size + 2] = v[vert[i].v - 1].z;
+						*(math::vec3*)(vertBuf + i * vert_size) = v[vert[i].v - 1];
 
-						if (mesh.material.HasNormals())
+						if (mat.HasNormals())
 						{
-							vertBuf[i * 6 + 3] = vn[vert[i].vn - 1].x;
-							vertBuf[i * 6 + 4] = vn[vert[i].vn - 1].y;
-							vertBuf[i * 6 + 5] = vn[vert[i].vn - 1].z;
+							*(math::vec3*)(vertBuf + i * vert_size + 3) = vn[vert[i].vn - 1];
 						}
 					}
 
@@ -124,10 +124,5 @@ namespace VR
 				}
 			}
 		}
-
-		mesh.geometry.indices = indices.data();
-		mesh.geometry.indices_count = indices.size();
-		mesh.geometry.vertices = (uint8_t*)vertices.data();
-		mesh.geometry.vertices_size = vertices.size() * sizeof(float);
 	}
 }

@@ -20,11 +20,10 @@ namespace VR
 		SetLayout({});
 	}
 
-	Material::Material(const Material& mat)
-		:m_shader(mat.m_shader), m_layoutId(mat.m_layoutId)
+	/*Material::Material(const Material& mat)
 	{
-		
-	}
+		std::cout << "Material::Material(const Material& mat) :) \n";
+	}*/
 
 
 	int Material::FindShader(const std::string& path)
@@ -74,6 +73,16 @@ namespace VR
 		}
 
 		return -1;
+	}
+
+	void Material::DeleteShaders()
+	{
+		for (auto& [path, shader] : shaders)
+		{
+			delete shader;
+		}
+
+		shaders.clear();
 	}
 
 	void Material::SetShader(const std::string& path)
@@ -185,7 +194,7 @@ namespace VR
 
 		if (attribs[pos].count == 2 || attribs[pos].count == 3)
 		{
-			props.attribsOffsets.normal = pos;
+			props.attribsPos.normal = pos;
 			props.attribsOffsets.normal = GetLayout().GetOffset(pos);
 			return true;
 		}
@@ -194,12 +203,35 @@ namespace VR
 		return false;
 	}
 
+#define TRY_TO_GET_OFFSET(data) 										   \
+	if (props.attribsOffsets.data == -1)								   \
+	{																	   \
+		std::cout << "Error: " << #data << " offset hasn't been set\n";	   \
+		return 0;														   \
+	}																	   \
+	return props.attribsOffsets.data;
+
+	int Material::GetColorOffset() const
+	{
+		TRY_TO_GET_OFFSET(color);
+	}
+
+	int Material::GetPosOffset() const
+	{
+		TRY_TO_GET_OFFSET(pos);
+	}
+
+	int Material::GetNormalOffset() const
+	{
+		TRY_TO_GET_OFFSET(normal);
+	}
+
 
 	void Material::SetShaderUniforms()
 	{
-		std::unique_ptr<gl::Shader> shader;
+		//std::unique_ptr<gl::Shader> shader;
 #define SET_UNIFORMS(map) for (auto& [name, value] : map)\
-			shader->SetUniform(name.c_str(), value);
+			m_shader->SetUniform(name.c_str(), value);
 
 		SET_UNIFORMS(ui)
 		SET_UNIFORMS(uf)
@@ -209,30 +241,31 @@ namespace VR
 		SET_UNIFORMS(um4)
 
 		for (auto [name, value] : uiv)
-			shader->SetUniform(name.c_str(), value.first.data(), value.second);
+			m_shader->SetUniform(name.c_str(), value.first.data(), value.second);
 	}
 
-	inline void Material::SetShaderUniform(const std::string& name, int v)
+
+	void Material::SetShaderUniform(const std::string& name, int v)
 	{
 		ui[name] = v;
 	}
 
-	inline void Material::SetShaderUniform(const std::string& name, float v)
+	void Material::SetShaderUniform(const std::string& name, float v)
 	{
 		uf[name] = v;
 	}
 
-	inline void Material::SetShaderUniform(const std::string& name, math::vec2 v)
+	void Material::SetShaderUniform(const std::string& name, const math::vec2& v)
 	{
 		uv2[name] = v;
 	}
 
-	inline void Material::SetShaderUniform(const std::string& name, math::vec3 v)
+	void Material::SetShaderUniform(const std::string& name, const math::vec3& v)
 	{
 		uv3[name] = v;
 	}
 
-	inline void Material::SetShaderUniform(const std::string& name, const int* data, size_t count)
+	void Material::SetShaderUniform(const std::string& name, const int* data, size_t count)
 	{
 		std::pair<std::vector<int>, size_t> pair({}, count);
 		std::initializer_list<int> initList(data, data + count);
@@ -240,12 +273,12 @@ namespace VR
 		uiv[name] = pair;
 	}
 
-	inline void Material::SetShaderUniform(const std::string& name, const math::mat4& matrix)
+	void Material::SetShaderUniform(const std::string& name, const math::mat4& matrix)
 	{
 		um4[name] = matrix;
 	}
 
-	inline void Material::SetShaderUniform(const std::string& name, const math::mat3& matrix)
+	void Material::SetShaderUniform(const std::string& name, const math::mat3& matrix)
 	{
 		um3[name] = matrix;
 	}
@@ -254,8 +287,12 @@ namespace VR
 
 
 	GUIMaterial::GUIMaterial()
-		:Material("GUI.shader", gl::AttribLayout())
+		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\GUI.shader")
 	{
+		PushAttrib<float>(2);
+		PushAttrib<float>(4);
 
+		SetPosOffset(0);
+		SetColorOffset(1);
 	}
 }

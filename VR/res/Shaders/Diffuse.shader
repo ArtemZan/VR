@@ -22,6 +22,7 @@ void main()
 	color = vec4(in_color.rgb * min(ambientLightColor + diffuseLight.color * max(-dot(in_normal, normalize(in_position - diffuseLight.position)), 0.0), vec3(1.0, 1.0, 1.0)), 1.0);
 	//color = vec4(in_color.rgb, 1.0);
 	gl_Position = mvp * vec4(in_position, 1.0);
+	//color = vec4(vec3(1.0, 1.0, 1.0) * -dot(in_normal, normalize(in_position - diffuseLight.position)), 1.0);
 	//gl_Position = vec4(position.x * ratio, position.y, position.z, position.w);
 	//gl_Position = vec4(position.x * 100.0f, position.y * 100.0f, 10.0f, 1.0f);
 

@@ -20,7 +20,8 @@ namespace VR
 		{
 			if (m_deleteProgram)
 			{
-				GLCall(glDeleteProgram(m_glID));
+				//GLCall(glDeleteProgram(m_glID));
+				glDeleteProgram(m_glID);
 			}
 		}
 
@@ -104,6 +105,9 @@ namespace VR
 			std::ifstream file(std::string("..\\..\\..\\Unleashed\\res\\Shaders\\") + filepath);
 			if (file.fail())
 				file = std::ifstream(std::string("res\\Shaders\\")  + filepath);
+
+			if (file.fail())
+				file = std::ifstream(filepath);
 
 			if (file.fail())
 			{

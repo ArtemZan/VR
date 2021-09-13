@@ -4,16 +4,16 @@ namespace VR
 {
 	struct AttribsPos
 	{
-		uint8_t color = -1;
-		uint8_t pos = -1;
-		uint8_t normal = -1;
+		int8_t color = -1;
+		int8_t pos = -1;
+		int8_t normal = -1;
 	};
 
 	struct AttribsOffsets
 	{
-		uint8_t color = -1;
-		uint8_t pos = -1;
-		uint8_t normal = -1;
+		int8_t color = -1;
+		int8_t pos = -1;
+		int8_t normal = -1;
 	};
 
 	struct MaterialProps
@@ -31,7 +31,7 @@ namespace VR
 
 		Material(const char* shader_path, const gl::AttribLayout& layout);
 		Material(const char* shader_path);
-		Material(const Material& mat);
+		Material(const Material& mat) = default;
 
 	public:
 
@@ -43,8 +43,8 @@ namespace VR
 
 		void SetShaderUniform(const std::string& name, int v);
 		void SetShaderUniform(const std::string& name, float v);
-		void SetShaderUniform(const std::string& name, math::vec2 v);
-		void SetShaderUniform(const std::string& name, math::vec3 v);
+		void SetShaderUniform(const std::string& name, const math::vec2& v);
+		void SetShaderUniform(const std::string& name, const math::vec3& v);
 		void SetShaderUniform(const std::string& name, const int* data, size_t count);
 		void SetShaderUniform(const std::string& name, const math::mat4& matrix);
 		void SetShaderUniform(const std::string& name, const math::mat3& matrix);
@@ -59,16 +59,16 @@ namespace VR
 
 
 
-		inline void SetColor() {}
+		inline void SetColor(const math::vec4& color) { props.color = color; }
 		inline math::vec4 GetColor() const { return props.color; }
 
 		bool SetColorOffset(size_t pos);
-		inline int GetColorOffset() const { return props.attribsOffsets.color; }
+		int GetColorOffset() const;
 		bool SetPosOffset(size_t pos);
-		inline int GetPosOffset() const { return props.attribsOffsets.pos; }
+		int GetPosOffset() const;
 		bool SetNormalOffset(size_t pos);
-		inline int GetNormalOffset() const { return props.attribsOffsets.normal; }
-		inline size_t HasNormals() const { return props.attribsPos.normal != -1; }
+		int GetNormalOffset() const;
+		inline bool HasNormals() const { return props.attribsPos.normal != int8_t(-1); }
 
 		inline bool Is3D() const { return props._3d; }
 
@@ -91,6 +91,8 @@ namespace VR
 
 		MaterialProps props;
 
+		static void DeleteShaders();
+
 		static std::vector<std::pair<std::string, gl::Shader*>> shaders;
 		static std::vector<gl::AttribLayout> layouts;
 	};
@@ -98,7 +100,5 @@ namespace VR
 	struct GUIMaterial : public Material
 	{
 		GUIMaterial();
-
-		math::vec4 color;
 	};
 }

@@ -21,8 +21,8 @@ namespace VR
 	{
 		// vec2
 
-		vec2::vec2()
-			:x(0), y(0)
+		vec2::vec2(float scale)
+			:x(scale), y(scale)
 		{
 		}
 
@@ -122,8 +122,8 @@ namespace VR
 
 
 
-		vec3::vec3()
-			:x(0), y(0), z(0)
+		vec3::vec3(float scale)
+			:x(scale), y(scale), z(scale)
 		{
 		}
 
@@ -336,6 +336,7 @@ namespace VR
 			return res;
 		}
 
+		//Angle is in radians
 		mat3 rotate(const vec3& axis, float angle)
 		{
 			vec3 a = normalize(axis);

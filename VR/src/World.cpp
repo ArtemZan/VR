@@ -63,17 +63,21 @@ namespace VR
 
 		for (Scene::Batch& batch : m_scene.batches)
 		{
-			batch.material.BindShader();
-			batch.material.SetShaderUniforms();
+			batch.meshes[0]->material.BindShader();
+			batch.meshes[0]->material.SetShaderUniforms();
 
 			batch.vb.Bind();
 			batch.vb.Data(batch.vertices.size(), batch.vertices.data());
 			/*for (int i = 0; i < batch.vertices.size(); i+=4)
 			{
-				std::cout << *(float*)(&batch.vertices[i]) << std::endl;
+				if (i % batch.meshes[0]->material.GetVertexSize() == 0)
+				{
+					std::cout << std::endl;
+				}
+				std::cout << *(float*)(&batch.vertices[i]) << " ";
 			}*/
 			batch.va.Bind();
-			batch.va.AddBuffer(batch.material.GetLayout());
+			batch.va.AddBuffer(batch.meshes[0]->material.GetLayout());
 			GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
 		}
 

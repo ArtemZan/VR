@@ -44,7 +44,7 @@ namespace VR
 
 	Context::~Context()
 	{
-		Material::shaders.clear();
+		Material::DeleteShaders();
 		glfwTerminate(); //SOMETIMES doesn't link?
 	}
 }

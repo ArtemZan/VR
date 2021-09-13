@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "VR.h"
-//#include "Worlds/SolarSystem.h"
+#include "Worlds/SolarSystem.h"
 //#include "Worlds/TestWorld1.h"
 //#include "Worlds/Pendulum.h"
 //#include "Worlds/Labyrinth.h"
@@ -16,11 +16,11 @@ int main()
 
 	{
 		Navigation nav;
-		/*SolarSystem solarSystem;
-		TestWorld1 testWorld1;
-		Pendulum pendulum;
-		Labyrinth labyrinth;
-		Gravitation gravitation;*/
+		SolarSystem solarSystem;
+		//TestWorld1 testWorld1;
+		//Pendulum pendulum;
+		//Labyrinth labyrinth;
+		//Gravitation gravitation;
 		
 		nav.Run();
 
@@ -34,7 +34,7 @@ int main()
 			switch (l)
 			{
 			case 0:
-				//solarSystem.Run();
+				solarSystem.Run();
 				break;
 			case 1:
 				//testWorld1.Run();

@@ -17,9 +17,12 @@ namespace VR
 
 		size_t AttribLayout::GetOffset(size_t pos) const
 		{
+			if (pos == 0 || pos >= m_attributes.size())
+				return 0;
+
 			size_t offset = 0;
 
-			while (--pos)
+			while (pos--)
 				offset += m_attributes[pos].Size();
 
 			return offset;
