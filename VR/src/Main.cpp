@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "VR.h"
-#include "Worlds/SolarSystem.h"
+#include "Worlds/Monkeys.h"
+#include "Worlds/Collisions.h"
 //#include "Worlds/TestWorld1.h"
 //#include "Worlds/Pendulum.h"
 //#include "Worlds/Labyrinth.h"
@@ -16,43 +17,40 @@ int main()
 
 	{
 		Navigation nav;
-		SolarSystem solarSystem;
+		Monkeys monkeys;
+		Collisions collisions;
 		//TestWorld1 testWorld1;
 		//Pendulum pendulum;
 		//Labyrinth labyrinth;
 		//Gravitation gravitation;
 		
 		nav.Run();
-
-		int& link = nav.link;
+		int link = nav.GetLink();
 
 		while (link != -1)
 		{
-			int l = link;
-			link = -1;
-			bool world_found = true;
-			switch (l)
+			switch (link)
 			{
-			case 0:
-				solarSystem.Run();
-				break;
 			case 1:
-				//testWorld1.Run();
+				monkeys.Run();
+				link = monkeys.GetLink();
 				break;
 			case 2:
-				//pendulum.Run();
+				collisions.Run();
+				link = collisions.GetLink();
 				break;
 			case 3:
-				//labyrinth.Run();
+				//pendulum.Run();
 				break;
 			case 4:
+				//labyrinth.Run();
+				break;
+			case 5:
 				//gravitation.Run();
 				break;
-			default: world_found = false;
-			}
-			if (world_found)
-			{
+			default: 
 				nav.Run();
+				link = nav.GetLink();
 			}
 		}
 	}

@@ -13,6 +13,8 @@
 #include "OpenGL/VertexBuffer.h"
 #include "OpenGL/Shadow.h"
 
+#include "Camera.h"
+
 #include "Events.h"
 #include "Mesh/Material.h"
 #include "Mesh/Geometry.h"
@@ -23,6 +25,5 @@
 #include "IO.h"
 #include "Context.h"
 #include "Scene.h"
-#include "Camera.h"
 #include "World.h"
 #include "MeshLoader.h"

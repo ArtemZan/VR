@@ -31,7 +31,6 @@ namespace VR
 
 		Material(const char* shader_path, const gl::AttribLayout& layout);
 		Material(const char* shader_path);
-		Material(const Material& mat) = default;
 
 	public:
 
@@ -41,14 +40,14 @@ namespace VR
 		inline void BindShader() { m_shader->Bind(); }
 		void SetShaderUniforms();
 
-		void SetShaderUniform(const std::string& name, int v);
-		void SetShaderUniform(const std::string& name, float v);
-		void SetShaderUniform(const std::string& name, const math::vec2& v);
-		void SetShaderUniform(const std::string& name, const math::vec3& v);
+		inline void SetShaderUniform(const std::string& name, int v) { ui[name] = v; }
+		inline void SetShaderUniform(const std::string& name, float v) { uf[name] = v; }
+		inline void SetShaderUniform(const std::string& name, const math::vec2& v) { uv2[name] = v; }
+		inline void SetShaderUniform(const std::string& name, const math::vec3& v) { uv3[name] = v; }
 		void SetShaderUniform(const std::string& name, const int* data, size_t count);
-		void SetShaderUniform(const std::string& name, const math::mat4& matrix);
-		void SetShaderUniform(const std::string& name, const math::mat3& matrix);
-
+		inline void SetShaderUniform(const std::string& name, const math::mat4& matrix) { um4[name] = matrix; }
+		inline void SetShaderUniform(const std::string& name, const math::mat3& matrix) { um3[name] = matrix; }
+		inline void SetShaderUniform(const std::string& name, const math::mat3x2& matrix) { um3x2[name] = matrix; }
 
 		void SetLayout(const gl::AttribLayout& layout);
 		inline const gl::AttribLayout& GetLayout() const { return layouts[m_layoutId]; }
@@ -85,6 +84,7 @@ namespace VR
 		std::map<std::string, std::pair<std::vector<int>, size_t>> uiv;
 		std::map<std::string, math::mat3> um3;
 		std::map<std::string, math::mat4> um4;
+		std::map<std::string, math::mat3x2> um3x2;
 
 		int FindShader(const std::string& path);
 		int FindLayout(const gl::AttribLayout& path);
@@ -97,8 +97,9 @@ namespace VR
 		static std::vector<gl::AttribLayout> layouts;
 	};
 
-	struct GUIMaterial : public Material
+	struct Material2D : public Material
 	{
-		GUIMaterial();
+		Material2D();
 	};
+
 }

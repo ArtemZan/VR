@@ -5,12 +5,12 @@ layout(location = 0) in vec2 in_pos;
 layout(location = 1) in vec4 in_color;
 
 out vec4 color;
-uniform mat3 view;
+uniform mat3x2 transform;
 
 void main()
 {
 	color = in_color;
-	gl_Position = vec4(view * vec3(in_pos, 0.0), 1.0);
+	gl_Position = vec4(vec3(transform * vec3(in_pos, 1.0), 0.0), 1.0);
 }
 
 #shader fragment

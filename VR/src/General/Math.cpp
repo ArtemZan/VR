@@ -41,6 +41,11 @@ namespace VR
 		{
 		}
 
+		vec2::vec2(const vec3& vec)
+			:x(vec.x), y(vec.y)
+		{
+		}
+
 		void vec2::operator=(const vec2& vec)
 		{
 			x = vec.x;
@@ -51,19 +56,49 @@ namespace VR
 		vec2 vec2::operator*(const mat2& matrix) const
 		{
 			vec2 res;
-			res.x = matrix.x.x * x + matrix.y.x * y;
-			res.y = matrix.x.y * x + matrix.y.y * y;
+			res *= matrix;
 			return res;
 		}
 
-		vec2 vec2::operator*(float k) const
+		void vec2::operator*=(float k)
 		{
-			return vec2(x * k, y * k);
+			x *= k;
+			y *= k;
 		}
 
-		vec2 vec2::operator*(const vec2& vec) const
+		void vec2::operator*=(const vec2& vec)
 		{
-			return { x * vec.x, y * vec.y };
+			x *= vec.x;
+			y *= vec.y;
+		}
+
+		void vec2::operator*=(const mat2& matrix)
+		{
+			*this = matrix.x * x + matrix.y * y;
+		}
+
+		void vec2::operator/=(float k)
+		{
+			x /= k;
+			y /= k;
+		}
+
+		void vec2::operator/=(const vec2& vec)
+		{
+			x /= vec.x;
+			y /= vec.y;
+		}
+
+		void vec2::operator+=(const vec2& vec)
+		{
+			x += vec.x;
+			y += vec.y;
+		}
+
+		void vec2::operator-=(const vec2& vec)
+		{
+			x += vec.x;
+			y += vec.y;
 		}
 
 		void vec2::normalize()
@@ -133,10 +168,25 @@ namespace VR
 
 		}
 
+		vec3::vec3(const vec2& vec, float z)
+			:x(vec.x), y(vec.y), z(z)
+		{
+		}
+
+		vec3::vec3(float x, const vec2& vec)
+			:x(x), y(vec.x), z(vec.y)
+		{
+		}
+
 		vec3::vec3(const vec3& vec3)
 			: x(vec3.x), y(vec3.y), z(vec3.z)
 		{
 
+		}
+
+		vec3::vec3(const vec4& vec)
+			:x(vec.x), y(vec.y), z(vec.z)
+		{
 		}
 
 		void vec3::operator=(const vec3& vec)
@@ -155,20 +205,54 @@ namespace VR
 			return res;
 		}
 
-		vec3 vec3::operator*(float k) const
+		void vec3::operator*=(float k)
 		{
-			return vec3(x * k, y * k, z * k);
+			x *= k;
+			y *= k;
 		}
 
-		vec3 vec3::operator*(const vec3 vec) const
+		void vec3::operator*=(const mat3& matrix)
 		{
-			return { x * vec.x, y * vec.y, z * vec.z };
+			x = matrix.x.x * x + matrix.y.x * y + matrix.z.x * z;
+			y = matrix.x.y * x + matrix.y.y * y + matrix.z.y * z;
+			z = matrix.x.z * x + matrix.y.z * y + matrix.z.z * z;
 		}
 
-		vec3 vec3::operator/(float k) const
+		void vec3::operator*=(const vec3& vec)
 		{
-			return vec3(x / k, y / k, z / k);
+			x *= vec.x;
+			y *= vec.y;
+			z *= vec.z;
 		}
+
+		void vec3::operator/=(float k)
+		{
+			x *= k;
+			y *= k;
+			z *= k;
+		}
+
+		void vec3::operator/=(const vec3& vec)
+		{
+			x /= vec.x;
+			y /= vec.y;
+			z /= vec.z;
+		}
+
+		void vec3::operator+=(const vec3& vec)
+		{
+			x += vec.x;
+			y += vec.y;
+			z += vec.z;
+		}
+
+		void vec3::operator-=(const vec3& vec)
+		{
+			x -= vec.x;
+			y -= vec.y;
+			z -= vec.z;
+		}
+
 
 		void vec3::normalize()
 		{
@@ -194,6 +278,31 @@ namespace VR
 			: x(x), y(y), z(z), w(w)
 		{
 
+		}
+
+		vec4::vec4(const vec2& vec1, const vec2& vec2)
+			:x(vec1.x), y(vec1.y), z(vec2.x), w(vec2.y)
+		{
+		}
+
+		vec4::vec4(const vec2& vec, float z, float w)
+			: x(vec.x), y(vec.y), z(z), w(w)
+		{
+		}
+
+		vec4::vec4(float x, float y, const vec2& vec)
+			:x(x), y(y), z(vec.x), w(vec.y)
+		{
+		}
+
+		vec4::vec4(const vec3& vec, float w)
+			:x(vec.x), y(vec.y), z(vec.z), w(w)
+		{
+		}
+
+		vec4::vec4(float x, const vec3& vec)
+			:x(x), y(vec.x), z(vec.y), w(vec.z)
+		{
 		}
 
 		vec4::vec4(const vec4& vec4)
@@ -223,10 +332,10 @@ namespace VR
 		vec4 vec4::operator*(const mat4& matrix) const
 		{
 			vec4 res;
-			res.x = x * matrix.x.x + y * matrix.y.x + z * matrix.z.x + w * matrix.z.x;
-			res.y = x * matrix.x.y + y * matrix.y.y + z * matrix.z.y + w * matrix.z.x;
-			res.z = x * matrix.x.z + y * matrix.y.z + z * matrix.z.z + w * matrix.z.x;
-			res.w = x * matrix.x.w + y * matrix.y.w + z * matrix.z.w + w * matrix.z.x;
+			res.x = x * matrix.x.x + y * matrix.y.x + z * matrix.z.x + w * matrix.w.x;
+			res.y = x * matrix.x.y + y * matrix.y.y + z * matrix.z.y + w * matrix.w.y;
+			res.z = x * matrix.x.z + y * matrix.y.z + z * matrix.z.z + w * matrix.w.z;
+			res.w = x * matrix.x.w + y * matrix.y.w + z * matrix.z.w + w * matrix.w.w;
 			return res;
 		}
 
@@ -283,6 +392,11 @@ namespace VR
 			z.z = scale;
 		}
 
+		mat3::mat3(const vec3& x, const vec3& y, const vec3& z)
+			:x(x), y(y), z(z)
+		{
+		}
+
 		mat3 mat3::operator*(const mat3& matrix) const
 		{
 			mat3 res;
@@ -294,6 +408,11 @@ namespace VR
 
 
 		mat4::mat4()
+		{
+		}
+
+		mat4::mat4(const vec4& x, const vec4& y, const vec4& z, const vec4& w)
+			:x(x), y(y), z(z), w(w)
 		{
 		}
 
@@ -316,6 +435,17 @@ namespace VR
 		}
 
 
+		mat3x2::mat3x2()
+		{
+
+		}
+
+		mat3x2::mat3x2(float scale)
+		{
+			x.x = scale;
+			y.y = scale;
+		}
+
 		mat4 perspective(float fov, float aspect, float near, float far)
 		{
 			mat4 res(1.0f);
@@ -329,10 +459,25 @@ namespace VR
 
 		mat4 lookAt(const vec3& eye, const vec3& dir, const vec3& up)
 		{
-			mat4 res;
-			vec3 target = eye + dir;
-			glm::mat4 glmRes = glm::lookAt(glm::vec3(eye.x, eye.y, eye.z), glm::vec3(target.x, target.y, target.z), glm::vec3(up.x, up.y, up.z));
-			memcpy(&res, &glmRes, sizeof(mat4));
+			mat4 res(1);
+
+			const vec3 u = normalize(up);
+			const vec3 d = normalize(dir);
+			const vec3 side(cross(d, up));
+
+			res.x.x = side.x;
+			res.y.x = side.y;
+			res.z.x = side.z;
+			res.x.y = u.x;
+			res.y.y = u.y;
+			res.z.y = u.z;
+			res.x.z = -d.x;
+			res.y.z = -d.y;
+			res.z.z = -d.z;
+			res.w.x = -dot(side, eye);
+			res.w.y = -dot(u, eye);
+			res.w.z = dot(d, eye);
+
 			return res;
 		}
 

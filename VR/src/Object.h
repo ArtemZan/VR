@@ -7,9 +7,13 @@ namespace VR
 
 		Object(const Mesh& mesh);
 		Object(const Material& material);
+		Object(const Object& object);
+		~Object();
 
 		virtual inline void Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count) = 0;
 		virtual inline void Shape(const Geometry& geo) = 0;
+
+
 	};
 
 	struct Object3D : public Object
@@ -22,7 +26,7 @@ namespace VR
 
 		inline void Move(const math::vec3& bias)
 		{
-			Move(bias);
+			mesh.Move(bias);
 		}
 
 		inline void MoveTo(const math::vec3& new_pos)
@@ -33,6 +37,11 @@ namespace VR
 		inline void Scale(const math::vec3& scale)
 		{
 			mesh.Scale(scale);
+		}
+
+		inline void SetSize(const math::vec3& size)
+		{
+			mesh.SetScale(size);
 		}
 
 		inline math::vec3 Pos() const { return mesh.pos.Get3D(); }
@@ -48,6 +57,8 @@ namespace VR
 		{
 			mesh.Shape3D(geo);
 		}
+
+		inline bool IsHovered(const math::mat4& mvp) const { return mesh.IsHovered(mvp); }
 	};
 
 	struct Object2D : public Object
@@ -56,7 +67,8 @@ namespace VR
 		Object2D(const Material& material);
 
 		inline void Square(float size) { mesh.Square(size); }
-		inline void Rect(math::vec2 size) { mesh.Rect(size); }
+		inline void Rect(const math::vec2& size) { mesh.Rect(size); }
+		void Line(const math::vec2& start, const math::vec2& end, float width, float border_radius, size_t border_sections);
 		inline void Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count) override
 		{
 			mesh.Shape2D(vertices, vert_size, indices, ind_count);
@@ -82,8 +94,16 @@ namespace VR
 			mesh.Scale(scale);
 		}
 
+		inline void SetSize(const math::vec2& size)
+		{
+			mesh.SetScale(size);
+		}
+
 		inline math::vec2 Pos() const { return mesh.pos.Get2D(); }
 		inline math::vec2 Size() const { return mesh.size.Get2D(); }
+
+
+		inline bool IsHovered(const math::mat3& camera_view = 1) const { return mesh.IsHovered(camera_view); }
 
 	};
 }

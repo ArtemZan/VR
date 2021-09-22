@@ -12,12 +12,16 @@ namespace VR
 
 
 	private:
+		size_t ind_offset = 0;
+
 		uint8_t* vertices = nullptr;
 		size_t vertices_size = 0;
 		uint32_t* indices = nullptr;
 		size_t indices_count = 0;
 
 		//Normals?
+
+		void SetIndOffset(size_t new_offset);
 
 		void Alloc(size_t vertSize, size_t indCount);
 		void Clear();

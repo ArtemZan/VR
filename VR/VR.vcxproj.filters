@@ -173,13 +173,16 @@
     <ClInclude Include="Worlds\Pendulum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Worlds\SolarSystem.h">
+    <ClInclude Include="Worlds\Monkeys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Worlds\TestWorld1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Worlds\Collisions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

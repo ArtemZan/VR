@@ -12,9 +12,7 @@ namespace VR
 
 		static World* currentWorld;
 
-		void WindowResized(int width, int height);
-
-		
+		inline int GetLink() const { return link; }
 
 	protected:
 		World();
@@ -30,15 +28,17 @@ namespace VR
 		void Detach();
 		inline void MustUpdate() { m_updateNow = true; }
 
-		virtual void OnUpdate(float dTime) = 0;
+		virtual void OnUpdate(float dTime) {};
 		virtual void OnPhysicsUpdate(float dTime) {};
 		virtual void OnAttach() {}
-		virtual void OnDetach() {}
+		virtual void OnDetach() { }
 		virtual void OnWindowResize(int width, int height) override;
 		virtual void OnWindowClose() override;
 
 		Scene m_scene;
 		Camera m_camera;
+
+		int link = -1;
 
 	private:
 		void Update();

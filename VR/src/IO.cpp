@@ -42,7 +42,7 @@ namespace VR
 	{
 	}
 
-	void IO::OnMouseMove(math::vec2 pos)
+	void IO::OnMouseMove(const math::vec2& pos)
 	{
 		mousePos = pos;
 	}
@@ -51,7 +51,7 @@ namespace VR
 	{
 	}
 
-	void IO::OnScroll(math::vec2 offset)
+	void IO::OnScroll(const math::vec2& offset)
 	{
 	}
 

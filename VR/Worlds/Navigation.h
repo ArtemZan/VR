@@ -5,16 +5,19 @@ using namespace VR;
 
 class Navigation : public World
 {
-	GUIMaterial btnMat;
 	std::vector<Object2D> buttons;
 
 public:
-	int link = -1;
-
 	Navigation()
 	{
-		btnMat.SetColor({ 0.f, 1.f, 0.f, 0.f });
-		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.9, 0.9), &btnMat);
+		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.9, 0.9), { 0.f, 1.f, 0.f, 0.f });
+
+		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.7, 0.9), { 0.0f, 0.6f, 0.4f, 0.f });
+
+		for (Object2D& b : buttons)
+		{
+			m_scene.Add(&b.mesh);
+		}
 	}
 
 	~Navigation()
@@ -30,7 +33,7 @@ public:
 
 	void OnDetach() override
 	{
-		//std::cout << "Detached\n";
+		std::cout << "Detached\n";
 	}
 
 
@@ -59,7 +62,7 @@ public:
 				btnPos.y - btnSize.x / 2 < mPos.y &&
 				btnPos.y + btnSize.y / 2 > mPos.y)
 			{
-				link = i;
+				link = i + 1;
 				std::cout << "Detaching...\n";
 				Detach();
 				break;
@@ -78,14 +81,13 @@ public:
 		
 	}
 
-	void AddButton(const math::vec2& size, const math::vec2& pos, Material* material)
+	void AddButton(const math::vec2& size, const math::vec2& pos, const math::vec4& color)
 	{
-		buttons.emplace_back(*material);
+		buttons.emplace_back();
 
+		buttons.back().mesh.SetColor(color);
 		buttons.back().Rect(size);
 		buttons.back().Move(pos);
-
-		m_scene.Add(&buttons.back().mesh);
 	}
 };
 

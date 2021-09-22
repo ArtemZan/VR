@@ -13,8 +13,8 @@ namespace VR
 	public:
 		virtual void OnMouseDown(GLint button, GLint mods) {};
 		virtual void OnMouseUp(GLint button, GLint mods) {};
-		virtual void OnMouseMove(math::vec2 pos) {};
-		virtual void OnScroll(math::vec2 offset) {};
+		virtual void OnMouseMove(const math::vec2& pos) {};
+		virtual void OnScroll(const math::vec2& offset) {};
 
 		virtual void OnKeyDown(GLint key, GLint mods) {};
 		virtual void OnKeyUp(GLint key, GLint mods) {};

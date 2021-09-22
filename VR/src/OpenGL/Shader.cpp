@@ -70,6 +70,11 @@ namespace VR
 			GLCall(glUniformMatrix3fv(GetUniformLocation(name), 1, false, &matrix.x.x));
 		}
 
+		void Shader::SetUniform(const char* name, const math::mat3x2& matrix)
+		{
+			GLCall(glUniformMatrix3x2fv(GetUniformLocation(name), 1, false, &matrix.x.x));
+		}
+
 		unsigned int Shader::CompileShader(unsigned int type, const std::string& source) const
 		{
 			GLCall(unsigned int shader = glCreateShader(type));

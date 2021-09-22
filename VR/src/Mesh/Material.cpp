@@ -233,37 +233,18 @@ namespace VR
 #define SET_UNIFORMS(map) for (auto& [name, value] : map)\
 			m_shader->SetUniform(name.c_str(), value);
 
-		SET_UNIFORMS(ui)
-		SET_UNIFORMS(uf)
-		SET_UNIFORMS(uv2)
-		SET_UNIFORMS(uv3)
-		SET_UNIFORMS(um3)
-		SET_UNIFORMS(um4)
+		SET_UNIFORMS(ui);
+		SET_UNIFORMS(uf);
+		SET_UNIFORMS(uv2);
+		SET_UNIFORMS(uv3);
+		SET_UNIFORMS(um3);
+		SET_UNIFORMS(um4);
+		SET_UNIFORMS(um3x2);
 
 		for (auto [name, value] : uiv)
 			m_shader->SetUniform(name.c_str(), value.first.data(), value.second);
 	}
-
-
-	void Material::SetShaderUniform(const std::string& name, int v)
-	{
-		ui[name] = v;
-	}
-
-	void Material::SetShaderUniform(const std::string& name, float v)
-	{
-		uf[name] = v;
-	}
-
-	void Material::SetShaderUniform(const std::string& name, const math::vec2& v)
-	{
-		uv2[name] = v;
-	}
-
-	void Material::SetShaderUniform(const std::string& name, const math::vec3& v)
-	{
-		uv3[name] = v;
-	}
+	
 
 	void Material::SetShaderUniform(const std::string& name, const int* data, size_t count)
 	{
@@ -273,22 +254,13 @@ namespace VR
 		uiv[name] = pair;
 	}
 
-	void Material::SetShaderUniform(const std::string& name, const math::mat4& matrix)
+
+	Material2D::Material2D()
+		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\2D.shader")
 	{
-		um4[name] = matrix;
-	}
+		math::mat3x2 transform(1);
+		SetShaderUniform("transform", transform);
 
-	void Material::SetShaderUniform(const std::string& name, const math::mat3& matrix)
-	{
-		um3[name] = matrix;
-	}
-
-
-
-
-	GUIMaterial::GUIMaterial()
-		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\GUI.shader")
-	{
 		PushAttrib<float>(2);
 		PushAttrib<float>(4);
 

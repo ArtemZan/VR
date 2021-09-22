@@ -27,5 +27,6 @@ void VR::Camera::SetRotation(math::vec3 rot)
 void VR::Camera::Rotate(math::vec3 axis, float angle)
 {
 	dir *= math::rotate(axis, angle);
+	dir.normalize(); // ?
 	view = math::lookAt(pos, dir, math::vec3(0, 1, 0));
 }

@@ -9,9 +9,9 @@ namespace VR
 		~IO();
 
 		void OnMouseDown(GLint button, GLint mods) override;
-		void OnMouseMove(math::vec2 pos) override;
+		void OnMouseMove(const math::vec2& pos) override;
 		void OnMouseUp(GLint button, GLint mods) override;
-		void OnScroll(math::vec2 offset) override;
+		void OnScroll(const math::vec2& offset) override;
 
 		void OnKeyDown(GLint key, GLint mods) override;
 		void OnKeyUp(GLint key, GLint mods) override;

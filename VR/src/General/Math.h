@@ -12,6 +12,8 @@ namespace VR
         struct mat4;
 
         struct vec2i;
+        struct vec3;
+        struct vec4;
 
         struct vec2
         {
@@ -19,6 +21,8 @@ namespace VR
             vec2(float x, float y);
             vec2(const vec2& vec);
             vec2(const vec2i& vec);
+
+            vec2(const vec3& vec);
 
             union
             {
@@ -31,19 +35,22 @@ namespace VR
 
             void operator=(const vec2& vec);
 
+            inline vec2 operator*(float k) const { return { x * k, y * k }; }
+            inline vec2 operator*(const vec2& vec) const { return { x * vec.x, y * vec.y }; }
             vec2 operator*(const mat2& matrix) const;
-            vec2 operator*(float k) const;
-            vec2 operator*(const vec2& vec) const;
+
             inline vec2 operator/(float k) const { return { x / k, y / k }; }
+            inline vec2 operator/(const vec2& vec) const { return { x / vec.x, y / vec.y }; }
             inline vec2 operator+(const vec2& vec) const { return {x + vec.x, y + vec.y}; }
             inline vec2 operator-(const vec2& vec) const { return {x - vec.x, y - vec.y}; }
 
-            inline void operator*=(const mat2& matrix) { *this = *this * matrix; }
-            inline void operator*=(float k) { *this = *this * k; }
-            inline void operator*=(const vec2& vec) { *this = *this * vec; }
-            inline void operator/=(float k) { *this = *this / k; }
-            inline void operator+=(const vec2& vec) { *this = *this + vec; }
-            inline void operator-=(const vec2& vec) { *this = *this - vec; }
+            void operator*=(float k);
+            void operator*=(const vec2& vec);
+            void operator*=(const mat2& matrix);
+            void operator/=(float k);
+            void operator/=(const vec2& vec);
+            void operator+=(const vec2& vec);
+            void operator-=(const vec2& vec);
 
             void normalize();
             inline float distance(const vec2& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2)); }
@@ -51,6 +58,8 @@ namespace VR
             inline float dot(const vec2& vec) const { return x * vec.x + y * vec.y; }
             float cos(const vec2& vec) const;
         };
+
+        inline vec2 operator-(const vec2& vec) { return {-vec.x, -vec.y}; }
 
         vec2 normalize(const vec2& vec);
         inline float distance(const vec2& v1, const vec2& v2) { return v1.distance(v2); }
@@ -86,7 +95,11 @@ namespace VR
         {
             vec3(float scale = 0);
             vec3(float x, float y, float z);
-            vec3(const vec3& vec3);
+            vec3(const vec2& vec, float z);
+            vec3(float x, const vec2& vec);
+            vec3(const vec3& vec);
+
+            vec3(const vec4& vec);
 
             union
             {
@@ -104,23 +117,31 @@ namespace VR
 
             void operator=(const vec3& vec);
 
+            inline vec3 operator*(float k) const { return {x * k, y * k, z * k}; }
+            inline vec3 operator*(const vec3& vec) const { return {x * vec.x, y * vec.y, z * vec.z}; }
             vec3 operator*(const mat3& matrix) const;
-            vec3 operator*(float k) const;
-            vec3 operator*(const vec3 vec) const;
-            vec3 operator/(float k) const;
-            inline vec3 operator+(const vec3& vec) const { return vec3(x + vec.x, y + vec.y, z + vec.z); }
-            inline vec3 operator-(const vec3& vec) const { return vec3(x - vec.x, y - vec.y, z - vec.z); }
+            inline vec3 operator/(float k) const { return {x / k, y / k, z / k}; }
+            inline vec3 operator/(const vec3& vec) const { return { x / vec.x, y / vec.y, z / vec.z }; }
+            inline vec3 operator+(const vec3& vec) const { return { x + vec.x, y + vec.y, z + vec.z }; }
+            inline vec3 operator-(const vec3& vec) const { return { x - vec.x, y - vec.y, z - vec.z }; }
 
-            inline void operator*=(const mat3& matrix) { *this = *this * matrix; }
-            inline void operator*=(const vec3& vec) { *this = *this * vec; }
-            inline void operator+=(const vec3& vec) { *this = *this + vec; }
-            inline void operator-=(const vec3& vec) { *this = *this - vec; }
+            void operator*=(float k);
+            void operator*=(const mat3& matrix);
+            void operator*=(const vec3& vec);
+            void operator/=(float k);
+            void operator/=(const vec3& vec);
+            void operator+=(const vec3& vec);
+            void operator-=(const vec3& vec);
 
+            inline float dot(const vec3& v) const { return x * v.x + y * v.y + z * v.z; }
+            inline vec3 cross(const vec3& v) const { return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x}; }
             void normalize();
             inline float distance(const vec3& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2) + pow(z - vec.z, 2)); }
             inline float magnitude() const { return distance({ 0.0, 0.0, 0.0 }); }
         };
 
+        inline float dot(const vec3& v1, const vec3& v2) { return v1.dot(v2); }
+        inline vec3 cross(const vec3& v1, const vec3& v2) { return v1.cross(v2); }
         vec3 normalize(const vec3& vec);
         inline float distance(const vec3& v1, const vec3& v2) { return v1.distance(v2); }
         inline float magnitude(const vec3& vec) { return vec.distance({ 0.0, 0.0, 0.0 }); }
@@ -130,6 +151,14 @@ namespace VR
         {
             vec4();
             vec4(float x, float y, float z, float w);
+
+            vec4(const vec2& vec1, const vec2& vec2);
+            vec4(const vec2& vec, float z, float w);
+            vec4(float x, float y, const vec2& vec);
+
+            vec4(const vec3& vec, float w);
+            vec4(float x, const vec3& vec);
+
             vec4(const vec4& vec4);
 
             union
@@ -178,6 +207,7 @@ namespace VR
         {
             mat3();
             mat3(float scale);
+            mat3(const vec3& x, const vec3& y, const vec3& z);
 
             vec3 x;
             vec3 y;
@@ -189,6 +219,7 @@ namespace VR
         struct mat4
         {
             mat4();
+            mat4(const vec4& x, const vec4& y, const vec4& z, const vec4& w);
             mat4(float scale);
 
             vec4 x;
@@ -198,6 +229,16 @@ namespace VR
 
             mat4 operator*(const mat4& matrix) const;
             inline const void operator*=(const mat4& matrix) { *this = *this * matrix; }
+        };
+
+        struct mat3x2
+        {
+            mat3x2();
+            mat3x2(float scale);
+
+            vec2 x;
+            vec2 y;
+            vec2 z;
         };
 
 

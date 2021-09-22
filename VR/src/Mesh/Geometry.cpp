@@ -7,12 +7,27 @@ VR::Geometry::~Geometry()
 }
 
 VR::Geometry::Geometry(const Geometry& geo)
+	:ind_offset(geo.ind_offset)
 {
 	Alloc(geo.vertices_size, geo.indices_count);
 	memcpy(vertices, geo.vertices, vertices_size);
 	memcpy(indices, geo.indices, indices_count * sizeof(*indices));
+
+	SetIndOffset(0);
 }
 
+
+void VR::Geometry::SetIndOffset(size_t new_offset)
+{
+	size_t offset_dif = new_offset - ind_offset;
+
+	for (int i = 0; i < indices_count; i++)
+	{
+		indices[i] += offset_dif;
+	}
+
+	ind_offset = new_offset;
+}
 
 void VR::Geometry::Alloc(size_t vertSize, size_t indCount)
 {

@@ -197,11 +197,12 @@
     <ClInclude Include="src\VR.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="src\World.h" />
+    <ClInclude Include="Worlds\Collisions.h" />
     <ClInclude Include="Worlds\Gravitation.h" />
     <ClInclude Include="Worlds\Labyrinth.h" />
     <ClInclude Include="Worlds\Navigation.h" />
     <ClInclude Include="Worlds\Pendulum.h" />
-    <ClInclude Include="Worlds\SolarSystem.h" />
+    <ClInclude Include="Worlds\Monkeys.h" />
     <ClInclude Include="Worlds\TestWorld1.h" />
   </ItemGroup>
   <ItemGroup>

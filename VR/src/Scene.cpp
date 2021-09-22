@@ -9,78 +9,6 @@ namespace VR
 
 	}
 
-	/*void Scene::AddBox(math::vec2 size, Material* material, Mesh* mesh)
-	{
-		if (material->GetTypeID() == MATERIAL_TYPE::_2D || material->GetTypeID() == MATERIAL_TYPE::GUI)
-		{
-			float x = size.x / 2;
-			float y = size.y / 2;
-
-			float vertices[] =
-			{
-				 x, -y,
-				-x, -y,
-				 x,  y,
-				-x,  y,
-			};
-
-			uint32_t indices[]
-			{
-				2, 1, 0,
-				1, 2, 3
-			};
-
-			Geometry geo({ (uint8_t*)vertices, sizeof(vertices), indices, 6 });
-
-			mesh->material = material;
-			mesh->geometry = geo;
-
-			Add(mesh);
-		}
-	}
-
-	void Scene::AddBox(math::vec3 size, Material* material, Mesh* mesh)
-	{
-			float x = size.x / 2;
-			float y = size.y / 2;
-			float z = size.z / 2;
-
-			float vertices[] =
-			{
-				 x, -y, -z,
-				-x, -y, -z,
-				 x,  y, -z,
-				-x,  y, -z,
-
-				 x, -y,  z,
-				-x, -y,  z,
-				 x,  y,  z,
-				-x,  y,  z,
-			};
-
-			uint32_t indices[]
-			{
-				0, 1, 2, 2, 1, 3,
-
-				5, 4, 6, 6, 7, 5,
-
-				2, 3, 6, 7, 6, 3,
-
-				1, 5, 3, 7, 3, 5,
-
-				4, 1, 0, 1, 4, 5,
-
-				0, 2, 4, 4, 2, 6
-			};
-
-			Geometry geo({ (uint8_t*)vertices, sizeof(vertices), indices, 36 });
-
-			mesh->material = material;
-			mesh->geometry = geo;
-
-			Add(mesh);
-	}*/
-
 	void Scene::Add(Mesh* mesh)
 	{
 		for (Batch& batch : batches)
@@ -97,6 +25,7 @@ namespace VR
 		batches.back().Add(mesh);
 	}
 
+	// ! Deprecated !
 	void Scene::Add(const Mesh& mesh)
 	{
 		for (Batch& batch : batches)
@@ -125,9 +54,11 @@ namespace VR
 		for (Mesh* m : meshes)
 		{
 			m->geometry.vertices = m->geometry.vertices - batch.vertices.data() + vertices.data();
+			m->geometry.indices = m->geometry.indices - batch.indices.data() + indices.data();
 		}
 	}
 
+	//! Deprecated !
 	//returns size of added vertices
 	size_t Scene::Batch::Add(const Mesh& mesh)
 	{
@@ -151,6 +82,7 @@ namespace VR
 		{
 			indices.push_back(verices_count + mesh->geometry.indices[i]);
 		}
+		mesh->geometry.ind_offset = verices_count;
 
 		vertices.reserve(vertices.size() + added_vertices_size);
 		for (int i = 0; i < added_vertices_size; i++)
