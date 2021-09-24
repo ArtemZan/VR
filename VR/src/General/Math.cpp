@@ -97,8 +97,8 @@ namespace VR
 
 		void vec2::operator-=(const vec2& vec)
 		{
-			x += vec.x;
-			y += vec.y;
+			x -= vec.x;
+			y -= vec.y;
 		}
 
 		void vec2::normalize()

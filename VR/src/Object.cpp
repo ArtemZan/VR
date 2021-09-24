@@ -61,11 +61,6 @@ namespace VR
 		math::vec2 norm = math::normalize(end - start);
 
 		math::mat2 r = 1;
-		//r.x.x = norm.x;
-		//r.x.y = norm.y;
-		//
-		//r.y.x = norm.y;
-		//r.y.y = norm.x;
 
 		mesh.Rotate(start, (asin(norm.y) < 0 ? -1 : 1) * acos(norm.x));
 	}

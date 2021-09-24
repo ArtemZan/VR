@@ -98,12 +98,11 @@ namespace VR
 		{
 			mesh.SetScale(size);
 		}
+ 
+ 
 
-		inline math::vec2 Pos() const { return mesh.pos.Get2D(); }
-		inline math::vec2 Size() const { return mesh.size.Get2D(); }
-
-
-		inline bool IsHovered(const math::mat3& camera_view = 1) const { return mesh.IsHovered(camera_view); }
+ 
+	inline bool IsHovered(const math::mat3& camera_view = 1) const { return mesh.IsHovered(camera_view); }
 
 	};
 }

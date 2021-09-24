@@ -69,14 +69,14 @@ namespace VR
 
 			batch.vb.Bind();
 			batch.vb.Data(batch.vertices.size(), batch.vertices.data());
-			for (int i = 0; i < batch.vertices.size(); i+=4)
+			/*for (int i = 0; i < batch.vertices.size(); i+=4)
 			{
 				if (i % batch.meshes[0]->material.GetVertexSize() == 0)
 				{
 					std::cout << std::endl;
 				}
 				std::cout << std::setw(5) << *(float*)(&batch.vertices[i]) << " ";
-			}
+			}*/
 			batch.va.Bind();
 			batch.va.AddBuffer(batch.meshes[0]->material.GetLayout());
 			GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));

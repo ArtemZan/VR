@@ -2,6 +2,13 @@
 
 namespace VR
 {
+	namespace shaders
+	{
+		constexpr const char* _2D = "C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\2D.shader";
+		constexpr const char* _3DDiffuse = "C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Diffuse.shader";
+		constexpr const char* _3DColor = "C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Color.shader";
+	}
+
 	struct AttribsPos
 	{
 		int8_t color = -1;
@@ -100,6 +107,16 @@ namespace VR
 	struct Material2D : public Material
 	{
 		Material2D();
+	};
+
+	struct Material3DLambert : public Material
+	{
+		Material3DLambert();
+	};
+
+	struct Material3DColor : public Material
+	{
+		Material3DColor();
 	};
 
 }

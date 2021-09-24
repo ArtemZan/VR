@@ -258,10 +258,32 @@ namespace VR
 	Material2D::Material2D()
 		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\2D.shader")
 	{
-		math::mat3x2 transform(1);
-		SetShaderUniform("transform", transform);
+		SetShaderUniform("transform", math::mat3x2(1.0));
 
 		PushAttrib<float>(2);
+		PushAttrib<float>(4);
+
+		SetPosOffset(0);
+		SetColorOffset(1);
+	}
+
+
+	Material3DLambert::Material3DLambert()
+		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Diffuse.shader")
+	{
+		PushAttrib<float>(3);
+		PushAttrib<float>(4);
+		PushAttrib<float>(3);
+
+		SetPosOffset(0);
+		SetColorOffset(1);
+		SetNormalOffset(2);
+	}
+
+	Material3DColor::Material3DColor()
+		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Color.shader")
+	{
+		PushAttrib<float>(3);
 		PushAttrib<float>(4);
 
 		SetPosOffset(0);

@@ -16,43 +16,55 @@ int main()
 
 
 	{
-		Navigation nav;
-		Monkeys monkeys;
-		Collisions collisions;
+#define DEF_WORLD(CLASS) worlds.push_back(std::make_unique<CLASS>());
+
+		std::vector<std::unique_ptr<World>> worlds;
+
+		DEF_WORLD(Navigation);
+		DEF_WORLD(Monkeys);
+		DEF_WORLD(Collisions);
+
+		//Navigation nav;
+		//Monkeys monkeys;
 		//TestWorld1 testWorld1;
 		//Pendulum pendulum;
 		//Labyrinth labyrinth;
 		//Gravitation gravitation;
 		
-		nav.Run();
-		int link = nav.GetLink();
-
-		while (link != -1)
+		size_t current_world = 0;
+		while (current_world < worlds.size())
 		{
-			switch (link)
-			{
-			case 1:
-				monkeys.Run();
-				link = monkeys.GetLink();
-				break;
-			case 2:
-				collisions.Run();
-				link = collisions.GetLink();
-				break;
-			case 3:
-				//pendulum.Run();
-				break;
-			case 4:
-				//labyrinth.Run();
-				break;
-			case 5:
-				//gravitation.Run();
-				break;
-			default: 
-				nav.Run();
-				link = nav.GetLink();
-			}
+			worlds[current_world]->Run();
+			current_world = worlds[current_world]->GetLink();
 		}
+		//int link = nav.GetLink();
+
+		//while (link != -1)
+		//{
+		//	switch (link)
+		//	{
+		//	case 1:
+		//		//monkeys.Run();
+		//		//link = monkeys.GetLink();
+		//		break;
+		//	case 2:
+		//		collisions.Run();
+		//		link = collisions.GetLink();
+		//		break;
+		//	case 3:
+		//		//pendulum.Run();
+		//		break;
+		//	case 4:
+		//		//labyrinth.Run();
+		//		break;
+		//	case 5:
+		//		//gravitation.Run();
+		//		break;
+		//	default: 
+		//		nav.Run();
+		//		link = nav.GetLink();
+		//	}
+		//}
 	}
 
 	Context::Destroy();

@@ -84,9 +84,6 @@
     <ClCompile Include="src\World.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Materials.h">
@@ -173,16 +170,13 @@
     <ClInclude Include="Worlds\Pendulum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Worlds\Monkeys.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Worlds\TestWorld1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Object.h">
+    <ClInclude Include="Worlds\Collisions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Worlds\Collisions.h">
+    <ClInclude Include="Worlds\Monkeys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

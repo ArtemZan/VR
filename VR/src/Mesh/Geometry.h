@@ -4,6 +4,8 @@ namespace VR
 	struct Geometry
 	{
 		friend class Mesh;
+		friend class Mesh2D;
+		friend class Mesh3D;
 		friend class Scene;
 
 		~Geometry();

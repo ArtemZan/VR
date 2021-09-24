@@ -172,7 +172,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Context.h" />
     <ClInclude Include="src\Events.h" />
@@ -200,13 +199,12 @@
     <ClInclude Include="Worlds\Collisions.h" />
     <ClInclude Include="Worlds\Gravitation.h" />
     <ClInclude Include="Worlds\Labyrinth.h" />
+    <ClInclude Include="Worlds\Monkeys.h" />
     <ClInclude Include="Worlds\Navigation.h" />
     <ClInclude Include="Worlds\Pendulum.h" />
-    <ClInclude Include="Worlds\Monkeys.h" />
     <ClInclude Include="Worlds\TestWorld1.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Context.cpp" />
     <ClCompile Include="src\Events.cpp" />

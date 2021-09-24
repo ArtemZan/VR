@@ -36,7 +36,6 @@ namespace VR
 		virtual void OnWindowClose() override;
 
 		Scene m_scene;
-		Camera m_camera;
 
 		int link = -1;
 

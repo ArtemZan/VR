@@ -5,18 +5,20 @@ using namespace VR;
 
 class Navigation : public World
 {
-	std::vector<Object2D> buttons;
+	std::vector<Mesh2D> buttons;
+
+	Camera2D camera;
 
 public:
 	Navigation()
 	{
-		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.9, 0.9), { 0.f, 1.f, 0.f, 0.f });
+		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.9, 0.9), { 1.0, 1.0, 0.0, 0 });
 
 		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.7, 0.9), { 0.0f, 0.6f, 0.4f, 0.f });
 
-		for (Object2D& b : buttons)
+		for (Mesh2D& b : buttons)
 		{
-			m_scene.Add(&b.mesh);
+			m_scene.Add(&b);
 		}
 	}
 
@@ -28,7 +30,8 @@ public:
 	{
 		AddHandler(this);
 
-		Render();
+		camera.SetPosition({ 0.0, 0.0, 1.0 });
+		SetAspectRatio();
 	}
 
 	void OnDetach() override
@@ -36,6 +39,22 @@ public:
 		std::cout << "Detached\n";
 	}
 
+
+	void SetAspectRatio()
+	{
+		IO* io = IO::Get();
+		math::vec2 wSize = io->WindowSize();
+
+		camera.SetAspectRatio(wSize.x / wSize.y);
+
+		for (Mesh2D& button : buttons)
+		{
+			button.material.SetShaderUniform("transform", camera.View());
+		}
+
+
+		Render();
+	}
 
 	void OnMouseDown(int button, int mods) override
 	{
@@ -45,22 +64,7 @@ public:
 
 		for (int i = 0; i < buttons.size(); i++)
 		{
-			math::vec2 mPos = io->MousePos();
-			
-			math::vec2i wSize = io->WindowSize();
-			mPos.x -= wSize.width / 2;
-			mPos.x /= wSize.width / 2;
-			mPos.y = wSize.height / 2 - mPos.y;
-			mPos.y /= wSize.height / 2;
-
-			bool inside = false;
-
-			math::vec2 btnPos = buttons[i].Pos();
-			math::vec2 btnSize = buttons[i].Size();
-			if (btnPos.x - btnSize.x / 2 < mPos.x &&
-				btnPos.x + btnSize.x / 2 > mPos.x &&
-				btnPos.y - btnSize.x / 2 < mPos.y &&
-				btnPos.y + btnSize.y / 2 > mPos.y)
+			if (buttons[i].IsHovered(camera.View()))
 			{
 				link = i + 1;
 				std::cout << "Detaching...\n";
@@ -73,7 +77,7 @@ public:
 	void OnWindowResize(int width, int height) override
 	{
 		glViewport(0, 0, width, height);
-		Render();
+		SetAspectRatio();
 	}
 
 	void OnUpdate(float dTime) override
@@ -85,8 +89,8 @@ public:
 	{
 		buttons.emplace_back();
 
-		buttons.back().mesh.SetColor(color);
 		buttons.back().Rect(size);
+		buttons.back().SetColor(color);
 		buttons.back().Move(pos);
 	}
 };

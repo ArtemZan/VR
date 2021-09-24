@@ -71,6 +71,11 @@ namespace VR
 	{
 		meshes.push_back(mesh);
 
+		if (mesh->geometry.vertices_size == 0)
+		{
+			return 0;
+		}
+
 		const size_t ind_count = mesh->geometry.indices_count;
 		const size_t added_vertices_size = mesh->geometry.vertices_size;
 		const size_t vertex_size = mesh->material.GetVertexSize();

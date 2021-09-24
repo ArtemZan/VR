@@ -19,7 +19,7 @@
 #include "Mesh/Material.h"
 #include "Mesh/Geometry.h"
 #include "Mesh/Mesh.h"
-#include "Object.h"
+//#include "Object.h"
 
 #include "Window.h"
 #include "IO.h"

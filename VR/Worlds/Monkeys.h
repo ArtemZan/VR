@@ -6,32 +6,40 @@ constexpr float G = 6.6708e-11;
 
 class Monkeys : public World
 {
+	Camera3D camera;
+
 	math::mat4 proj;
-	math::mat4 view;
 	math::mat4 mvp;
 
 	Material2D btnMat;
-	Object2D button;
+	Mesh2D button;
 
-	Object3D light;
-
-	Object3D zero;
+	Mesh3DColor light;
 
 
-	struct Monkey : public Object3D
+	struct Monkey : public Mesh3D, Events
 	{
-		math::mat4 mvp;
-		Camera camera;
 		bool listen = false;
 		bool mouse_down = false;
 
 		Monkey(const Material& mat)
-			:Object3D(mat)
+			:Mesh3D(mat)
 		{
-
+			AddHandler(this);
 		}
 
-		void OnMouseMove(const math::vec2& mp) override
+		Monkey(const Monkey& monkey)
+			:Mesh3D(monkey)
+		{
+			AddHandler(this);
+		}
+
+		~Monkey()
+		{
+			RemoveHandler(this);
+		}
+
+		void OnMouseMove(const Camera3D& camera, const math::vec2& mp)
 		{
 			if (mouse_down)
 			{
@@ -43,18 +51,19 @@ class Monkeys : public World
 				fmp.x -= 1;
 				fmp.y = 1 - fmp.y;
 
-				math::vec3 side = normalize(camera.dir).cross(math::vec3({ 0.0, 1.0, 0.0 }));
+				math::vec3 side = normalize(camera.Dir()).cross(math::vec3({ 0.0, 1.0, 0.0 }));
 
 				math::vec3 pos = Pos();
 
-				float dist = camera.dir.dot(pos - camera.pos);
+				float dist = camera.Dir().dot(pos - camera.Pos());
 
-				mesh.MoveTo(camera.pos + (normalize(camera.dir) + math::vec3(fmp.x * side.x, fmp.y * ws.y / ws.x, fmp.x * side.z)) * dist);  
+				MoveTo(camera.Pos() + (normalize(camera.Dir()) + math::vec3(fmp.x * side.x, fmp.y * ws.y / ws.x, fmp.x * side.z)) * dist);  
 			}
 		}
 
-		void OnMouseDown(int button, int mods) override
+		void OnMouseDown(const math::mat4& mvp, int button)
 		{
+
 			if (listen)
 			{
 				if (!mouse_down && IsHovered(mvp))
@@ -63,13 +72,13 @@ class Monkeys : public World
 
 
 					//std::cout << "Hover!\n";
-					mesh.SetColor({ 0.0, 1.0, 0.0, 0.0 });
+					SetColor({ 0.0, 1.0, 0.0, 0.0 });
 				}
 				else
 				{
 					mouse_down = false;
 					//std::cout << "---\n";
-					mesh.SetColor({ 0.3, 0.2, 0.0, 0.0 });
+					SetColor({ 0.3, 0.2, 0.0, 0.0 });
 				}
 			}
 			
@@ -86,24 +95,21 @@ class Monkeys : public World
 public:
 
 	Monkeys()
-		:button(btnMat)
+		:camera(1.f, 0, 1.0, 1000.0f, { 0.0, 0.0, 10 }, { 0.0, 0.0, -1.0 })
 	{
 
 		IO* io = IO::Get();
 		math::vec2i wSize = io->WindowSize();
 
-		proj = math::perspective(1.f, float(wSize.width) / wSize.height, 1.0, 1000.0f);
-
-		m_camera.SetPosition(math::vec3(0.0, 0.0, 10));
-		m_camera.SetRotation(math::vec3(0.0, 0.0, -1.0));
+		camera.SetAspectRatio(float(wSize.width) / wSize.height);
 
 
 
-		button.mesh.material.SetColor({ 1.0, 1.0, 0.0, 1.0 });
+		button.SetColor({ 0.0, 1.0, 0.0, 1.0 });
 
 		button.Rect({ 0.1, 0.1 });
 		button.MoveTo({ -0.9, 0.9 });
-		m_scene.Add(&button.mesh);
+		m_scene.Add(&button);
 
 		monkeys.reserve(5);
 
@@ -123,26 +129,26 @@ public:
 		monkeys.emplace_back(mat);
 		monkeys.back().Shape((uint8_t*)vertices.data(), vertices.size() * 4, indices.data(), indices.size());
 		monkeys.back().Move({ 5.0, 0.0, 2.0 });
-		m_scene.Add(&monkeys.back().mesh);
+		m_scene.Add(&monkeys.back());
 		
 		mat.SetColor({ 1.0, 1.0, 0.2, 0.0 });
 		monkeys.emplace_back(monkeys.back());
 		monkeys.back().MoveTo({ 0.0, 0.0, -2.0 });
 		monkeys.back().Scale(3);
-		m_scene.Add(&monkeys.back().mesh);
+		m_scene.Add(&monkeys.back());
 
 
 		mat.SetColor({ 0.3, 0.2, 0.0, 0.0 });
 		monkeys.emplace_back(monkeys.back());
-		monkeys.back().SetSize(1);
+		monkeys.back().SetScale(1);
 		monkeys.back().MoveTo({ -5.0, 0.0, 2.0 });
-		m_scene.Add(&monkeys.back().mesh);
+		m_scene.Add(&monkeys.back());
 
 
 
-		light.mesh.material.SetColor({ 1.0, 1.0, 1.0, 1.0 });
+		light.material.SetColor({ 1.0, 1.0, 1.0, 1.0 });
 		light.Box(0.5);
-		m_scene.Add(&light.mesh);
+		m_scene.Add(&light);
 
 		//zero.mesh.material.SetColor({ 1.0, 0.0, 1.0, 1.0 });
 		//zero.Box({0.1, 10, 0.1});
@@ -169,31 +175,25 @@ public:
 		
 	}
 
-	void OnMouseDown(GLint button, GLint mods) override
+	void OnMouseDown(GLint btn_code, GLint mods) override
 	{
-		IO* io = IO::Get();
+		for (Monkey& m : monkeys)
+		{
+			m.OnMouseDown(mvp, btn_code);
+		}
 
-		math::vec2 mPos = io->MousePos();
-		math::vec2i wSize = io->WindowSize();
-
-
-		double mX = mPos.x, mY = mPos.y;
-		int width = wSize.width, height = wSize.height;
-		mX -= width / 2;
-		mX /= width / 2;
-		mY = height / 2 - mY;
-		mY /= height / 2;
-
-		math::vec2 btnPos = this->button.Pos();
-		math::vec2 btnSize = this->button.Size();
-
-		if (btnPos.x - btnSize.x / 2 < mX &&
-			btnPos.x + btnSize.x / 2 > mX &&
-			btnPos.y - btnSize.y / 2 < mY &&
-			btnPos.y + btnSize.y / 2 > mY)
+		if (button.IsHovered(math::mat3x2(1.0)))
 		{
 			link = 0;
 			Detach();
+		}
+	}
+
+	void OnMouseMove(const math::vec2& pos) override
+	{
+		for (Monkey& m : monkeys)
+		{
+			m.OnMouseMove(camera, pos);
 		}
 	}
 
@@ -212,20 +212,18 @@ public:
 
 		Input(dTime);
 
-		mvp = proj * m_camera.view;
+		mvp = camera.Proj() * camera.View();
 
 
 		math::vec3 lp(sin(time / 700) * 5, sin(time / 700 + 1.67) * 3, sin(time / 1400) * 5);
 
 		for (Monkey& m : monkeys)
 		{
-			m.mesh.material.SetShaderUniform("mvp", mvp);
-			m.mesh.material.SetShaderUniform("diffuseLight.position", lp);
-			m.mvp = mvp;
-			m.camera = m_camera;
+			m.material.SetShaderUniform("mvp", mvp);
+			m.material.SetShaderUniform("diffuseLight.position", lp);
 		}
 
-		light.mesh.material.SetShaderUniform("mvp", mvp);
+		light.material.SetShaderUniform("mvp", mvp);
 		light.MoveTo(lp);
 
 
@@ -279,43 +277,43 @@ public:
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			m_camera.Move({ m_camera.dir.x * dTime * 1e-3f * speed, 0.0, m_camera.dir.z * dTime * 1e-3f * speed });
+			camera.Move({ camera.Dir().x * dTime * 1e-3f * speed, 0.0, camera.Dir().z * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			m_camera.Move({ -m_camera.dir.x * dTime * 1e-3f * speed, 0.0, -m_camera.dir.z * dTime * 1e-3f * speed });
+			camera.Move({ -camera.Dir().x * dTime * 1e-3f * speed, 0.0, -camera.Dir().z * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			m_camera.Move({ m_camera.dir.z * dTime * 1e-3f * speed, 0.0, -m_camera.dir.x * dTime * 1e-3f * speed });
+			camera.Move({ camera.Dir().z * dTime * 1e-3f * speed, 0.0, -camera.Dir().x * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			m_camera.Move({ -m_camera.dir.z * dTime * 1e-3f * speed, 0.0, m_camera.dir.x * dTime * 1e-3f * speed });
+			camera.Move({ -camera.Dir().z * dTime * 1e-3f * speed, 0.0, camera.Dir().x * dTime * 1e-3f * speed });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			m_camera.Rotate({ 0.0, 1.0, 0.0 }, 0.003 * dTime);
+			camera.Rotate({ 0.0, 1.0, 0.0 }, 0.003 * dTime);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
 			float k = -0.003 * dTime;
-			m_camera.Rotate({ 0.0, 1.0, 0.0 }, k);
+			camera.Rotate({ 0.0, 1.0, 0.0 }, k);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_UP) == GLFW_PRESS)
 		{
-			m_camera.Move({ 0.0, 1e-3f * speed * dTime, 0.0 });
+			camera.Move({ 0.0, 1e-3f * speed * dTime, 0.0 });
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		{
-			m_camera.Move({ 0.0, -1e-3f * speed * dTime, 0.0 });
+			camera.Move({ 0.0, -1e-3f * speed * dTime, 0.0 });
 		}
 	}
 };
