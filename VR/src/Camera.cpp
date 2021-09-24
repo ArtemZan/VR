@@ -100,7 +100,7 @@ void VR::Camera2D::SetView()
 			x_space = 1 - 1 / aspect;
 		}
 	}
-	else if(fit & SCREEN == 0)
+	else if((fit & SCREEN) == 0)
 	{
 		if (aspect > 1)
 		{
