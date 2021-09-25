@@ -12,6 +12,16 @@ private:
 
 	std::vector<Mesh2D> lines;
 
+	std::vector<math::vec2> points;
+
+	Mesh2D curve;
+
+	float time = 0;
+
+
+	const float amplitude = rand() % 100 / 100.f;
+	const float freq = (rand() % 100 - 50) / 10 + 5;
+
 
 	void OnAttach() override
 	{
@@ -42,7 +52,21 @@ private:
 	{
 		IO* io = IO::Get();
 
-		//MustUpdate();
+		time += dTime / 1000.0;
+
+		const int points_count = points.size();
+
+
+		for (int i = 0; i < points_count; i++)
+		{
+			points[i].y = sin(time * 10.0 + math::PI * freq * float(i) / points_count) * amplitude;
+		}
+
+		curve.Curve(points, 0.002, 0);
+
+		Render();
+
+		MustUpdate();
 	}
 
 	void OnScroll(const math::vec2& scroll) override
@@ -81,7 +105,7 @@ public:
 		button.MoveTo(math::vec2( -0.9, 0.9 ));
 		m_scene.Add(&button);
 
-		constexpr int lines_count = 100;
+		/*constexpr int lines_count = 100;
 
 		for (int i = 0; i < lines_count; i++)
 		{
@@ -95,7 +119,30 @@ public:
 		for (Mesh2D& line : lines)
 		{
 			m_scene.Add(&line);
+		}*/
+
+		constexpr int points_count = 100;
+
+		const float amplitude = rand() % 100 / 100.f;
+		const float freq = (rand() % 100 - 50) / 10 + 5;
+
+		points.reserve(points_count);
+
+		for (int i = 0; i < points_count; i++)
+		{
+			points.emplace_back(2.f * float(i) / points_count - 1, sin(math::PI * freq * float(i) / points_count) * amplitude);
 		}
+
+		curve.SetColor({ 1.f, 1.f, 0.5, 0.0 });
+		curve.Curve(points, 0.002, 0);
+		m_scene.Add(&curve);
+
+		/*for (Mesh2D& line : lines)
+		{
+			m_scene.Add(&line);
+		}*/
+
+
 
 		//rect.Rect({ 2.0, 2.0 });
 		//rect.MoveTo(0);

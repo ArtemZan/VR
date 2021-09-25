@@ -31,6 +31,11 @@ void VR::Geometry::SetIndOffset(size_t new_offset)
 
 void VR::Geometry::Alloc(size_t vertSize, size_t indCount)
 {
+	if (vertSize <= vertices_size || indCount <= indices_count)
+	{
+		return;
+	}
+
 	Clear();
 
 	vertices = new uint8_t[vertSize];

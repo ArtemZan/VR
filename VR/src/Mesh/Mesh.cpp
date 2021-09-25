@@ -13,10 +13,15 @@ namespace VR
 	{
 	}
 
+	void Mesh::Delete()
+	{
+		isAttached = false;
+	}
 
-#define ASSERT_3D
-
-#define ASSERT_2D
+	void Mesh::Attach()
+	{
+		isAttached = false;
+	}
 
 
 	void Mesh::SetColor(const math::vec4& color)
@@ -114,7 +119,7 @@ namespace VR
 
 	void Mesh3D::Move(const math::vec3& bias)
 	{
-		ASSERT_3D;
+		
 
 		math::mat4 m = 1;
 		m.w = { bias, 1 };
@@ -126,7 +131,7 @@ namespace VR
 
 	void Mesh3D::MoveTo(const math::vec3& new_pos)
 	{
-		ASSERT_3D
+		
 
 		Move(new_pos - pos);
 	}
@@ -134,7 +139,7 @@ namespace VR
 
 	void Mesh3D::Rotate(const math::vec3& axis, const math::vec3& center, float angle)
 	{
-		ASSERT_3D
+		
 
 		math::mat3 m = math::rotate(axis, angle);
 
@@ -157,7 +162,7 @@ namespace VR
 
 	void Mesh3D::Scale(const math::vec3& scale, const math::vec3& center)
 	{
-		ASSERT_3D;
+		
 
 		size *= scale;
 
@@ -176,21 +181,21 @@ namespace VR
 
 	void Mesh3D::Scale(const math::vec3& scale)
 	{
-		ASSERT_3D;
+		
 
 		Scale(scale, pos);
 	}
 
 	void Mesh3D::SetScale(const math::vec3& scale)
 	{
-		ASSERT_3D;
+		
 
 		Scale(scale / size);
 	}
 
 	void Mesh3D::SetScale(const math::vec3& scale, const math::vec3& center)
 	{
-		ASSERT_3D;
+		
 
 		Scale(scale / size, center);
 	}
@@ -252,7 +257,7 @@ namespace VR
 
 	void Mesh3D::Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count)
 	{
-		ASSERT_3D;
+		
 
 		pos = math::vec3();
 		this->size = math::vec3(1);
@@ -336,7 +341,6 @@ namespace VR
 
 	void Mesh2D::Move(const math::vec2& bias)
 	{
-		ASSERT_2D;
 
 		math::mat3 m = 1;
 		m.z = { bias, 1 };
@@ -392,21 +396,21 @@ namespace VR
 
 	void Mesh2D::Scale(const math::vec2& scale)
 	{
-		ASSERT_2D;
+		;
 
 		Scale(scale, pos);
 	}
 
 	void Mesh2D::SetScale(const math::vec2& scale)
 	{
-		ASSERT_2D;
+		;
 
 		Scale(scale / size);
 	}
 
 	void Mesh2D::SetScale(const math::vec2& scale, const math::vec2& center)
 	{
-		ASSERT_2D;
+		;
 
 		Scale(scale / size, center);
 	}
@@ -564,6 +568,62 @@ namespace VR
 
 		Move(start);
 		Rotate(start, (asin(norm.y) < 0 ? -1 : 1) * acos(norm.x));
+	}
+
+	void Mesh2D::Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections)
+	{
+		if (points.size() < 2)
+		{
+			return;
+		}
+
+		const int pos_offset = material.GetPosOffset();
+		const int color_offset = material.GetColorOffset();
+		const math::vec4 color = material.GetColor();
+		const int vertex_size = material.GetVertexSize();
+		const size_t ind_offset = geometry.ind_offset;
+
+		geometry.Alloc(points.size() * 2 * vertex_size, (points.size() - 1) * 2 * 3);
+
+		math::vec2 next_side;
+
+		for (int p = 0; p < points.size() - 1; p++)
+		{
+			math::vec2 side = next_side;
+			next_side = math::normalize(points[p + 1] - points[p]);
+			float dir_y = next_side.y;
+			next_side.y = -next_side.x;
+			next_side.x = dir_y;
+			next_side *= width;
+
+			if (!p)
+			{
+				side = next_side;
+			}
+
+			math::vec2 offset = (side + next_side) / 2;
+
+			*(math::vec2*)(geometry.vertices + p * 2 * vertex_size + pos_offset) = points[p] + offset;
+			*(math::vec2*)(geometry.vertices + (p * 2 + 1) * vertex_size + pos_offset) = points[p] - offset;
+
+			*(math::vec4*)(geometry.vertices + (p * 2) * vertex_size + color_offset) = color;
+			*(math::vec4*)(geometry.vertices + (p * 2 + 1) * vertex_size + color_offset) = color;
+
+			size_t first_ind = ind_offset + p * 2;
+
+			geometry.indices[p * 6 + 0] = first_ind;
+			geometry.indices[p * 6 + 1] = first_ind + 1;
+			geometry.indices[p * 6 + 2] = first_ind + 2;
+			geometry.indices[p * 6 + 3] = first_ind + 2;
+			geometry.indices[p * 6 + 4] = first_ind + 3;
+			geometry.indices[p * 6 + 5] = first_ind;
+		}
+
+		*(math::vec2*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + pos_offset) = points.back() + next_side;
+		*(math::vec2*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + pos_offset) = points.back() - next_side;
+
+		*(math::vec4*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + color_offset) = color;
+		*(math::vec4*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + color_offset) = color;
 	}
 
 	void Mesh2D::BezierCurve(const std::vector<math::vec2>& points)

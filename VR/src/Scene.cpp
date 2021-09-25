@@ -71,6 +71,8 @@ namespace VR
 	{
 		meshes.push_back(mesh);
 
+		mesh->Attach();
+
 		if (mesh->geometry.vertices_size == 0)
 		{
 			return 0;

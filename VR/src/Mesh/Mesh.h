@@ -2,10 +2,20 @@
 
 namespace VR
 {
+	struct MeshContainer
+	{
+		Material material;
+		Geometry geometry;
+	};
+
 	struct Mesh
 	{
 		Mesh(const Material& material);
 		~Mesh();
+
+		void Delete();
+		void Attach();
+
 
 
 		//Transformation
@@ -18,8 +28,9 @@ namespace VR
 		
 		void SetColor(const math::vec4& color);
 
-		Material material;
-		Geometry geometry;
+	protected:
+
+		std::shared_ptr<MeshContainer> mesh;
 	};
 
 	struct Mesh2D : public Mesh
@@ -27,7 +38,6 @@ namespace VR
 		Mesh2D()
 			:Mesh(Material2D())
 		{
-
 		}
 
 
@@ -35,6 +45,7 @@ namespace VR
 		void Rect(const math::vec2& size);
 		void Line(float length, float width, float border_radius, size_t border_sections = -1);
 		void Line(const math::vec2& start, const math::vec2& end, float width, float border_radius, size_t border_sections = -1);
+		void Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections = -1);
 		void BezierCurve(const std::vector<math::vec2>& points);
 
 		void Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count);
