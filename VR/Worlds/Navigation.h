@@ -18,7 +18,7 @@ public:
 
 		for (Mesh2D& b : buttons)
 		{
-			m_scene.Add(&b);
+			m_scene.Add(b);
 		}
 	}
 
@@ -49,11 +49,11 @@ public:
 
 		for (Mesh2D& button : buttons)
 		{
-			button.material.SetShaderUniform("transform", camera.View());
+			button.GetMaterial().SetShaderUniform("transform", camera.View());
 		}
 
 
-		Render();
+		m_scene.Render();
 	}
 
 	void OnMouseDown(int button, int mods) override

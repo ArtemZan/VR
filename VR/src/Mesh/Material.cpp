@@ -203,29 +203,6 @@ namespace VR
 		return false;
 	}
 
-#define TRY_TO_GET_OFFSET(data) 										   \
-	if (props.attribsOffsets.data == -1)								   \
-	{																	   \
-		std::cout << "Error: " << #data << " offset hasn't been set\n";	   \
-		return 0;														   \
-	}																	   \
-	return props.attribsOffsets.data;
-
-	int Material::GetColorOffset() const
-	{
-		TRY_TO_GET_OFFSET(color);
-	}
-
-	int Material::GetPosOffset() const
-	{
-		TRY_TO_GET_OFFSET(pos);
-	}
-
-	int Material::GetNormalOffset() const
-	{
-		TRY_TO_GET_OFFSET(normal);
-	}
-
 
 	void Material::SetShaderUniforms()
 	{

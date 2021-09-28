@@ -23,8 +23,6 @@ namespace VR
 			GLCall(glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a));
 		}
 
-		void Render();
-
 		void Detach();
 		inline void MustUpdate() { m_updateNow = true; }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#define RIGHT_HANDED
+
 namespace VR
 {
     namespace math
@@ -115,7 +117,7 @@ namespace VR
             };
 
 
-            void operator=(const vec3& vec);
+            vec3& operator=(const vec3& vec);
 
             inline vec3 operator*(float k) const { return {x * k, y * k, z * k}; }
             inline vec3 operator*(const vec3& vec) const { return {x * vec.x, y * vec.y, z * vec.z}; }
@@ -134,11 +136,17 @@ namespace VR
             void operator-=(const vec3& vec);
 
             inline float dot(const vec3& v) const { return x * v.x + y * v.y + z * v.z; }
-            inline vec3 cross(const vec3& v) const { return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x}; }
+#ifdef RIGHT_HANDED
+            inline vec3 cross(const vec3& v) const { return {z * v.y - y * v.z, x * v.z - z * v.x, y * v.x - x * v.y}; }
+#else
+            inline vec3 cross(const vec3& v) const { return { y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x }; }
+#endif
             void normalize();
             inline float distance(const vec3& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2) + pow(z - vec.z, 2)); }
             inline float magnitude() const { return distance({ 0.0, 0.0, 0.0 }); }
         };
+
+        inline vec3 operator-(const vec3& vec) { return { -vec.x, -vec.y, -vec.z }; }
 
         inline float dot(const vec3& v1, const vec3& v2) { return v1.dot(v2); }
         inline vec3 cross(const vec3& v1, const vec3& v2) { return v1.cross(v2); }

@@ -4,17 +4,22 @@ namespace VR
 {
 	struct MeshContainer
 	{
+		friend class Mesh;
+
 		Material material;
 		Geometry geometry;
+
+		MeshContainer(const Material& material, const Geometry& geometry = {});
+		~MeshContainer();
+
+	private:
 	};
 
 	struct Mesh
 	{
 		Mesh(const Material& material);
+		Mesh(const Mesh& mesh);
 		~Mesh();
-
-		void Delete();
-		void Attach();
 
 
 
@@ -28,9 +33,19 @@ namespace VR
 		
 		void SetColor(const math::vec4& color);
 
+		inline Material& GetMaterial() { return mesh->material; }
+		inline Geometry& GetGeometry() { return mesh->geometry; }
+
+		inline const Material& GetMaterial() const { return mesh->material; }
+		inline const Geometry& GetGeometry() const { return mesh->geometry; }
+
+		inline const std::shared_ptr<MeshContainer>& GetData() const { return mesh; }
+
 	protected:
 
 		std::shared_ptr<MeshContainer> mesh;
+
+		inline math::vec4& GetColor(size_t vertex) const;
 	};
 
 	struct Mesh2D : public Mesh
@@ -46,7 +61,7 @@ namespace VR
 		void Line(float length, float width, float border_radius, size_t border_sections = -1);
 		void Line(const math::vec2& start, const math::vec2& end, float width, float border_radius, size_t border_sections = -1);
 		void Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections = -1);
-		void BezierCurve(const std::vector<math::vec2>& points);
+		void BezierCurve(const std::vector<math::vec2>& pivot_points, float width, int quality, float border_radius, size_t border_sections = -1);
 
 		void Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count);
 		void Shape(const Geometry& geo);
@@ -72,6 +87,8 @@ namespace VR
 	private:
 		math::vec2 pos;
 		math::vec2 size;
+
+		math::vec2& GetPos(size_t vertex);
 	};
 
 	struct Mesh3D : public Mesh
@@ -97,6 +114,8 @@ namespace VR
 		void SetScale(const math::vec3& scale);
 		void SetScale(const math::vec3& scale, const math::vec3& center);
 
+		void CreateNormals();
+		void ShadeSmooth(float distance_treshold = 1e-6);
 
 		bool IsHovered(const math::mat4& mvp = 1.f) const;
 
@@ -106,6 +125,9 @@ namespace VR
 	protected:
 		math::vec3 pos;
 		math::vec3 size;
+
+		math::vec3& GetPos(size_t vertex);
+		math::vec3& GetNormal(size_t vertex);
 	};
 
 

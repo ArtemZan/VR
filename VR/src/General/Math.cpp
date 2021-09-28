@@ -189,11 +189,13 @@ namespace VR
 		{
 		}
 
-		void vec3::operator=(const vec3& vec)
+		vec3& vec3::operator=(const vec3& vec)
 		{
 			x = vec.x;
 			y = vec.y;
 			z = vec.z;
+
+			return *this;
 		}
 
 		vec3 vec3::operator*(const mat3& matrix) const
@@ -462,8 +464,13 @@ namespace VR
 			mat4 res(1);
 
 			const vec3 u = normalize(up);
-			const vec3 d = normalize(dir);
+			const vec3 d = normalize(-dir);
+
+#ifdef RIGHT_HANDED
 			const vec3 side(cross(d, up));
+#else
+			const vec3 side(-cross(d, up));
+#endif
 
 			res.x.x = side.x;
 			res.y.x = side.y;
@@ -471,12 +478,12 @@ namespace VR
 			res.x.y = u.x;
 			res.y.y = u.y;
 			res.z.y = u.z;
-			res.x.z = -d.x;
-			res.y.z = -d.y;
-			res.z.z = -d.z;
+			res.x.z = d.x;
+			res.y.z = d.y;
+			res.z.z = d.z;
 			res.w.x = -dot(side, eye);
 			res.w.y = -dot(u, eye);
-			res.w.z = dot(d, eye);
+			res.w.z = -dot(d, eye);
 
 			return res;
 		}

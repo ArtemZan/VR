@@ -51,8 +51,9 @@ class Monkeys : public World
 				fmp.x -= 1;
 				fmp.y = 1 - fmp.y;
 
-				math::vec3 side = normalize(camera.Dir()).cross(math::vec3({ 0.0, 1.0, 0.0 }));
-
+#ifdef RIGHT_HANDED
+				math::vec3 side = -normalize(camera.Dir()).cross(math::vec3({ 0.0, 1.0, 0.0 }));
+#endif
 				math::vec3 pos = Pos();
 
 				float dist = camera.Dir().dot(pos - camera.Pos());
@@ -103,18 +104,15 @@ public:
 
 		camera.SetAspectRatio(float(wSize.width) / wSize.height);
 
-
-
 		button.SetColor({ 0.0, 1.0, 0.0, 1.0 });
 
 		button.Rect({ 0.1, 0.1 });
 		button.MoveTo({ -0.9, 0.9 });
-		m_scene.Add(&button);
+		m_scene.Add(button);
 
 		monkeys.reserve(5);
 
-
-		loader.Load("res/monkey.obj");
+		loader.Load("res/cube.obj");
 
 		Material mat = loader.GetMaterial();
 		const std::vector<float>& vertices = loader.GetVertices();
@@ -128,27 +126,30 @@ public:
 		mat.SetColor({ 0.3, 0.2, 0.0, 0.0 });
 		monkeys.emplace_back(mat);
 		monkeys.back().Shape((uint8_t*)vertices.data(), vertices.size() * 4, indices.data(), indices.size());
+		//monkeys.back().Cube(1);
 		monkeys.back().Move({ 5.0, 0.0, 2.0 });
-		m_scene.Add(&monkeys.back());
+		monkeys.back().CreateNormals();
+		//monkeys.back().ShadeSmooth();
+		m_scene.Add(monkeys.back());
 		
 		mat.SetColor({ 1.0, 1.0, 0.2, 0.0 });
 		monkeys.emplace_back(monkeys.back());
 		monkeys.back().MoveTo({ 0.0, 0.0, -2.0 });
 		monkeys.back().Scale(3);
-		m_scene.Add(&monkeys.back());
+		m_scene.Add(monkeys.back());
 
 
 		mat.SetColor({ 0.3, 0.2, 0.0, 0.0 });
 		monkeys.emplace_back(monkeys.back());
 		monkeys.back().SetScale(1);
 		monkeys.back().MoveTo({ -5.0, 0.0, 2.0 });
-		m_scene.Add(&monkeys.back());
+		m_scene.Add(monkeys.back());
 
 
 
-		light.material.SetColor({ 1.0, 1.0, 1.0, 1.0 });
+		light.GetMaterial().SetColor({ 1.0, 1.0, 1.0, 1.0 });
 		light.Box(0.5);
-		m_scene.Add(&light);
+		m_scene.Add(light);
 
 		//zero.mesh.material.SetColor({ 1.0, 0.0, 1.0, 1.0 });
 		//zero.Box({0.1, 10, 0.1});
@@ -219,11 +220,11 @@ public:
 
 		for (Monkey& m : monkeys)
 		{
-			m.material.SetShaderUniform("mvp", mvp);
-			m.material.SetShaderUniform("diffuseLight.position", lp);
+			m.GetMaterial().SetShaderUniform("mvp", mvp);
+			m.GetMaterial().SetShaderUniform("diffuseLight.position", lp);
 		}
 
-		light.material.SetShaderUniform("mvp", mvp);
+		light.GetMaterial().SetShaderUniform("mvp", mvp);
 		light.MoveTo(lp);
 
 
@@ -256,7 +257,7 @@ public:
 		//	object.mesh.Move(dPos * 1e3/*to simulation units*/);
 		//}
 
-		Render();
+		m_scene.Render();
 		MustUpdate();
 	}
 

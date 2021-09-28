@@ -69,11 +69,21 @@ namespace VR
 		inline math::vec4 GetColor() const { return props.color; }
 
 		bool SetColorOffset(size_t pos);
-		int GetColorOffset() const;
 		bool SetPosOffset(size_t pos);
-		int GetPosOffset() const;
 		bool SetNormalOffset(size_t pos);
-		int GetNormalOffset() const;
+
+#define TRY_TO_GET_OFFSET(data) 										   \
+	if (props.attribsOffsets.data == -1)								   \
+	{																	   \
+		std::cout << "Error: " << #data << " offset hasn't been set\n";	   \
+		return 0;														   \
+	}																	   \
+	return props.attribsOffsets.data;
+
+		inline int GetColorOffset() const { TRY_TO_GET_OFFSET(color); }
+		inline int GetPosOffset() const { TRY_TO_GET_OFFSET(pos); }
+		inline int GetNormalOffset() const { { TRY_TO_GET_OFFSET(normal); } }
+
 		inline bool HasNormals() const { return props.attribsPos.normal != int8_t(-1); }
 
 		inline bool Is3D() const { return props._3d; }

@@ -16,6 +16,8 @@ private:
 
 	Mesh2D curve;
 
+	Mesh2D bezier;
+
 	float time = 0;
 
 
@@ -26,7 +28,7 @@ private:
 	void OnAttach() override
 	{
 		AddHandler(this);
-		Render();
+		m_scene.Render();
 	}
 
 	void OnDetach() override
@@ -35,6 +37,8 @@ private:
 
 	void OnMouseDown(int bc, int mods) override
 	{
+		//m_scene.Delete(button);
+
 		if (button.IsHovered(camera.View()))
 		{
 			link = 0;
@@ -59,12 +63,12 @@ private:
 
 		for (int i = 0; i < points_count; i++)
 		{
-			points[i].y = sin(time * 10.0 + math::PI * freq * float(i) / points_count) * amplitude;
+			points[i].y = sin(time * 2.0 + math::PI * freq * float(i) / points_count) * amplitude;
 		}
 
 		curve.Curve(points, 0.002, 0);
 
-		Render();
+		m_scene.Render();
 
 		MustUpdate();
 	}
@@ -86,9 +90,9 @@ private:
 
 		camera.SetAspectRatio(wSize.x / wSize.y);
 
-		button.material.SetShaderUniform("transform", camera.View());
+		button.GetMaterial().SetShaderUniform("transform", camera.View());
 
-		Render();
+		m_scene.Render();
 	}
 
 public:
@@ -103,7 +107,7 @@ public:
 		button.SetColor({ 0.0, 1.0, 0.0, 1.0 });
 		button.Rect(0.1f);
 		button.MoveTo(math::vec2( -0.9, 0.9 ));
-		m_scene.Add(&button);
+		m_scene.Add(button);
 
 		/*constexpr int lines_count = 100;
 
@@ -121,7 +125,7 @@ public:
 			m_scene.Add(&line);
 		}*/
 
-		constexpr int points_count = 100;
+		constexpr int points_count = 1000;
 
 		const float amplitude = rand() % 100 / 100.f;
 		const float freq = (rand() % 100 - 50) / 10 + 5;
@@ -135,12 +139,24 @@ public:
 
 		curve.SetColor({ 1.f, 1.f, 0.5, 0.0 });
 		curve.Curve(points, 0.002, 0);
-		m_scene.Add(&curve);
+		m_scene.Add(curve);
+
+		bezier.SetColor({ 1.0, 0.0, 0.0, 0.0 });
+
+		std::vector<math::vec2> bezier_points;
+		bezier_points.emplace_back(-0.5, 0);
+		bezier_points.emplace_back(0, 0.5);
+		bezier_points.emplace_back(0.5, 0);
+		bezier_points.emplace_back(0, -0.5);
+		bezier_points.emplace_back(-0.5, 0);
+		bezier.BezierCurve(bezier_points, 0.005, 100, 0);
+		m_scene.Add(bezier);
 
 		/*for (Mesh2D& line : lines)
 		{
 			m_scene.Add(&line);
 		}*/
+
 
 
 

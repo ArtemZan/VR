@@ -3,29 +3,42 @@
 
 namespace VR
 {
-	Mesh::Mesh(const Material& material)
-		:material(material)
+	MeshContainer::MeshContainer(const Material& material, const Geometry& geometry)
+		:material(material), geometry(geometry)
 	{
-		
+	}
+
+	MeshContainer::~MeshContainer()
+	{
+
+	}
+
+
+	Mesh::Mesh(const Material& material)
+		:mesh(std::make_shared<MeshContainer>(material))
+	{
+
+	}
+
+	Mesh::Mesh(const Mesh& mesh)
+		: mesh(std::make_shared<MeshContainer>(mesh.GetMaterial(), mesh.GetGeometry()))
+	{
 	}
 
 	Mesh::~Mesh()
 	{
-	}
-
-	void Mesh::Delete()
-	{
-		isAttached = false;
-	}
-
-	void Mesh::Attach()
-	{
-		isAttached = false;
+		if (mesh.use_count() == 1)
+		{
+			mesh->geometry.Clear();
+		}
 	}
 
 
 	void Mesh::SetColor(const math::vec4& color)
 	{
+		Material& material = GetMaterial();
+		Geometry& geometry = GetGeometry();
+
 		material.SetColor(color);
 
 		if (geometry.vertices_size == 0)
@@ -43,9 +56,11 @@ namespace VR
 		}
 	}
 
-
 	void Mesh::Transform(const math::mat4& transform)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		int vert_size = material.GetVertexSize();
 		int offset = material.GetPosOffset();
 		int vert_count = geometry.vertices_size / vert_size;
@@ -67,6 +82,9 @@ namespace VR
 
 	void Mesh::Transform(const math::mat3& transform)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		int vert_size = material.GetVertexSize();
 		int offset = material.GetPosOffset();
 		int vert_count = geometry.vertices_size / vert_size;
@@ -95,6 +113,9 @@ namespace VR
 
 	void Mesh::Transform(const math::mat2& transform)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		int vert_size = material.GetVertexSize();
 		int offset = material.GetPosOffset();
 		int vert_count = geometry.vertices_size / vert_size;
@@ -109,7 +130,16 @@ namespace VR
 		}
 	}
 
+	math::vec4& Mesh::GetColor(size_t vertex) const
+	{
+		const int vert_offset = vertex * mesh->material.GetVertexSize();
+		if (vert_offset >= mesh->geometry.vertices_size)
+		{
+			std::cout << "Tried to access vertex that is out of range\n";
+		}
 
+		return *(math::vec4*)(mesh->geometry.vertices + vert_offset + mesh->material.GetColorOffset());
+	}
 
 	Mesh3D::Mesh3D(const Material& material)
 		:Mesh(material)
@@ -119,7 +149,7 @@ namespace VR
 
 	void Mesh3D::Move(const math::vec3& bias)
 	{
-		
+
 
 		math::mat4 m = 1;
 		m.w = { bias, 1 };
@@ -131,7 +161,7 @@ namespace VR
 
 	void Mesh3D::MoveTo(const math::vec3& new_pos)
 	{
-		
+
 
 		Move(new_pos - pos);
 	}
@@ -139,7 +169,8 @@ namespace VR
 
 	void Mesh3D::Rotate(const math::vec3& axis, const math::vec3& center, float angle)
 	{
-		
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
 
 		math::mat3 m = math::rotate(axis, angle);
 
@@ -162,7 +193,8 @@ namespace VR
 
 	void Mesh3D::Scale(const math::vec3& scale, const math::vec3& center)
 	{
-		
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
 
 		size *= scale;
 
@@ -181,22 +213,16 @@ namespace VR
 
 	void Mesh3D::Scale(const math::vec3& scale)
 	{
-		
-
 		Scale(scale, pos);
 	}
 
 	void Mesh3D::SetScale(const math::vec3& scale)
 	{
-		
-
 		Scale(scale / size);
 	}
 
 	void Mesh3D::SetScale(const math::vec3& scale, const math::vec3& center)
 	{
-		
-
 		Scale(scale / size, center);
 	}
 
@@ -208,6 +234,9 @@ namespace VR
 
 	void Mesh3D::Box(const math::vec3& size)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		pos = math::vec3();
 		this->size = size;
 
@@ -219,29 +248,36 @@ namespace VR
 
 		uint8_t* vert = geometry.vertices;
 
-		for (int i = 0; i < 3; i++)
+		math::mat3 rot = math::rotate({ 0.0, 1.0, 0.0 }, math::PI / 2);
+
+		*(math::vec3*)(vert + vertex_size * 0 + pos_offset) = -size;
+		*(math::vec3*)(vert + vertex_size * 1 + pos_offset) = { -size.x, size.y, -size.z };
+		*(math::vec3*)(vert + vertex_size * 2 + pos_offset) = { size.x, -size.y, -size.z };
+		*(math::vec3*)(vert + vertex_size * 3 + pos_offset) = { size.x, size.y, -size.z };
+
+
+		*(math::vec3*)(vert + vertex_size * 0 + color_offset) = material.GetColor();
+		*(math::vec3*)(vert + vertex_size * 1 + color_offset) = material.GetColor();
+		*(math::vec3*)(vert + vertex_size * 2 + color_offset) = material.GetColor();
+		*(math::vec3*)(vert + vertex_size * 3 + color_offset) = material.GetColor();
+
+		for (int s = 1; s < 6; s++)
 		{
-			for (int x = -1; x < 2; x += 2)
-				for (int y = -1; y < 2; y += 2)
-					for (int z = -1; z < 2; z += 2)
-					{
-						size_t vi = ((x + 1) * 4 + (y + 1) * 2 + z + 1) / 2;
-						size_t offset = (vi + i * 8) * vertex_size;
+			for (int v = 0; v < 4; v++)
+			{
+				*(math::vec3*)(vert + vertex_size * (4 * s + v) + color_offset) = material.GetColor();
+				*(math::vec3*)(vert + vertex_size * (4 * s + v) + pos_offset) = *(math::vec3*)(vert + vertex_size * (4 * (s - 1) + v) + pos_offset) * rot;
+			}
 
-						*(math::vec4*)(vert + offset + color_offset) = material.GetColor();
+			if (s == 3)
+			{
+				rot = math::rotate({ 0.f, 0.f, 1.f }, math::PI / 2);
+			}
 
-						math::mat3 r;
-						if (i == 1)
-						{
-							r = math::rotate({ 0.0, 1.0, 0.0 }, math::PI / 2);
-						}
-						if (i == 2)
-						{
-							r = math::rotate({ 1.0, 0.0, 0.0 }, math::PI / 2);
-						}
-
-						*(math::vec3*)(vert + offset) = ((math::vec3(x, y, z) * r) * size / 2);
-					}
+			if (s == 4)
+			{
+				rot = rot * rot;
+			}
 		}
 
 		for (int i = 0; i < 6; i++)
@@ -257,7 +293,8 @@ namespace VR
 
 	void Mesh3D::Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count)
 	{
-		
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
 
 		pos = math::vec3();
 		this->size = math::vec3(1);
@@ -295,6 +332,9 @@ namespace VR
 
 	bool Mesh3D::IsHovered(const math::mat4& mvp) const
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		IO* io = IO::Get();
 		math::vec2 mPos = io->MousePos();
 		mPos /= io->WindowSize();
@@ -307,7 +347,7 @@ namespace VR
 
 		//std::cout << "\n------------\nMouse position: {" << mPos.x << ", " << mPos.y << "}\n";
 
-		for (int v = 0; v < geometry.indices_count - 2; v += 3)
+		for (int v = 0; v < int(geometry.indices_count) - 2; v += 3)
 		{
 			const math::vec3 p1 = *(const math::vec3*)(geometry.vertices + (geometry.indices[v + 0] - geometry.ind_offset) * vertex_size + pos_offset);
 			const math::vec3 p2 = *(const math::vec3*)(geometry.vertices + (geometry.indices[v + 1] - geometry.ind_offset) * vertex_size + pos_offset);
@@ -336,6 +376,70 @@ namespace VR
 		return false;
 	}
 
+	void Mesh3D::CreateNormals()
+	{
+		Geometry& geo = mesh->geometry;
+		const Material& mat = mesh->material;
+
+		const size_t normal_offset = mat.GetNormalOffset();
+		const size_t pos_offset = mat.GetPosOffset();
+		const size_t vertex_size = mat.GetVertexSize();
+
+		if (normal_offset == -1)
+			return;
+
+
+		for (int i = 0; i < geo.indices_count; i += 3)
+		{
+			uint8_t* v1 = geo.vertices + (geo.indices[i] - geo.ind_offset) * vertex_size;
+			uint8_t* v2 = geo.vertices + (geo.indices[i + 1] - geo.ind_offset) * vertex_size;
+			uint8_t* v3 = geo.vertices + (geo.indices[i + 2] - geo.ind_offset) * vertex_size;
+
+			math::vec3 norm = math::cross(*(math::vec3*)(v2 + pos_offset) - *(math::vec3*)(v1 + pos_offset), *(math::vec3*)(v3 + pos_offset) - *(math::vec3*)(v1 + pos_offset));
+
+			norm.normalize();
+
+			*(math::vec3*)(v1 + normal_offset) = *(math::vec3*)(v2 + normal_offset) = *(math::vec3*)(v3 + normal_offset) = norm;
+		}
+	}
+
+	void Mesh3D::ShadeSmooth(float distance_treshold)
+	{
+		Geometry& geo = mesh->geometry;
+		const Material& mat = mesh->material;
+
+		const size_t normal_offset = mat.GetNormalOffset();
+		const size_t pos_offset = mat.GetPosOffset();
+		const size_t vertex_size = mat.GetVertexSize();
+
+		if (normal_offset == -1)
+			return;
+
+		struct VecComparator
+		{
+			bool operator()(const math::vec3& v1, const math::vec3& v2) const
+			{
+				return double(v1.x) * 1e10 + double(v1.y) * 1e5 + v1.z < double(v2.x) * 1e10 + double(v2.y) * 1e5 + v2.z;
+			}
+		};
+
+		std::map<math::vec3, math::vec3, VecComparator> normals;
+
+		for (int v = 0; v < geo.vertices_size / vertex_size; v++)
+		{
+			normals[*(math::vec3*)(geo.vertices + v * vertex_size + pos_offset)] += *(math::vec3*)(geo.vertices + v * vertex_size + normal_offset);
+		}
+
+		for (auto& [pos, normal] : normals)
+		{
+			normal.normalize();
+		}
+
+		for (int v = 0; v < geo.vertices_size / vertex_size; v++)
+		{
+			*(math::vec3*)(geo.vertices + v * vertex_size + normal_offset) = normals[*(math::vec3*)(geo.vertices + v * vertex_size + pos_offset)];
+		}
+	}
 
 
 
@@ -349,7 +453,7 @@ namespace VR
 
 		pos += bias;
 	}
-	
+
 	void Mesh2D::MoveTo(const math::vec2& new_pos)
 	{
 		Move(new_pos - pos);
@@ -358,6 +462,9 @@ namespace VR
 
 	void Mesh2D::Rotate(const math::vec2& center, float angle)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		math::mat2 m = math::rotate(angle);
 
 		int vert_size = material.GetVertexSize();
@@ -379,6 +486,9 @@ namespace VR
 
 	void Mesh2D::Scale(const math::vec2& scale, const math::vec2& center)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		size *= scale;
 
 		int vert_size = material.GetVertexSize();
@@ -396,22 +506,16 @@ namespace VR
 
 	void Mesh2D::Scale(const math::vec2& scale)
 	{
-		;
-
 		Scale(scale, pos);
 	}
 
 	void Mesh2D::SetScale(const math::vec2& scale)
 	{
-		;
-
 		Scale(scale / size);
 	}
 
 	void Mesh2D::SetScale(const math::vec2& scale, const math::vec2& center)
 	{
-		;
-
 		Scale(scale / size, center);
 	}
 
@@ -423,6 +527,9 @@ namespace VR
 
 	void Mesh2D::Rect(const math::vec2& size)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		pos = math::vec2();
 		this->size = size;
 
@@ -460,6 +567,9 @@ namespace VR
 
 	void Mesh2D::Line(float length, float width, float border_radius, size_t border_sections)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		const math::vec2 start(0);
 		const math::vec2 end(start.x + length, start.y);
 
@@ -502,7 +612,7 @@ namespace VR
 			{
 			case 0:
 				rotation_center = start - math::vec2(rotation_center_offset);
-				rot_vec = {0.0, -border_radius};
+				rot_vec = { 0.0, -border_radius };
 				break;
 			case 1:
 				rotation_center = start + math::vec2(-rotation_center_offset, rotation_center_offset);
@@ -572,6 +682,9 @@ namespace VR
 
 	void Mesh2D::Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections)
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		if (points.size() < 2)
 		{
 			return;
@@ -583,6 +696,10 @@ namespace VR
 		const int vertex_size = material.GetVertexSize();
 		const size_t ind_offset = geometry.ind_offset;
 
+		if (mesh.use_count() == 1)
+		{
+			geometry.Clear();
+		}
 		geometry.Alloc(points.size() * 2 * vertex_size, (points.size() - 1) * 2 * 3);
 
 		math::vec2 next_side;
@@ -614,9 +731,9 @@ namespace VR
 			geometry.indices[p * 6 + 0] = first_ind;
 			geometry.indices[p * 6 + 1] = first_ind + 1;
 			geometry.indices[p * 6 + 2] = first_ind + 2;
-			geometry.indices[p * 6 + 3] = first_ind + 2;
+			geometry.indices[p * 6 + 3] = first_ind + 1;
 			geometry.indices[p * 6 + 4] = first_ind + 3;
-			geometry.indices[p * 6 + 5] = first_ind;
+			geometry.indices[p * 6 + 5] = first_ind + 2;
 		}
 
 		*(math::vec2*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + pos_offset) = points.back() + next_side;
@@ -626,12 +743,57 @@ namespace VR
 		*(math::vec4*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + color_offset) = color;
 	}
 
-	void Mesh2D::BezierCurve(const std::vector<math::vec2>& points)
+	void Mesh2D::BezierCurve(const std::vector<math::vec2>& pivot_points, float width, int quality, float border_radius, size_t border_sections)
 	{
+		if (pivot_points.size() < 2)
+		{
+			std::cout << "Too little pivot points provided for bezier curve (at least 2 needed)\n";
+			return;
+		}
+
+		const size_t points_count = pivot_points.size() * quality;
+
+		const math::vec2 start = pivot_points.front();
+
+		std::vector<math::vec2> points;
+		points.reserve(points_count);
+
+		std::vector<std::vector<math::vec2>> helpers(pivot_points.size() - 1);
+
+		for (int ppi = 0; ppi < pivot_points.size() - 1; ppi++)
+		{
+			helpers[ppi].resize(helpers.size() - ppi);
+		}
+
+		for (int vi = 0; vi < points_count; vi++)
+		{
+			const float ratio = float(vi) / points_count;
+
+			for (int hgi = 0; hgi < pivot_points.size() - 1; hgi++)
+			{
+				for (int helper = 0; helper < helpers.size() - hgi; helper++)
+				{
+					if (hgi == 0)
+					{
+						helpers[hgi][helper] = pivot_points[helper] + (pivot_points[helper + 1] - pivot_points[helper]) * ratio;
+					}
+					else
+					{
+						helpers[hgi][helper] = helpers[hgi - 1][helper] + (helpers[hgi - 1][helper + 1] - helpers[hgi - 1][helper]) * ratio;
+					}
+				}
+			}
+
+			points.emplace_back(helpers.back().front());
+		}
+
+		Curve(points, width, border_radius, border_sections);
 	}
 
 	void Mesh2D::Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count)
 	{
+		Geometry& geometry = mesh->geometry;
+
 		pos = math::vec2();
 		this->size = math::vec2(1);
 
@@ -648,12 +810,15 @@ namespace VR
 
 	bool Mesh2D::IsHovered(const math::mat3x2& view) const
 	{
-		math::mat3 m(math::vec3(view.x, 0.0), { view.y , 0.0f}, {view.z, 1.0f});
+		math::mat3 m(math::vec3(view.x, 0.0), { view.y , 0.0f }, { view.z, 1.0f });
 		return IsHovered(m);
 	}
 
 	bool Mesh2D::IsHovered(const math::mat3& view) const
 	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
 		IO* io = IO::Get();
 		math::vec2 mPos = io->MousePos();
 		mPos /= io->WindowSize();
@@ -664,7 +829,7 @@ namespace VR
 		const size_t vert_count = geometry.vertices_size / vertex_size;
 		const size_t pos_offset = material.GetPosOffset();
 
-		for (int v = 0; v < geometry.indices_count - 2; v += 3)
+		for (int v = 0; v < int(geometry.indices_count) - 2; v += 3)
 		{
 			const math::vec2 p1 = *(const math::vec2*)(geometry.vertices + (geometry.indices[v + 0] - geometry.ind_offset) * vertex_size + pos_offset);
 			const math::vec2 p2 = *(const math::vec2*)(geometry.vertices + (geometry.indices[v + 1] - geometry.ind_offset) * vertex_size + pos_offset);
