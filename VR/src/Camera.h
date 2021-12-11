@@ -55,7 +55,7 @@ namespace VR
 
 	struct Camera2D
 	{
-		Camera2D(float aspect = 1, const math::vec3& pos = {}, fit_t fit = fit_types::ALIGN_LEFT);
+		Camera2D(float aspect = 1, const math::vec3& pos = {0, 0, 1}, fit_t fit = fit_types::ALIGN_LEFT);
 
 		void SetPosition(math::vec3 pos);
 		void SetAspectRatio(float aspect);

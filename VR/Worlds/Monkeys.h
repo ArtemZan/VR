@@ -112,7 +112,7 @@ public:
 
 		monkeys.reserve(5);
 
-		loader.Load("res/cube.obj");
+		loader.Load("res/monkey.obj");
 
 		Material mat = loader.GetMaterial();
 		const std::vector<float>& vertices = loader.GetVertices();
@@ -128,8 +128,8 @@ public:
 		monkeys.back().Shape((uint8_t*)vertices.data(), vertices.size() * 4, indices.data(), indices.size());
 		//monkeys.back().Cube(1);
 		monkeys.back().Move({ 5.0, 0.0, 2.0 });
-		monkeys.back().CreateNormals();
-		//monkeys.back().ShadeSmooth();
+		//monkeys.back().CreateNormals();
+		monkeys.back().ShadeSmooth();
 		m_scene.Add(monkeys.back());
 		
 		mat.SetColor({ 1.0, 1.0, 0.2, 0.0 });
@@ -211,6 +211,8 @@ public:
 	{
 		time += dTime;
 
+		std::cout << time * 0.01 << std::endl;
+
 		Input(dTime);
 
 		mvp = camera.Proj() * camera.View();
@@ -222,6 +224,7 @@ public:
 		{
 			m.GetMaterial().SetShaderUniform("mvp", mvp);
 			m.GetMaterial().SetShaderUniform("diffuseLight.position", lp);
+			m.Rotate({ 0.0, 1.0, 0.0 }, {0.0, 0.0, 0.0}, 0.01f * dTime);
 		}
 
 		light.GetMaterial().SetShaderUniform("mvp", mvp);
@@ -298,12 +301,12 @@ public:
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			camera.Rotate({ 0.0, 1.0, 0.0 }, 0.003 * dTime);
+			camera.Rotate({ 0.0, 1.0, 0.0 }, -0.003 * dTime);
 		}
 
 		if (glfwGetKey(Context::Get()->window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
-			float k = -0.003 * dTime;
+			float k = 0.003 * dTime;
 			camera.Rotate({ 0.0, 1.0, 0.0 }, k);
 		}
 

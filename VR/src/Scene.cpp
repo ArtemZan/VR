@@ -46,7 +46,7 @@ namespace VR
 	void Scene::Render()
 	{
 
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CW);
 		glCullFace(GL_BACK);
 
@@ -77,7 +77,7 @@ namespace VR
 				{
 					std::cout << std::endl;
 				}
-				std::cout << std::setw(5) << *(float*)(&batch.vertices[i]) << " ";
+				std::cout << std::setw(8) << *(float*)(&batch.vertices[i]) << " ";
 			}*/
 			batch.va.Bind();
 			batch.va.AddBuffer(mat.GetLayout());

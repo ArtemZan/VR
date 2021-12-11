@@ -4,19 +4,122 @@ using namespace VR;
 
 struct Collisions : public World
 {
+	class RigidBody2D : public Mesh2D
+	{
+	public:
+		RigidBody2D(float m = 1.f)
+			:m(m)
+		{
+			final_pos = Pos();
+		}
+
+
+		void DoesCollideWith(const RigidBody2D& other)
+		{
+
+		}
+
+		inline void ApplyForce(const math::vec2& dforce)
+		{
+			a += dforce / m;
+		}
+
+		inline void SetForce(const math::vec2& force)
+		{
+			a = force / m;
+		}
+
+
+		inline void ApplyAcceleration(const math::vec2& da)
+		{
+			a += da;
+		}
+
+		inline void SetAcceleration(const math::vec2& a)
+		{
+			this->a = a;
+		}
+
+
+		inline void ApplyVelocity(const math::vec2& dv)
+		{
+			v += dv;
+		}
+
+		inline void SetVelocity(const math::vec2& v)
+		{
+			this->v = v;
+		}
+
+
+		inline void SetMass(float m)
+		{
+			this->m = m;
+		}
+
+		inline void SetCenterOfMass(const math::vec2& center)
+		{
+			centerOfMass = center;
+		}
+
+		void UpdateState(double dTime)
+		{
+			v += a * 1e-3 * dTime;
+			final_pos += v * 1e-3 * dTime;
+		}
+
+		void UpdateMesh()
+		{
+			MoveTo(final_pos);
+		}
+
+		void CalcCenterOfMass()
+		{
+			math::vec2 sum = 0;
+			float area = 0;
+
+
+			Material& mat = mesh->material;
+			Geometry& geo = mesh->geometry;
+
+			const int vertex_size = mat.GetVertexSize();
+			const int vert_count = geo.vertices_size / vertex_size;
+			const int pos_offset = mat.GetPosOffset();
+
+			for (int ind_i = 0; ind_i + 2 < geo.indices_count; ind_i += 3)
+			{
+				int ind = geo.indices[ind_i];
+
+				const math::vec2& A = *(math::vec2*)(geo.vertices + (geo.indices[ind_i] - geo.ind_offset) * vertex_size + pos_offset);
+				const math::vec2& B = *(math::vec2*)(geo.vertices + (geo.indices[ind_i + 1] - geo.ind_offset) * vertex_size + pos_offset);
+				const math::vec2& C = *(math::vec2*)(geo.vertices + (geo.indices[ind_i + 2] - geo.ind_offset) * vertex_size + pos_offset);
+
+				float tr_area = math::area(A, B, C);
+
+				sum += (A + B + C) / 3.f * tr_area;
+				area += tr_area;
+			}
+
+			centerOfMass = sum / area;
+		}
+
+
+		float m;
+		math::vec2 centerOfMass;
+
+		math::vec2 final_pos;
+		math::vec2 a;
+		math::vec2 v;
+
+	private:
+	};
+
 private:
 	Camera2D camera;
 
 	Mesh2D button;
-	Mesh2D rect;
-
-	std::vector<Mesh2D> lines;
-
-	std::vector<math::vec2> points;
-
-	Mesh2D curve;
-
-	Mesh2D bezier;
+	Mesh2D triangle;
+	RigidBody2D box;
 
 	float time = 0;
 
@@ -58,15 +161,19 @@ private:
 
 		time += dTime / 1000.0;
 
-		const int points_count = points.size();
+		triangle;
 
+		float dist = box.final_pos.magnitude() / 1e3;
 
-		for (int i = 0; i < points_count; i++)
+		box.a = math::normalize(box.final_pos) * -1e4 / dist / dist;
+
+		for (int i = 0; i < 10000; i++)
 		{
-			points[i].y = sin(time * 2.0 + math::PI * freq * float(i) / points_count) * amplitude;
+			box.UpdateState(dTime * 1e-3);
 		}
+		box.UpdateMesh();
 
-		curve.Curve(points, 0.002, 0);
+		//triangle.Rotate({ 0.0, 0.0 }, 0.1);
 
 		m_scene.Render();
 
@@ -77,7 +184,7 @@ private:
 	{
 		if (camera.Pos().z - scroll.y > 0)
 		{
-			camera.Move({ 0.0, 0.0, -scroll.y });
+			camera.Move({ 0.0, 0.0, -scroll.y * 1000.f });
 		}
 
 		SetAspectRatio();
@@ -98,72 +205,34 @@ private:
 public:
 
 	Collisions()
-		:camera(1.0, {}, fit_types::SCREEN)
+		:camera(1.0, {}, fit_types::ALIGN_LEFT)
 	{
-		camera.SetPosition({ 0.0, 0.0, 1.0 });
+		camera.SetPosition({ 0.0, 0.0, 1000.0 });
 
 		SetAspectRatio();
 
 		button.SetColor({ 0.0, 1.0, 0.0, 1.0 });
-		button.Rect(0.1f);
-		button.MoveTo(math::vec2( -0.9, 0.9 ));
+		button.Rect(100.f);
+		button.MoveTo(math::vec2( -900.f, 900.f ));
 		m_scene.Add(button);
 
-		/*constexpr int lines_count = 100;
+		std::vector<math::vec2> tr_points;
+		tr_points.emplace_back(-250, -250);
+		tr_points.emplace_back(0, 250);
+		tr_points.emplace_back(250, -250);
+		tr_points.emplace_back(-250, -250);
 
-		for (int i = 0; i < lines_count; i++)
-		{
-			lines.emplace_back();
-			lines.back().SetColor({ float(i) / lines_count, 1.f - float(i) / lines_count, 0.5, 0.0 });
-			lines.back().Line(
-				{ 2.f * float(i) / lines_count - 1, sin(float(i) / lines_count * 10)}, 
-				{ 2.f * float(i + 1.f) / lines_count - 1, sin(float(i + 1) / lines_count * 10) }, 0.002, 0, 1);
-		}
+		triangle.SetColor({ 1.0, 0.0, 0.0, 0.0 });
+		triangle.Curve(tr_points, 10, 0, 0);
+		m_scene.Add(triangle);
 
-		for (Mesh2D& line : lines)
-		{
-			m_scene.Add(&line);
-		}*/
-
-		constexpr int points_count = 1000;
-
-		const float amplitude = rand() % 100 / 100.f;
-		const float freq = (rand() % 100 - 50) / 10 + 5;
-
-		points.reserve(points_count);
-
-		for (int i = 0; i < points_count; i++)
-		{
-			points.emplace_back(2.f * float(i) / points_count - 1, sin(math::PI * freq * float(i) / points_count) * amplitude);
-		}
-
-		curve.SetColor({ 1.f, 1.f, 0.5, 0.0 });
-		curve.Curve(points, 0.002, 0);
-		m_scene.Add(curve);
-
-		bezier.SetColor({ 1.0, 0.0, 0.0, 0.0 });
-
-		std::vector<math::vec2> bezier_points;
-		bezier_points.emplace_back(-0.5, 0);
-		bezier_points.emplace_back(0, 0.5);
-		bezier_points.emplace_back(0.5, 0);
-		bezier_points.emplace_back(0, -0.5);
-		bezier_points.emplace_back(-0.5, 0);
-		bezier.BezierCurve(bezier_points, 0.005, 100, 0);
-		m_scene.Add(bezier);
-
-		/*for (Mesh2D& line : lines)
-		{
-			m_scene.Add(&line);
-		}*/
-
-
-
-
-		//rect.Rect({ 2.0, 2.0 });
-		//rect.MoveTo(0);
-		//rect.Line(math::vec2(-1, -1), { 1.f, 1.f }, 0.01, 0.01f);
-		//rect.SetColor({ 1.0, 0.0, 1.0, 1.0 });
-		//m_scene.Add(&rect);
+		box.final_pos.x = 5000;
+		box.v.y = 1000.f;
+		box.SetColor({ 0.0, 1.0, 1.0, 0.0 });
+		box.Square(1000.0);
+		//box.Triangle(1.41f, 1.f, 1.f);
+		box.CalcCenterOfMass();
+		std::cout << box.centerOfMass << std::endl;
+		m_scene.Add(box);
 	}
 };

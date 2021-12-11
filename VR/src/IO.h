@@ -27,8 +27,8 @@ namespace VR
 		math::vec2i windowSize;
 	public:
 
-		inline math::vec2 MousePos() { return mousePos; }
-		inline math::vec2i WindowSize() { return windowSize; }
+		inline math::vec2 MousePos() const { return mousePos; }
+		inline math::vec2i WindowSize() const { return windowSize; }
 
 		static void Init();
 

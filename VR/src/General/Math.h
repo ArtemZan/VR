@@ -6,7 +6,7 @@ namespace VR
 {
     namespace math
     {
-        constexpr float PI = 3.14159;
+        constexpr double PI = 3.14159265359;
 
 
         struct mat2;
@@ -61,6 +61,12 @@ namespace VR
             float cos(const vec2& vec) const;
         };
 
+        inline std::ostream& operator<<(std::ostream& stream, const vec2& vec)
+        {
+            stream << "[" << vec.x << " " << vec.y << "]";
+            return stream;
+        }
+
         inline vec2 operator-(const vec2& vec) { return {-vec.x, -vec.y}; }
 
         vec2 normalize(const vec2& vec);
@@ -92,6 +98,61 @@ namespace VR
             inline void operator+=(const vec2i& vec) { *this = *this + vec; }
             inline void operator-=(const vec2i& vec) { *this = *this - vec; }
         };
+
+        struct vec2d
+        {
+            vec2d(double scale = 0);
+            vec2d(double x, double y);
+            vec2d(const vec2d& vec);
+            vec2d(const vec2& vec);
+
+            union
+            {
+                double x, s, r;
+            };
+            union
+            {
+                double y, t, g;
+            };
+
+            void operator=(const vec2d& vec);
+
+            inline vec2d operator*(double k) const { return { x * k, y * k }; }
+            inline vec2d operator*(const vec2d& vec) const { return { x * vec.x, y * vec.y }; }
+            vec2d operator*(const mat2& matrix) const;
+
+            inline vec2d operator/(double k) const { return { x / k, y / k }; }
+            inline vec2d operator/(const vec2d& vec) const { return { x / vec.x, y / vec.y }; }
+            inline vec2d operator+(const vec2d& vec) const { return { x + vec.x, y + vec.y }; }
+            inline vec2d operator-(const vec2d& vec) const { return { x - vec.x, y - vec.y }; }
+
+            void operator*=(double k);
+            void operator*=(const vec2d& vec);
+            void operator*=(const mat2& matrix);
+            void operator/=(double k);
+            void operator/=(const vec2d& vec);
+            void operator+=(const vec2d& vec);
+            void operator-=(const vec2d& vec);
+
+            void normalize();
+            inline double distance(const vec2d& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2)); }
+            inline double magnitude() const { return distance({ 0.0, 0.0 }); }
+            inline double dot(const vec2d& vec) const { return x * vec.x + y * vec.y; }
+            double cos(const vec2d& vec) const;
+        };
+
+        inline std::ostream& operator<<(std::ostream& stream, const vec2d& vec)
+        {
+            stream << "[" << vec.x << " " << vec.y << "]";
+            return stream;
+        }
+
+        inline vec2d operator-(const vec2d& vec) { return { -vec.x, -vec.y }; }
+
+        vec2d normalize(const vec2d& vec);
+        inline float distance(const vec2d& v1, const vec2d& v2) { return v1.distance(v2); }
+        inline float magnitude(const vec2d& vec) { return vec.distance({ 0.0, 0.0 }); }
+        inline float dot(const vec2d& v1, const vec2d& v2) { return v1.x * v2.x + v1.y * v2.y; }
 
         struct vec3
         {
@@ -145,6 +206,12 @@ namespace VR
             inline float distance(const vec3& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2) + pow(z - vec.z, 2)); }
             inline float magnitude() const { return distance({ 0.0, 0.0, 0.0 }); }
         };
+
+        inline std::ostream& operator<<(std::ostream& stream, const vec3& vec)
+        {
+            stream << "[" << vec.x << " " << vec.y << " " << vec.z << "]";
+            return stream;
+        }
 
         inline vec3 operator-(const vec3& vec) { return { -vec.x, -vec.y, -vec.z }; }
 
@@ -204,6 +271,7 @@ namespace VR
         {
             mat2();
             mat2(float scale);
+            mat2(vec2 i, vec2 j);
 
             vec2 x;
             vec2 y;

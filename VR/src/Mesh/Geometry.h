@@ -3,23 +3,14 @@ namespace VR
 {
 	struct Geometry
 	{
-		friend class Mesh;
+		/*friend class Mesh;
 		friend class Mesh2D;
 		friend class Mesh3D;
-		friend class Scene;
+		friend class Scene;*/
 
 		~Geometry();
 		Geometry() = default;
 		Geometry(const Geometry& geo);
-
-
-	private:
-		size_t ind_offset = 0;
-
-		uint8_t* vertices = nullptr;
-		size_t vertices_size = 0;
-		uint32_t* indices = nullptr;
-		size_t indices_count = 0;
 
 		//Normals?
 
@@ -27,5 +18,13 @@ namespace VR
 
 		void Alloc(size_t vertSize, size_t indCount);
 		void Clear();
+
+		size_t ind_offset = 0;
+
+		uint8_t* vertices = nullptr;
+		size_t vertices_size = 0;
+		uint32_t* indices = nullptr;
+		size_t indices_count = 0;
+
 	};
 }

@@ -55,7 +55,7 @@ namespace VR
 
 		vec2 vec2::operator*(const mat2& matrix) const
 		{
-			vec2 res;
+			vec2 res = *this;
 			res *= matrix;
 			return res;
 		}
@@ -372,6 +372,12 @@ namespace VR
 			y.y = scale;
 		}
 
+		mat2::mat2(vec2 i, vec2 j)
+			: x(i), y(j)
+		{
+			
+		}
+
 		const mat2& mat2::operator*(const mat2& matrix)
 		{
 			mat2 res;
@@ -491,28 +497,36 @@ namespace VR
 		//Angle is in radians
 		mat3 rotate(const vec3& axis, float angle)
 		{
-			vec3 a = normalize(axis);
+			const vec3 u = normalize(axis);
 
-			math::mat3 rotX(1.0f);
-			math::mat3 rotY(1.0f);
-			math::mat3 rotZ(1.0f);
+			const double c = cos(angle);
+			const double s = sin(angle);
 
-			rotX.y.y = cos(angle * a.x);
-			rotX.y.z = -sin(angle * a.x);
-			rotX.z.z = cos(angle * a.x);
-			rotX.z.y = sin(angle * a.x);
+			vec3 i = vec3(
+				c + u.x * u.x * (1 - c),
+				u.y * u.x * (1 - c) + u.z * s,
+				u.z * u.x * (1 - c) - u.y * s
+			);
 
-			rotY.x.x = cos(angle * a.y);
-			rotY.x.z = sin(angle * a.y);
-			rotY.z.z = cos(angle * a.y);
-			rotY.z.x = -sin(angle * a.y);
+			vec3 j = vec3(
+				u.x * u.y * (1 - c) - u.z * s,
+				c + u.y * u.y * (1 - c),
+				u.z * u.y * (1 - c) + u.x * s
+			);
 
-			rotZ.y.y = cos(angle * a.z);
-			rotZ.y.x = -sin(angle * a.z);
-			rotZ.x.x = cos(angle * a.z);
-			rotZ.x.y = sin(angle * a.z);
+			vec3 k = vec3(
+				u.x * u.z * (1 - c) + u.y * s,
+				u.z * u.y * (1 - c) - u.x * s,
+				c + u.z * u.z * (1 - c)
+			);
 
-			return rotZ * rotY * rotX;
+			/*return mat3(
+				vec3(0, 0, 1),
+				vec3(0, 1, 0),
+				vec3(-1, 0, 0)
+			);*/
+
+			return mat3(i, j, k);
 		}
 
 		mat2 rotate(float angle)

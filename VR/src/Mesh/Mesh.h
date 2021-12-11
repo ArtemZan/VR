@@ -58,6 +58,10 @@ namespace VR
 
 		void Square(float size);
 		void Rect(const math::vec2& size);
+
+		void Triangle(float a, float b, float c);
+		void Triangle(const math::vec2& A, const math::vec2& B, const math::vec2& C);
+
 		void Line(float length, float width, float border_radius, size_t border_sections = -1);
 		void Line(const math::vec2& start, const math::vec2& end, float width, float border_radius, size_t border_sections = -1);
 		void Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections = -1);

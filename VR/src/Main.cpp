@@ -3,7 +3,7 @@
 #include "Worlds/Monkeys.h"
 #include "Worlds/Collisions.h"
 //#include "Worlds/TestWorld1.h"
-//#include "Worlds/Pendulum.h"
+#include "Worlds/Pendulum.h"
 //#include "Worlds/Labyrinth.h"
 #include "Worlds/Navigation.h"
 //#include "Worlds/Gravitation.h"
@@ -23,6 +23,7 @@ int main()
 		DEF_WORLD(Navigation);
 		DEF_WORLD(Monkeys);
 		DEF_WORLD(Collisions);
+		DEF_WORLD(Pendulum);
 
 		//Navigation nav;
 		//Monkeys monkeys;

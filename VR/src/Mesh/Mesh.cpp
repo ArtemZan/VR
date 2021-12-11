@@ -185,7 +185,7 @@ namespace VR
 			v += center;
 			if (material.HasNormals())
 			{
-				*(math::vec3*)(geometry.vertices + i * vert_size + material.GetNormalOffset()) *= m;//Anything else?
+				*(math::vec3*)(geometry.vertices + i * vert_size + material.GetNormalOffset()) *= m;
 			}
 		}
 	}
@@ -565,6 +565,38 @@ namespace VR
 		geometry.indices[5] = 3;
 	}
 
+	void Mesh2D::Triangle(float a, float b, float c)
+	{
+		Geometry& geo = mesh->geometry;
+		Material& mat = mesh->material;
+
+		const int vertex_size = mat.GetVertexSize();
+		const int pos_offset = mat.GetPosOffset();
+		const int color_offset = mat.GetColorOffset();
+
+		geo.Alloc(vertex_size * 3, 3);
+
+		float cos = (c * c + b * b - a * a) / (2.f * b * c);
+		float h = sqrt(1 - cos * cos) * a;
+
+		*(math::vec2*)(geo.vertices + vertex_size * 0 + pos_offset) = { -c / 2.f, -0.5f * h };
+		*(math::vec2*)(geo.vertices + vertex_size * 1 + pos_offset) = { -c / 2.f + a * cos, 0.5f * h };
+		*(math::vec2*)(geo.vertices + vertex_size * 2 + pos_offset) = {  c / 2.f, -0.5f * h };
+
+		*(math::vec4*)(geo.vertices + vertex_size * 0 + color_offset) = mat.GetColor();
+		*(math::vec4*)(geo.vertices + vertex_size * 1 + color_offset) = mat.GetColor();
+		*(math::vec4*)(geo.vertices + vertex_size * 2 + color_offset) = mat.GetColor();
+
+		geo.indices[0] = 0;
+		geo.indices[1] = 1;
+		geo.indices[2] = 2;
+	}
+
+	void Mesh2D::Triangle(const math::vec2& A, const math::vec2& B, const math::vec2& C)
+	{
+	}
+
+
 	void Mesh2D::Line(float length, float width, float border_radius, size_t border_sections)
 	{
 		Material& material = mesh->material;
@@ -789,6 +821,7 @@ namespace VR
 
 		Curve(points, width, border_radius, border_sections);
 	}
+
 
 	void Mesh2D::Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count)
 	{
