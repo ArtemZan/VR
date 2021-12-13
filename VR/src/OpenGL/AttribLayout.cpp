@@ -15,6 +15,11 @@ namespace VR
 
 		}
 
+		void AttribLayout::Remove(size_t position)
+		{
+			m_attributes.erase(m_attributes.begin() + position);
+		}
+
 		size_t AttribLayout::GetOffset(size_t pos) const
 		{
 			if (pos == 0 || pos >= m_attributes.size())

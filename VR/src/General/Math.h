@@ -58,6 +58,7 @@ namespace VR
             inline float distance(const vec2& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2)); }
             inline float magnitude() const { return distance({ 0.0, 0.0 }); }
             inline float dot(const vec2& vec) const { return x * vec.x + y * vec.y; }
+            inline float cross(const vec2& vec) const { return vec3(*this, 0).cross(vec3(vec, 0)).z; }
             float cos(const vec2& vec) const;
         };
 
@@ -75,7 +76,7 @@ namespace VR
         inline float dot(const vec2& v1, const vec2& v2) { return v1.x * v2.x + v1.y * v2.y; }
 
         struct vec2i
-        {
+        {m
             vec2i();
             vec2i(int x, int y);
             vec2i(const vec2i& vec);
@@ -269,39 +270,43 @@ namespace VR
 
         struct mat2
         {
+            vec2 x;
+            vec2 y;
+
             mat2();
             mat2(float scale);
             mat2(vec2 i, vec2 j);
 
-            vec2 x;
-            vec2 y;
+            inline float det() const { return x.cross(y); }
 
             const mat2& operator*(const mat2& matrix);
         };
 
         struct mat3
         {
+            vec3 x;
+            vec3 y;
+            vec3 z;
+
             mat3();
             mat3(float scale);
             mat3(const vec3& x, const vec3& y, const vec3& z);
 
-            vec3 x;
-            vec3 y;
-            vec3 z;
+            inline float det() const { return x.cross(y).dot(z); }
 
             mat3 operator*(const mat3& matrix) const;
         };
 
         struct mat4
         {
-            mat4();
-            mat4(const vec4& x, const vec4& y, const vec4& z, const vec4& w);
-            mat4(float scale);
-
             vec4 x;
             vec4 y;
             vec4 z;
             vec4 w;
+
+            mat4();
+            mat4(const vec4& x, const vec4& y, const vec4& z, const vec4& w);
+            mat4(float scale);
 
             mat4 operator*(const mat4& matrix) const;
             inline const void operator*=(const mat4& matrix) { *this = *this * matrix; }

@@ -59,9 +59,13 @@ namespace VR
 			template <>
 			void Push<float>(size_t count);
 
+			void Remove(size_t position);
+
 
 			inline const std::vector<VertexAttrib>& GetAttributes() const { return m_attributes; }
+
 			inline size_t GetStride() const { return m_stride; }
+
 			size_t GetOffset(size_t pos) const;
 		};
 	}

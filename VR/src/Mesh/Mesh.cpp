@@ -3,143 +3,31 @@
 
 namespace VR
 {
-	MeshContainer::MeshContainer(const Material& material, const Geometry& geometry)
-		:material(material), geometry(geometry)
-	{
-	}
-
-	MeshContainer::~MeshContainer()
-	{
-
-	}
-
 
 	Mesh::Mesh(const Material& material)
-		:mesh(std::make_shared<MeshContainer>(material))
+		:material(material)
 	{
 
-	}
-
-	Mesh::Mesh(const Mesh& mesh)
-		: mesh(std::make_shared<MeshContainer>(mesh.GetMaterial(), mesh.GetGeometry()))
-	{
 	}
 
 	Mesh::~Mesh()
 	{
-		if (mesh.use_count() == 1)
-		{
-			mesh->geometry.Clear();
-		}
+		
 	}
 
 
 	void Mesh::SetColor(const math::vec4& color)
 	{
-		Material& material = GetMaterial();
-		Geometry& geometry = GetGeometry();
-
-		material.SetColor(color);
-
-		if (geometry.vertices_size == 0)
-		{
-			return;
-		}
-
-		const size_t vertex_size = material.GetVertexSize();
-		const size_t vert_count = geometry.vertices_size / vertex_size;
-		const size_t color_offset = material.GetColorOffset();
-
-		for (int v = 0; v < vert_count; v++)
-		{
-			*(math::vec4*)(geometry.vertices + v * vertex_size + color_offset) = color;
-		}
+		material.m_color = color;
+		GetGeometry().SetColor(color);
 	}
 
-	void Mesh::Transform(const math::mat4& transform)
+	/*math::vec4& Mesh::GetColor(size_t vertex) const
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
+		return mesh->geometry->GetColor(vertex);
+	}*/
 
-		int vert_size = material.GetVertexSize();
-		int offset = material.GetPosOffset();
-		int vert_count = geometry.vertices_size / vert_size;
 
-		//Supports only 3d (might change)
-		if (material.Is3D())
-		{
-			for (int i = 0; i < vert_count; i++)
-			{
-				math::vec3& pos = *(math::vec3*)(geometry.vertices + i * vert_size + offset);
-				math::vec4 pos4d(pos, 1);
-				pos4d *= transform;
-				pos.x = pos4d.x;
-				pos.y = pos4d.y;
-				pos.z = pos4d.z;
-			}
-		}
-	}
-
-	void Mesh::Transform(const math::mat3& transform)
-	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
-		int vert_size = material.GetVertexSize();
-		int offset = material.GetPosOffset();
-		int vert_count = geometry.vertices_size / vert_size;
-
-		if (material.Is3D())
-		{
-			for (int i = 0; i < vert_count; i++)
-			{
-				math::vec3& pos = *(math::vec3*)(geometry.vertices + i * vert_size + offset);
-				pos *= transform;
-			}
-		}
-		else
-		{
-			for (int i = 0; i < vert_count; i++)
-			{
-				math::vec2& pos = *(math::vec2*)(geometry.vertices + i * vert_size + offset);
-				math::vec3 pos3d(pos, 1);
-				pos3d *= transform;
-				pos.x = pos3d.x;
-				pos.y = pos3d.y;
-			}
-		}
-
-	}
-
-	void Mesh::Transform(const math::mat2& transform)
-	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
-		int vert_size = material.GetVertexSize();
-		int offset = material.GetPosOffset();
-		int vert_count = geometry.vertices_size / vert_size;
-
-		if (!material.Is3D())
-		{
-			for (int i = 0; i < vert_count; i++)
-			{
-				math::vec2& pos = *(math::vec2*)(geometry.vertices + i * vert_size + offset);
-				pos *= transform;
-			}
-		}
-	}
-
-	math::vec4& Mesh::GetColor(size_t vertex) const
-	{
-		const int vert_offset = vertex * mesh->material.GetVertexSize();
-		if (vert_offset >= mesh->geometry.vertices_size)
-		{
-			std::cout << "Tried to access vertex that is out of range\n";
-		}
-
-		return *(math::vec4*)(mesh->geometry.vertices + vert_offset + mesh->material.GetColorOffset());
-	}
 
 	Mesh3D::Mesh3D(const Material& material)
 		:Mesh(material)
@@ -149,32 +37,34 @@ namespace VR
 
 	void Mesh3D::Move(const math::vec3& bias)
 	{
-
-
 		math::mat4 m = 1;
 		m.w = { bias, 1 };
 
 		Transform(m);
-
-		pos += bias;
 	}
 
 	void Mesh3D::MoveTo(const math::vec3& new_pos)
 	{
-
-
-		Move(new_pos - pos);
+		Move(new_pos - GetPos());
 	}
 
 
 	void Mesh3D::Rotate(const math::vec3& axis, const math::vec3& center, float angle)
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
+		math::mat4 T(1);
 
-		math::mat3 m = math::rotate(axis, angle);
+		T.w = math::vec4(-center, 1);
 
-		int vert_size = material.GetVertexSize();
+		math::mat3 R = math::rotate(axis, angle);
+
+		T *= math::mat4({ R.x, 0.f }, { R.y, 0.f }, { R.z, 0.f }, { 0.f, 0.f, 0.f, 1.f });
+
+		T *= math::mat4(math::vec4(1, 0, 0, 0), math::vec4(0, 1, 0, 0), math::vec4(0, 0, 1, 0), math::vec4(center, 1));
+
+		Transform(T);
+
+
+		/*int vert_size = material.GetVertexSize();
 		int vert_count = geometry.vertices_size / vert_size;
 
 		for (int i = 0; i < vert_count; i++)
@@ -187,18 +77,23 @@ namespace VR
 			{
 				*(math::vec3*)(geometry.vertices + i * vert_size + material.GetNormalOffset()) *= m;
 			}
-		}
+		}*/
 	}
 
 
 	void Mesh3D::Scale(const math::vec3& scale, const math::vec3& center)
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
+		math::mat4 T(1);
 
-		size *= scale;
+		T.w = math::vec4(-center, 1);
 
-		int vert_size = material.GetVertexSize();
+		T *= math::mat4({ scale.x, 0.f, 0.f, 0.f }, { 0.f, scale.y, 0.f, 0.f }, { 0.f, 0.f, scale.z, 0.f }, { 0.f, 0.f, 0.f, 1.f });
+
+		T *= math::mat4(math::vec4(1, 0, 0, 0), math::vec4(0, 1, 0, 0), math::vec4(0, 0, 1, 0), math::vec4(center, 1));
+
+		Transform(T);
+
+		/*int vert_size = material.GetVertexSize();
 		int vert_count = geometry.vertices_size / vert_size;
 		for (int i = 0; i < vert_count; i++)
 		{
@@ -208,22 +103,22 @@ namespace VR
 			pos *= scale;
 
 			pos += center;
-		}
+		}*/
 	}
 
 	void Mesh3D::Scale(const math::vec3& scale)
 	{
-		Scale(scale, pos);
+		Scale(scale, GetPos());
 	}
 
 	void Mesh3D::SetScale(const math::vec3& scale)
 	{
-		Scale(scale / size);
+		Scale(scale / GetScale());
 	}
 
 	void Mesh3D::SetScale(const math::vec3& scale, const math::vec3& center)
 	{
-		Scale(scale / size, center);
+		Scale(scale / GetScale() , center);
 	}
 
 
@@ -234,124 +129,32 @@ namespace VR
 
 	void Mesh3D::Box(const math::vec3& size)
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
-		pos = math::vec3();
-		this->size = size;
-
-		const size_t vertex_size = material.GetVertexSize();
-		const size_t color_offset = material.GetColorOffset();
-		const size_t pos_offset = material.GetPosOffset();
-
-		geometry.Alloc(vertex_size * 4 * 6, 6 * 6);
-
-		uint8_t* vert = geometry.vertices;
-
-		math::mat3 rot = math::rotate({ 0.0, 1.0, 0.0 }, math::PI / 2);
-
-		*(math::vec3*)(vert + vertex_size * 0 + pos_offset) = -size;
-		*(math::vec3*)(vert + vertex_size * 1 + pos_offset) = { -size.x, size.y, -size.z };
-		*(math::vec3*)(vert + vertex_size * 2 + pos_offset) = { size.x, -size.y, -size.z };
-		*(math::vec3*)(vert + vertex_size * 3 + pos_offset) = { size.x, size.y, -size.z };
-
-
-		*(math::vec3*)(vert + vertex_size * 0 + color_offset) = material.GetColor();
-		*(math::vec3*)(vert + vertex_size * 1 + color_offset) = material.GetColor();
-		*(math::vec3*)(vert + vertex_size * 2 + color_offset) = material.GetColor();
-		*(math::vec3*)(vert + vertex_size * 3 + color_offset) = material.GetColor();
-
-		for (int s = 1; s < 6; s++)
-		{
-			for (int v = 0; v < 4; v++)
-			{
-				*(math::vec3*)(vert + vertex_size * (4 * s + v) + color_offset) = material.GetColor();
-				*(math::vec3*)(vert + vertex_size * (4 * s + v) + pos_offset) = *(math::vec3*)(vert + vertex_size * (4 * (s - 1) + v) + pos_offset) * rot;
-			}
-
-			if (s == 3)
-			{
-				rot = math::rotate({ 0.f, 0.f, 1.f }, math::PI / 2);
-			}
-
-			if (s == 4)
-			{
-				rot = rot * rot;
-			}
-		}
-
-		for (int i = 0; i < 6; i++)
-		{
-			geometry.indices[i * 6 + 0] = i * 4 + 0;
-			geometry.indices[i * 6 + 1] = i * 4 + 1;
-			geometry.indices[i * 6 + 2] = i * 4 + 2;
-			geometry.indices[i * 6 + 3] = i * 4 + 2;
-			geometry.indices[i * 6 + 4] = i * 4 + 1;
-			geometry.indices[i * 6 + 5] = i * 4 + 3;
-		}
+		
 	}
 
-	void Mesh3D::Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count)
-	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
-		pos = math::vec3();
-		this->size = math::vec3(1);
-
-
-		size_t vert_count = vert_size / (material.GetVertexSize() - sizeof(math::vec4));
-		size_t vertex_size = material.GetVertexSize();
-
-		geometry.Alloc(vert_count * vertex_size, ind_count);
-		uint8_t* vert = geometry.vertices;
-
-		const uint8_t* vertSrc = vertices;
-
-		for (int i = 0; i < vert_count; i++)
-		{
-			memcpy(vert, vertSrc, material.GetColorOffset());
-			*(math::vec4*)(vert + material.GetColorOffset()) = material.GetColor();
-			memcpy(vert + material.GetColorOffset() + sizeof(math::vec4), vertSrc + material.GetColorOffset(), vertex_size - material.GetColorOffset() - sizeof(math::vec4));
-
-			vert += vertex_size;
-			vertSrc += vertex_size - sizeof(math::vec4);
-		}
-
-		for (int i = 0; i < ind_count; i++)
-		{
-			geometry.indices[i] = indices[i];
-		}
-	}
-
-	void Mesh3D::Shape(const Geometry& geo)
+	/*void Mesh3D::Shape(const Geometry& geo)
 	{
 		Shape(geo.vertices, geo.vertices_size, geo.indices, geo.indices_count);
-	}
+	}*/
 
 
 	bool Mesh3D::IsHovered(const math::mat4& mvp) const
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
 		IO* io = IO::Get();
 		math::vec2 mPos = io->MousePos();
 		mPos /= io->WindowSize();
 		mPos.x = mPos.x * 2 - 1;
 		mPos.y = 1 - mPos.y * 2;
 
-		const size_t vertex_size = material.GetVertexSize();
-		const size_t vert_count = geometry.vertices_size / vertex_size;
-		const size_t pos_offset = material.GetPosOffset();
+		const size_t vertex_size = m_geometry.GetVertexSize();
+		const size_t vert_count = m_geometry.m_data->GetVerticesSize() / vertex_size;
 
-		//std::cout << "\n------------\nMouse position: {" << mPos.x << ", " << mPos.y << "}\n";
 
-		for (int v = 0; v < int(geometry.indices_count) - 2; v += 3)
+		for (int i = 0; i < m_geometry.m_data->GetIndicesCount() - 2; i += 3)
 		{
-			const math::vec3 p1 = *(const math::vec3*)(geometry.vertices + (geometry.indices[v + 0] - geometry.ind_offset) * vertex_size + pos_offset);
-			const math::vec3 p2 = *(const math::vec3*)(geometry.vertices + (geometry.indices[v + 1] - geometry.ind_offset) * vertex_size + pos_offset);
-			const math::vec3 p3 = *(const math::vec3*)(geometry.vertices + (geometry.indices[v + 2] - geometry.ind_offset) * vertex_size + pos_offset);
+			const math::vec3 p1 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i));
+			const math::vec3 p2 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i + 1));
+			const math::vec3 p3 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i + 2));
 
 			const math::vec4 p1p = math::vec4(p1.x, p1.y, p1.z, 1) * mvp;
 			const math::vec4 p2p = math::vec4(p2.x, p2.y, p2.z, 1) * mvp;
@@ -361,215 +164,95 @@ namespace VR
 			const math::vec2 p2d = math::vec2(p2p.x, p2p.y) / p2p.w;
 			const math::vec2 p3d = math::vec2(p3p.x, p3p.y) / p3p.w;
 
-			//std::cout << p1d.x << " " << p1d.y << std::endl;
-			//std::cout << p2d.x << " " << p2d.y << std::endl;
-			//std::cout << p3d.x << " " << p3d.y << "\n\n";
-
 			if (math::IsInside(p1d, p2d, p3d, mPos))
 			{
-				//std::cout << "------------\n";
 				return true;
 			}
 		}
 
-		//std::cout << "------------\n";
 		return false;
 	}
 
 	void Mesh3D::CreateNormals()
 	{
-		Geometry& geo = mesh->geometry;
-		const Material& mat = mesh->material;
-
-		const size_t normal_offset = mat.GetNormalOffset();
-		const size_t pos_offset = mat.GetPosOffset();
-		const size_t vertex_size = mat.GetVertexSize();
+		const size_t normal_offset = m_geometry.GetNormalOffset();
+		const size_t pos_offset = m_geometry.GetPosOffset();
+		const size_t vertex_size = m_geometry.GetVertexSize();
+		const size_t indCount = m_geometry.m_data->GetVerticesSize();
 
 		if (normal_offset == -1)
 			return;
 
 
-		for (int i = 0; i < geo.indices_count; i += 3)
+		for (int i = 0; i + 2 < indCount; i += 3)
 		{
-			uint8_t* v1 = geo.vertices + (geo.indices[i] - geo.ind_offset) * vertex_size;
-			uint8_t* v2 = geo.vertices + (geo.indices[i + 1] - geo.ind_offset) * vertex_size;
-			uint8_t* v3 = geo.vertices + (geo.indices[i + 2] - geo.ind_offset) * vertex_size;
+			int i1 = m_geometry.m_data->GetIndex(i);
+			int i2 = m_geometry.m_data->GetIndex(i + 1);
+			int i3 = m_geometry.m_data->GetIndex(i + 2);
 
-			math::vec3 norm = math::cross(*(math::vec3*)(v2 + pos_offset) - *(math::vec3*)(v1 + pos_offset), *(math::vec3*)(v3 + pos_offset) - *(math::vec3*)(v1 + pos_offset));
+			math::vec3 v1 = m_geometry.GetPos(i1);
+			math::vec3 v2 = m_geometry.GetPos(i2);
+			math::vec3 v3 = m_geometry.GetPos(i3);
+
+			math::vec3 norm = math::cross(v2 - v1, v3 - v1);
 
 			norm.normalize();
 
-			*(math::vec3*)(v1 + normal_offset) = *(math::vec3*)(v2 + normal_offset) = *(math::vec3*)(v3 + normal_offset) = norm;
+			m_geometry.SetNormal(i1, norm);
+			m_geometry.SetNormal(i2, norm);
+			m_geometry.SetNormal(i3, norm);
 		}
 	}
 
-	void Mesh3D::ShadeSmooth(float distance_treshold)
+	void Mesh3D::ShadeSmooth(float distance_threshold)
 	{
-		Geometry& geo = mesh->geometry;
-		const Material& mat = mesh->material;
-
-		const size_t normal_offset = mat.GetNormalOffset();
-		const size_t pos_offset = mat.GetPosOffset();
-		const size_t vertex_size = mat.GetVertexSize();
-
-		if (normal_offset == -1)
-			return;
-
-		struct VecComparator
-		{
-			bool operator()(const math::vec3& v1, const math::vec3& v2) const
-			{
-				return double(v1.x) * 1e10 + double(v1.y) * 1e5 + v1.z < double(v2.x) * 1e10 + double(v2.y) * 1e5 + v2.z;
-			}
-		};
-
-		std::map<math::vec3, math::vec3, VecComparator> normals;
-
-		for (int v = 0; v < geo.vertices_size / vertex_size; v++)
-		{
-			normals[*(math::vec3*)(geo.vertices + v * vertex_size + pos_offset)] += *(math::vec3*)(geo.vertices + v * vertex_size + normal_offset);
-		}
-
-		for (auto& [pos, normal] : normals)
-		{
-			normal.normalize();
-		}
-
-		for (int v = 0; v < geo.vertices_size / vertex_size; v++)
-		{
-			*(math::vec3*)(geo.vertices + v * vertex_size + normal_offset) = normals[*(math::vec3*)(geo.vertices + v * vertex_size + pos_offset)];
-		}
+		m_geometry.ShadeSmooth(distance_threshold);
 	}
 
 
 
 	void Mesh2D::Move(const math::vec2& bias)
 	{
-
 		math::mat3 m = 1;
 		m.z = { bias, 1 };
-
+		
 		Transform(m);
-
-		pos += bias;
 	}
 
 	void Mesh2D::MoveTo(const math::vec2& new_pos)
 	{
-		Move(new_pos - pos);
+		Move(new_pos - GetPos());
 	}
 
 
 	void Mesh2D::Rotate(const math::vec2& center, float angle)
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
-		math::mat2 m = math::rotate(angle);
-
-		int vert_size = material.GetVertexSize();
-		int vert_count = geometry.vertices_size / vert_size;
-
-		for (int i = 0; i < vert_count; i++)
-		{
-			math::vec2& v = *(math::vec2*)(geometry.vertices + i * vert_size + material.GetPosOffset());
-			v -= center;
-			v *= m;
-			v += center;
-			if (material.HasNormals())
-			{
-				*(math::vec2*)(geometry.vertices + i * vert_size + material.GetNormalOffset()) *= m;//Anything else?
-			}
-		}
+		m_geometry.Rotate(center, angle);
 	}
 
 
 	void Mesh2D::Scale(const math::vec2& scale, const math::vec2& center)
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
-		size *= scale;
-
-		int vert_size = material.GetVertexSize();
-		int vert_count = geometry.vertices_size / vert_size;
-		for (int i = 0; i < vert_count; i++)
-		{
-			math::vec2& pos = *(math::vec2*)(geometry.vertices + i * vert_size);
-			pos -= center;
-
-			pos *= scale;
-
-			pos += center;
-		}
+		
 	}
 
 	void Mesh2D::Scale(const math::vec2& scale)
 	{
-		Scale(scale, pos);
+		Scale(scale, GetPos());
 	}
 
 	void Mesh2D::SetScale(const math::vec2& scale)
 	{
-		Scale(scale / size);
+		Scale(scale / GetScale());
 	}
 
 	void Mesh2D::SetScale(const math::vec2& scale, const math::vec2& center)
 	{
-		Scale(scale / size, center);
+		Scale(scale / GetScale(), center);
 	}
 
-
-	void Mesh2D::Square(float size)
+	/*void Mesh2D::Triangle(float a, float b, float c)
 	{
-		Rect(size);
-	}
-
-	void Mesh2D::Rect(const math::vec2& size)
-	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
-		pos = math::vec2();
-		this->size = size;
-
-		size_t vert_size = material.GetVertexSize();
-		size_t pos_offset = material.GetPosOffset();
-		size_t color_offset = material.GetColorOffset();
-
-		geometry.Alloc(vert_size * 4, 6);
-
-		uint8_t* vert = geometry.vertices;
-
-		for (int x = -1; x < 2; x += 2)
-			for (int y = -1; y < 2; y += 2)
-			{
-				uint8_t* v = vert + ((x + 1) * 2 + y + 1) / 2 * vert_size;
-
-				if (pos_offset != -1)
-				{
-					*(math::vec2*)(v + pos_offset) = math::vec2(x, y) * size / 2;
-				}
-
-				if (color_offset != -1)
-				{
-					*(math::vec4*)(v + color_offset) = material.GetColor();
-				}
-			}
-
-		geometry.indices[0] = 0;
-		geometry.indices[1] = 1;
-		geometry.indices[2] = 2;
-		geometry.indices[3] = 2;
-		geometry.indices[4] = 1;
-		geometry.indices[5] = 3;
-	}
-
-	void Mesh2D::Triangle(float a, float b, float c)
-	{
-		Geometry& geo = mesh->geometry;
-		Material& mat = mesh->material;
-
 		const int vertex_size = mat.GetVertexSize();
 		const int pos_offset = mat.GetPosOffset();
 		const int color_offset = mat.GetColorOffset();
@@ -590,14 +273,10 @@ namespace VR
 		geo.indices[0] = 0;
 		geo.indices[1] = 1;
 		geo.indices[2] = 2;
-	}
-
-	void Mesh2D::Triangle(const math::vec2& A, const math::vec2& B, const math::vec2& C)
-	{
-	}
+	}*/
 
 
-	void Mesh2D::Line(float length, float width, float border_radius, size_t border_sections)
+	/* void Mesh2D::Line(float length, float width, float border_radius, size_t border_sections)
 	{
 		Material& material = mesh->material;
 		Geometry& geometry = mesh->geometry;
@@ -605,8 +284,8 @@ namespace VR
 		const math::vec2 start(0);
 		const math::vec2 end(start.x + length, start.y);
 
-		pos = math::vec2();
-		size = math::vec2(1);
+		m_pos = math::vec2();
+		m_scale = math::vec2(1);
 
 		constexpr int MAX_BORDER_SECTIONS = 100;
 
@@ -827,8 +506,8 @@ namespace VR
 	{
 		Geometry& geometry = mesh->geometry;
 
-		pos = math::vec2();
-		this->size = math::vec2(1);
+		m_pos = math::vec2();
+		m_scale = math::vec2(1);
 
 		geometry.Alloc(vert_size, ind_count);
 
@@ -839,7 +518,7 @@ namespace VR
 	void Mesh2D::Shape(const Geometry& geo)
 	{
 		Shape(geo.vertices, geo.vertices_size, geo.indices, geo.indices_count);
-	}
+	} */
 
 	bool Mesh2D::IsHovered(const math::mat3x2& view) const
 	{
@@ -849,41 +528,32 @@ namespace VR
 
 	bool Mesh2D::IsHovered(const math::mat3& view) const
 	{
-		Material& material = mesh->material;
-		Geometry& geometry = mesh->geometry;
-
 		IO* io = IO::Get();
 		math::vec2 mPos = io->MousePos();
 		mPos /= io->WindowSize();
 		mPos.x = mPos.x * 2 - 1;
 		mPos.y = 1 - mPos.y * 2;
 
-		const size_t vertex_size = material.GetVertexSize();
-		const size_t vert_count = geometry.vertices_size / vertex_size;
-		const size_t pos_offset = material.GetPosOffset();
+		const size_t vertexSize = m_geometry.GetVertexSize();
+		const size_t vertCount = m_geometry.m_data->GetVerticesSize() / vertexSize;
+		const size_t posOffset = m_geometry.GetPosOffset();
 
-		for (int v = 0; v < int(geometry.indices_count) - 2; v += 3)
+		for (int i = 0; i < m_geometry.m_data->GetIndicesCount() - 2; i += 3)
 		{
-			const math::vec2 p1 = *(const math::vec2*)(geometry.vertices + (geometry.indices[v + 0] - geometry.ind_offset) * vertex_size + pos_offset);
-			const math::vec2 p2 = *(const math::vec2*)(geometry.vertices + (geometry.indices[v + 1] - geometry.ind_offset) * vertex_size + pos_offset);
-			const math::vec2 p3 = *(const math::vec2*)(geometry.vertices + (geometry.indices[v + 2] - geometry.ind_offset) * vertex_size + pos_offset);
+			const math::vec2 p1 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i));
+			const math::vec2 p2 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i + 1));
+			const math::vec2 p3 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i + 2));
 
 			const math::vec3 p1t = math::vec3(p1.x, p1.y, 1) * view;
 			const math::vec3 p2t = math::vec3(p2.x, p2.y, 1) * view;
 			const math::vec3 p3t = math::vec3(p3.x, p3.y, 1) * view;
 
-			//std::cout << p1d.x << " " << p1d.y << std::endl;
-			//std::cout << p2d.x << " " << p2d.y << std::endl;
-			//std::cout << p3d.x << " " << p3d.y << "\n\n";
-
 			if (math::IsInside({ p1t.x, p1t.y }, { p2t.x, p2t.y }, { p3t.x, p3t.y }, mPos))
 			{
-				//std::cout << "------------\n";
 				return true;
 			}
 		}
 
-		//std::cout << "------------\n";
 		return false;
 	}
 }

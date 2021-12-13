@@ -16,6 +16,8 @@
 #include "Camera.h"
 
 #include "Events.h"
+
+#include "Object/Object.h"
 #include "Mesh/Material.h"
 #include "Mesh/Geometry.h"
 #include "Mesh/Mesh.h"
@@ -24,6 +26,6 @@
 #include "Window.h"
 #include "IO.h"
 #include "Context.h"
-#include "Scene.h"
+#include "Scene/Scene.h"
 #include "World.h"
 #include "MeshLoader.h"

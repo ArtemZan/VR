@@ -4,20 +4,11 @@
 namespace VR
 {
 	std::vector<std::pair<std::string, gl::Shader*>> Material::shaders;
-	std::vector<gl::AttribLayout> Material::layouts;
 
-
-	Material::Material(const char* shader_path, const gl::AttribLayout& layout)
-	{
-		SetShader(shader_path);
-
-		SetLayout(layout);
-	}
 
 	Material::Material(const char* shader_path)
 	{
 		SetShader(shader_path);
-		SetLayout({});
 	}
 
 	/*Material::Material(const Material& mat)
@@ -43,37 +34,6 @@ namespace VR
 		return -1;
 	}
 
-	int Material::FindLayout(const gl::AttribLayout& layout)
-	{
-		int id = 0;
-		for (auto& _layout : layouts)
-		{
-			if (_layout.GetAttributes().size() == layout.GetAttributes().size())
-			{
-				auto attribs = layout.GetAttributes();
-				auto _attribs = _layout.GetAttributes();
-
-				bool same = true;
-
-				for (int i = 0; i < attribs.size(); i++)
-				{
-					if (attribs[i].type != _attribs[i].type)
-					{
-						same = false;
-					}
-				}
-
-				if (same)
-				{
-					return id;
-				}
-			}
-
-			id++;
-		}
-
-		return -1;
-	}
 
 	void Material::DeleteShaders()
 	{
@@ -98,110 +58,6 @@ namespace VR
 		m_shader = shaders[m_shaderId].second;
 	}
 
-	void Material::SetLayout(const gl::AttribLayout& layout)
-	{
-		m_layoutId = FindLayout(layout);
-
-		if (m_layoutId == -1)
-		{
-			layouts.push_back(layout);
-			m_layoutId = layouts.size() - 1;
-		}
-	}
-
-#define AttribSetterInit\
-	const std::vector<gl::VertexAttrib>& attribs = GetLayout().GetAttributes(); \
-	if (attribs.size() <= pos)																			 \
-	{																										 \
-		std::cout << "Attribute position out of range\n";													 \
-		return false;																						 \
-	}
-
-	bool Material::SetColorOffset(size_t pos)
-	{
-		AttribSetterInit
-
-		if (attribs[pos].count != 4 || attribs[pos].type != GL_FLOAT)
-		{
-			std::cout << "Attribute at given position cannot be color\n";
-			return false;
-		}
-
-		props.attribsPos.color = pos;
-		props.attribsOffsets.color = GetLayout().GetOffset(pos);
-
-		return true;
-	}
-
-	bool Material::SetPosOffset(size_t pos)
-	{
-		AttribSetterInit
-
-		if (attribs[pos].type != GL_FLOAT)
-		{
-			std::cout << "Attribute at given position cannot be position\n";
-			return false;
-		}
-
-		if (attribs[pos].count == 3)
-		{
-			props._3d = true;
-		}
-
-		if (attribs[pos].count == 2)
-		{
-			props._3d = false;
-		}
-
-		if (attribs[pos].count == 2 || attribs[pos].count == 3)
-		{
-			props.attribsPos.pos = pos;
-			props.attribsOffsets.pos = GetLayout().GetOffset(pos);
-			return true;
-		}
-
-		std::cout << "Attribute at given position cannot be position (invalid dimension)\n";
-		return false;
-	}
-
-	bool Material::SetNormalOffset(size_t pos)
-	{
-		AttribSetterInit
-		if (attribs[pos].type != GL_FLOAT)
-		{
-			std::cout << "Attribute at given position cannot be normal\n";
-			return false;
-		}
-
-		if (attribs[pos].count == 3)
-		{
-			if (!props._3d)
-			{
-				std::cout << "Warning: set position attribute before setting normal attribute\n";
-			}
-
-			props._3d = true;
-		}
-
-		if (attribs[pos].count == 2)
-		{
-			if (props._3d)
-			{
-				std::cout << "Warning: set position attribute before setting normal attribute\n";
-			}
-			props._3d = false;
-		}
-
-		if (attribs[pos].count == 2 || attribs[pos].count == 3)
-		{
-			props.attribsPos.normal = pos;
-			props.attribsOffsets.normal = GetLayout().GetOffset(pos);
-			return true;
-		}
-
-		std::cout << "Attribute at given position cannot be normal (invalid dimension)\n";
-		return false;
-	}
 
 
 	void Material::SetShaderUniforms()
@@ -236,34 +92,18 @@ namespace VR
 		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\2D.shader")
 	{
 		SetShaderUniform("transform", math::mat3x2(1.0));
-
-		PushAttrib<float>(2);
-		PushAttrib<float>(4);
-
-		SetPosOffset(0);
-		SetColorOffset(1);
 	}
 
 
 	Material3DLambert::Material3DLambert()
 		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Diffuse.shader")
 	{
-		PushAttrib<float>(3);
-		PushAttrib<float>(4);
-		PushAttrib<float>(3);
-
-		SetPosOffset(0);
-		SetColorOffset(1);
-		SetNormalOffset(2);
+		
 	}
 
 	Material3DColor::Material3DColor()
 		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Color.shader")
 	{
-		PushAttrib<float>(3);
-		PushAttrib<float>(4);
-
-		SetPosOffset(0);
-		SetColorOffset(1);
+		
 	}
 }
