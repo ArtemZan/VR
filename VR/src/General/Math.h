@@ -14,6 +14,7 @@ namespace VR
         struct mat4;
 
         struct vec2i;
+        struct vec2;
         struct vec3;
         struct vec4;
 
@@ -58,7 +59,7 @@ namespace VR
             inline float distance(const vec2& vec) const { return sqrt(pow(x - vec.x, 2) + pow(y - vec.y, 2)); }
             inline float magnitude() const { return distance({ 0.0, 0.0 }); }
             inline float dot(const vec2& vec) const { return x * vec.x + y * vec.y; }
-            inline float cross(const vec2& vec) const { return vec3(*this, 0).cross(vec3(vec, 0)).z; }
+            float cross(const vec2& vec) const;
             float cos(const vec2& vec) const;
         };
 
@@ -76,7 +77,7 @@ namespace VR
         inline float dot(const vec2& v1, const vec2& v2) { return v1.x * v2.x + v1.y * v2.y; }
 
         struct vec2i
-        {m
+        {
             vec2i();
             vec2i(int x, int y);
             vec2i(const vec2i& vec);

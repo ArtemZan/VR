@@ -14,9 +14,9 @@ public:
 	{
 		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.9, 0.9), { 1.0, 1.0, 0.0, 0 });
 		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.7, 0.9), { 0.0f, 0.6f, 0.4f, 0.f });
-		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.5, 0.9), { 0.7f, 0.5f, 0.4f, 0.f });
+		//AddButton(math::vec2(0.1, 0.1), math::vec2(-0.5, 0.9), { 0.7f, 0.5f, 0.4f, 0.f });
 
-		for (Mesh2D& b : buttons)
+		for (auto& b : buttons)
 		{
 			m_scene.Add(b);
 		}
@@ -47,9 +47,9 @@ public:
 
 		camera.SetAspectRatio(wSize.x / wSize.y);
 
-		for (Mesh2D& button : buttons)
+		for (auto& button : buttons)
 		{
-			button.GetMaterial().SetShaderUniform("transform", camera.View());
+			button->GetMaterial().SetShaderUniform("transform", camera.View());
 		}
 
 
@@ -64,7 +64,7 @@ public:
 
 		for (int i = 0; i < buttons.size(); i++)
 		{
-			if (buttons[i].IsHovered(camera.View()))
+			if (buttons[i]->IsHovered(camera.View()))
 			{
 				link = i + 1;
 				std::cout << "Detaching...\n";
@@ -87,11 +87,11 @@ public:
 
 	void AddButton(const math::vec2& size, const math::vec2& pos, const math::vec4& color)
 	{
-		buttons.emplace_back();
+		buttons.push_back(Mesh2D());
 
-		buttons.back().Rect(size);
-		buttons.back().SetColor(color);
-		buttons.back().Move(pos);
+		buttons.back()->GetGeometry().CreateRect(size);
+		buttons.back()->SetColor(color);
+		buttons.back()->Move(pos);
 	}
 };
 

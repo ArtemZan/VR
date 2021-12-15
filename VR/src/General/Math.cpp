@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "VR.h"
+#include "Math.h"
 
 //modified bits should be set to 0 before calling this function
 #define DefineSetBits(type)																	\
@@ -106,6 +107,11 @@ namespace VR
 			float l = sqrt(x * x + y * y);
 			x /= l;
 			y /= l;
+		}
+
+		float vec2::cross(const vec2& vec) const
+		{
+			return vec3(*this, 0).cross(vec3(vec, 0)).z;
 		}
 
 		float vec2::cos(const vec2& vec) const

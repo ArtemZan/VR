@@ -9,12 +9,13 @@ namespace VR
 
 		void Render();
 
-		std::vector<Batch> batches;
+		std::vector<std::weak_ptr<Batch>> m_batches;
 
-		void Add(Mesh& mesh);
 		void Delete(Mesh& mesh);
 
+		void Add(Mesh& mesh);
 	private:
-		void Add(const std::shared_ptr<MeshContainer>& mesh);
+
+		void Add(Mesh& mesh, const std::shared_ptr<Batch>& batch);
 	};
 }

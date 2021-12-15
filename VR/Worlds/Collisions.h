@@ -10,7 +10,7 @@ struct Collisions : public World
 		RigidBody2D(float m = 1.f)
 			:m(m)
 		{
-			final_pos = Pos();
+			final_pos = GetPos();
 		}
 
 
@@ -79,20 +79,18 @@ struct Collisions : public World
 			float area = 0;
 
 
-			Material& mat = mesh->material;
-			Geometry& geo = mesh->geometry;
+			const Material& mat = GetMaterial();
+			const Geometry2D& geo = GetGeometry();
 
-			const int vertex_size = mat.GetVertexSize();
-			const int vert_count = geo.vertices_size / vertex_size;
-			const int pos_offset = mat.GetPosOffset();
+			const int vertex_size = geo.GetVertexSize();
+			const int vert_count = geo.m_data->GetVerticesSize() / vertex_size;
+			const int indCount = geo.m_data->GetIndicesCount();
 
-			for (int ind_i = 0; ind_i + 2 < geo.indices_count; ind_i += 3)
+			for (int ind_i = 0; ind_i + 2 < indCount; ind_i += 3)
 			{
-				int ind = geo.indices[ind_i];
-
-				const math::vec2& A = *(math::vec2*)(geo.vertices + (geo.indices[ind_i] - geo.ind_offset) * vertex_size + pos_offset);
-				const math::vec2& B = *(math::vec2*)(geo.vertices + (geo.indices[ind_i + 1] - geo.ind_offset) * vertex_size + pos_offset);
-				const math::vec2& C = *(math::vec2*)(geo.vertices + (geo.indices[ind_i + 2] - geo.ind_offset) * vertex_size + pos_offset);
+				const math::vec2& A = geo.GetPos(geo.m_data->GetIndex(ind_i));
+				const math::vec2& B = geo.GetPos(geo.m_data->GetIndex(ind_i + 1));
+				const math::vec2& C = geo.GetPos(geo.m_data->GetIndex(ind_i + 2));
 
 				float tr_area = math::area(A, B, C);
 
@@ -212,7 +210,7 @@ public:
 		SetAspectRatio();
 
 		button.SetColor({ 0.0, 1.0, 0.0, 1.0 });
-		button.Rect(100.f);
+		//button.Rect(100.f);
 		button.MoveTo(math::vec2( -900.f, 900.f ));
 		m_scene.Add(button);
 
@@ -223,14 +221,14 @@ public:
 		tr_points.emplace_back(-250, -250);
 
 		triangle.SetColor({ 1.0, 0.0, 0.0, 0.0 });
-		triangle.Curve(tr_points, 10, 0, 0);
+		//triangle.Curve(tr_points, 10, 0, 0);
 		m_scene.Add(triangle);
 
 		box.final_pos.x = 5000;
 		box.v.y = 1000.f;
 		box.SetColor({ 0.0, 1.0, 1.0, 0.0 });
-		box.Square(1000.0);
-		//box.Triangle(1.41f, 1.f, 1.f);
+		//box.Square(1000.0);
+		////box.Triangle(1.41f, 1.f, 1.f);
 		box.CalcCenterOfMass();
 		std::cout << box.centerOfMass << std::endl;
 		m_scene.Add(box);

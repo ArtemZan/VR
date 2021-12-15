@@ -11,34 +11,39 @@ namespace VR
 
 	void Scene::Add(Mesh& mesh)
 	{
-		Add(mesh.GetData());
-		mesh.GetData()->scene = this;
-	}
-
-	void Scene::Add(const std::shared_ptr<MeshContainer>& mesh)
-	{
-		for (Batch& batch : batches)
+		for (auto& w_batch : m_batches)
 		{
-			if (batch.meshes.size() == 0 || batch.meshes[0]->material.GetShaderId() == mesh->material.GetShaderId())
+			std::shared_ptr batch = w_batch.lock();
+
+			if (batch->m_meshes.size() == 0 || batch->m_meshes[0]->GetMaterial() == mesh->GetMaterial())
 			{
-				batch.Add(mesh);
+				Batch::Add(mesh, batch);
 				return;
 			}
 		}
 
-		batches.emplace_back();
+		const std::shared_ptr<Batch> newBatch = std::make_shared<Batch>();
 
-		batches.back().Add(mesh);
+		m_batches.emplace_back(newBatch);
+
+		Batch::Add(mesh, newBatch);
+
+		Add(mesh, newBatch);
+	}
+
+	void Scene::Add(Mesh& mesh, const std::shared_ptr<Batch>& batch)
+	{
+
 	}
 
 	void Scene::Delete(Mesh& mesh)
 	{
-		for (Batch& batch : batches)
+		for (auto& w_batch : m_batches)
 		{
-			if (batch.meshes.size())
+			std::shared_ptr batch = w_batch.lock();
+			if (batch->m_meshes.size())
 			{
-				batch.Delete(mesh);
-				return;
+				batch->Delete(mesh);
 			}
 		}
 	}
@@ -53,25 +58,26 @@ namespace VR
 
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		for (Batch& batch : batches)
+		for (auto& w_batch : m_batches)
 		{
-			Material& mat = batch.meshes.front()->material;
+			std::shared_ptr<Batch> batch = w_batch.lock();
+			Material& mat = batch->m_meshes.front()->GetMaterial();
 
-			for (int m = 0; m < batch.meshes.size(); m++)
+			/*for (int m = 0; m < batch.m_meshes.size(); m++)
 			{
-				if (batch.vertices.data() > batch.meshes[m]->geometry.vertices 
-					&& batch.vertices.data() + batch.vertices.size() < batch.meshes[m]->geometry.vertices + batch.meshes[m]->geometry.vertices_size)
+				if (batch.m_vertices.data() > batch.m_meshes[m]->geometry.vertices 
+					&& batch.m_vertices.data() + batch.m_vertices.size() < batch.meshes[m]->geometry.vertices + batch.meshes[m]->geometry.vertices_size)
 				{
 					batch.EraseMesh(m);
-					Add(batch.meshes[m]);
+					Add(batch.m_meshes[m]);
 				}
-			}
+			}*/
 
 			mat.BindShader();
 			mat.SetShaderUniforms();
 
-			batch.vb.Bind();
-			batch.vb.Data(batch.vertices.size(), batch.vertices.data());
+			batch->m_vb.Bind();
+			batch->m_vb.Data(batch->m_vertices.size(), batch->m_vertices.data());
 			/*for (int i = 0; i < batch.vertices.size(); i+=4)
 			{
 				if (i % batch.meshes[0]->material.GetVertexSize() == 0)
@@ -80,9 +86,9 @@ namespace VR
 				}
 				std::cout << std::setw(8) << *(float*)(&batch.vertices[i]) << " ";
 			}*/
-			batch.va.Bind();
-			batch.va.AddBuffer(mat.GetLayout());
-			GLCall(glDrawElements(GL_TRIANGLES, batch.indices.size(), GL_UNSIGNED_INT, batch.indices.data()));
+			batch->m_va.Bind();
+			batch->m_va.AddBuffer(batch->m_meshes.front()->GetGeometry().GetLayout());
+			GLCall(glDrawElements(GL_TRIANGLES, batch->m_indices.size(), GL_UNSIGNED_INT, batch->m_indices.data()));
 		}
 
 		glfwSwapBuffers(Context::Get()->m_window.m_window);

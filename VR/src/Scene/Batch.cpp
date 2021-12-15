@@ -5,141 +5,140 @@ namespace VR
 {
 
 	Batch::Batch()
-		:vb(0)
+		:m_vb(0)
 	{
 	}
 
 	Batch::Batch(const Batch& batch)
-		: vertices(batch.vertices), indices(batch.indices), va(batch.va), vb(batch.vb)/* SUS */, meshes(batch.meshes)
+		: m_vertices(batch.m_vertices), m_indices(batch.m_indices), m_va(batch.m_va), m_vb(batch.m_vb)/* SUS */, m_meshes(batch.m_meshes)
 	{
-		for (auto& m : meshes)
+		/*for (auto& m : meshes)
 		{
 			m->geometry.vertices = m->geometry.vertices - batch.vertices.data() + vertices.data();
 			m->geometry.indices = m->geometry.indices - batch.indices.data() + indices.data();
-		}
+		}*/
 	}
 
-	//Returns size of added vertices
-	size_t Batch::Add(const std::shared_ptr<MeshContainer>& mesh)
+	void Batch::Add(Mesh& mesh, const std::shared_ptr<Batch>& batch)
 	{
-		meshes.push_back(mesh);
+		batch->m_meshes.push_back(mesh);
 
-		Geometry& geo = mesh->geometry;
-		Material& mat = mesh->material;
+		Geometry& geo = mesh->GetGeometry();
+		//geo.m_data.reset(new AttachedGeometryData();
+		AttachedGeometryData* geometryData = new AttachedGeometryData(batch);
 
-		if (geo.vertices_size == 0)
+		const Material& mat = mesh->GetMaterial();
+
+		const size_t indCount = geo.m_data->GetIndicesCount();
+		const size_t verticesSize = geo.m_data->GetVerticesSize();
+		const size_t vertexSize = geo.GetVertexSize();
+		const size_t vertCount = verticesSize / vertexSize;
+
+		if (verticesSize == 0)
 		{
-			return 0;
+			std::cout << "Warning: trying to add mesh without vertices\n";
+			return;
 		}
 
-		const size_t ind_count = geo.indices_count;
-		const size_t added_vertices_size = geo.vertices_size;
-		const size_t vertex_size = mat.GetVertexSize();
-		const size_t added_vert_count = added_vertices_size / vertex_size;
-		const size_t verices_count = vertices.size() / vertex_size;
 
-		indices.reserve(indices.size() + ind_count);
-		for (int i = 0; i < ind_count; i++)
-		{
-			indices.push_back(verices_count + geo.indices[i]);
-		}
-		geo.ind_offset = verices_count;
+		batch->m_indices.reserve(batch->m_indices.size() + indCount);
 
-		vertices.reserve(vertices.size() + added_vertices_size);
-		for (int i = 0; i < added_vertices_size; i++)
+		for (int i = 0; i < indCount; i++)
 		{
-			vertices.push_back(geo.vertices[i]);
+			batch->m_indices.push_back(batch->m_vertices.size() + geo.m_data->GetIndex(i));
 		}
 
-		geo.Clear();
+		geometryData->m_indices.offset = batch->m_vertices.size();
 
-		vb.Resize(vertices.size());
-		va.AddBuffer(mat.GetLayout());
+
+		batch->m_vertices.reserve(batch->m_vertices.size() + verticesSize);
+
+		for (int i = 0; i < verticesSize; i++)
+		{
+			batch->m_vertices.push_back(*geo.m_data->GetVertData(i));
+		}
+
+		geo.m_data.reset(geometryData);
+
+		batch->m_vb.Resize(batch->m_vertices.size());
+		batch->m_va.AddBuffer(geo.GetLayout());
 
 		size_t ind_offset = 0;
 		size_t vert_offset = 0;
-
-		for (auto& m : meshes)
-		{
-			m->geometry.vertices = vertices.data() + vert_offset;
-			m->geometry.indices = indices.data() + ind_offset;
-
-			ind_offset += m->geometry.indices_count;
-			vert_offset += m->geometry.vertices_size;
-		}
-
-		return added_vertices_size;
 	}
 
-	void Batch::Delete(Mesh& mesh)
+	void Batch::Delete(const Mesh& mesh)
 	{
-		for (int mi = 0; mi < meshes.size(); mi++)
-		{
-			auto& m = meshes[mi];
+		//	for (int mi = 0; mi < m_meshes.size(); mi++)
+		//	{
+		//		auto& m = m_meshes[mi];
 
-			if (m.get() == mesh.GetData().get())
-			{
-				const size_t vert_size = m->geometry.vertices_size;
-				const auto vert_begin = vertices.begin() + (m->geometry.vertices - vertices.data());
+		//		if (m.get() == mesh.get())
+		//		{
+		//			 mesh->GetGeometry().m_data->Clear();// .vertices_size;
+		//			const auto vert_begin = vertices.begin() + (m->geometry.vertices - vertices.data());
 
-				const size_t ind_count = m->geometry.indices_count;
-				const auto ind_begin = indices.begin() + (m->geometry.indices - indices.data());
+		//			const size_t ind_count = m->geometry.indices_count;
+		//			const auto ind_begin = indices.begin() + (m->geometry.indices - indices.data());
 
-				mesh.GetGeometry().vertices_size = 0;
-				mesh.GetGeometry().indices_count = 0;
-				//mesh.GetGeometry() = Geometry(mesh.GetGeometry());
-				//mesh.GetGeometry().Clear();
+		//			mesh.GetGeometry().vertices_size = 0;
+		//			mesh.GetGeometry().indices_count = 0;
+		//			//mesh.GetGeometry() = Geometry(mesh.GetGeometry());
+		//			//mesh.GetGeometry().Clear();
 
 
-				vertices.erase(vert_begin, vert_begin + vert_size);
-				indices.erase(ind_begin, ind_begin + ind_count);
+		//			vertices.erase(vert_begin, vert_begin + vert_size);
+		//			indices.erase(ind_begin, ind_begin + ind_count);
 
-				for (int fm = mi + 1; fm < meshes.size(); fm++)
-				{
-					meshes[fm]->geometry.vertices -= vert_size;
-					meshes[fm]->geometry.indices -= ind_count;
-					meshes[fm]->geometry.ind_offset -= vert_size / m->material.GetVertexSize();
-				}
+		//			for (int fm = mi + 1; fm < meshes.size(); fm++)
+		//			{
+		//				meshes[fm]->geometry.vertices -= vert_size;
+		//				meshes[fm]->geometry.indices -= ind_count;
+		//				meshes[fm]->geometry.ind_offset -= vert_size / m->material.GetVertexSize();
+		//			}
 
-				meshes.erase(meshes.begin() + mi);
-			}
-		}
+		//			meshes.erase(meshes.begin() + mi);
+
+		//			return;
+		//		}
+		//	}
 	}
 
-	void Batch::EraseMesh(size_t mesh_ind)
-	{
-		if (mesh_ind >= meshes.size())
-			return;
+	//void Batch::EraseMesh(size_t mesh_ind)
+	//{
+	//	if (mesh_ind >= meshes.size())
+	//		return;
 
-		auto& mesh = meshes[mesh_ind];
+	//	auto& mesh = meshes[mesh_ind];
 
-		const size_t vert_size = mesh->geometry.vertices_size;
-		const auto vert_begin = vertices.begin() + (mesh->geometry.vertices - vertices.data());
+	//	const size_t vert_size = mesh->geometry.vertices_size;
+	//	const auto vert_begin = vertices.begin() + (mesh->geometry.vertices - vertices.data());
 
-		const size_t ind_count = mesh->geometry.indices_count;
-		const auto ind_begin = indices.begin() + (mesh->geometry.indices - indices.data());
+	//	const size_t ind_count = mesh->geometry.indices_count;
+	//	const auto ind_begin = indices.begin() + (mesh->geometry.indices - indices.data());
 
-		mesh->geometry.vertices_size = 0;
-		mesh->geometry.indices_count = 0;
-		//mesh.GetGeometry() = Geometry(mesh.GetGeometry());
-		//mesh.GetGeometry().Clear();
+	//	mesh->geometry.vertices_size = 0;
+	//	mesh->geometry.indices_count = 0;
+	//	//mesh.GetGeometry() = Geometry(mesh.GetGeometry());
+	//	//mesh.GetGeometry().Clear();
 
 
-		vertices.erase(vert_begin, vert_begin + vert_size);
-		indices.erase(ind_begin, ind_begin + ind_count);
+	//	vertices.erase(vert_begin, vert_begin + vert_size);
+	//	indices.erase(ind_begin, ind_begin + ind_count);
 
-		for (int fm = mesh_ind + 1; fm < meshes.size(); fm++)
-		{
-			meshes[fm]->geometry.vertices -= vert_size;
-			meshes[fm]->geometry.indices -= ind_count;
-			meshes[fm]->geometry.ind_offset -= vert_size / mesh->material.GetVertexSize();
-		}
+	//	for (int fm = mesh_ind + 1; fm < meshes.size(); fm++)
+	//	{
+	//		meshes[fm]->geometry.vertices -= vert_size;
+	//		meshes[fm]->geometry.indices -= ind_count;
+	//		meshes[fm]->geometry.ind_offset -= vert_size / mesh->material.GetVertexSize();
+	//	}
 
-		meshes.erase(meshes.begin() + mesh_ind);
-	}
+	//	meshes.erase(meshes.begin() + mesh_ind);
+	//}
+
 
 	//returns size of added vertices
-	/*size_t Scene::Batch::Add(Mesh* mesh)
+	/*size_t Scene::Batch::Add(MeshContainer* mesh)
 	{
 		meshes.push_back(mesh);
 
@@ -177,7 +176,7 @@ namespace VR
 		size_t ind_offset = 0;
 		size_t vert_offset = 0;
 
-		for (Mesh* m : meshes)
+		for (MeshContainer* m : meshes)
 		{
 			m->geometry.vertices = vertices.data() + vert_offset;
 			m->geometry.indices = indices.data() + ind_offset;

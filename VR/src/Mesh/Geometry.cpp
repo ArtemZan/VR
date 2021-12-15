@@ -12,13 +12,23 @@ namespace VR {
 		//Clear();
 	}
 
+	Geometry& Geometry::operator=(const Geometry& geometry)
+	{
+		m_layoutId = geometry.m_layoutId;
+		m_props = geometry.m_props;
+		m_data = std::unique_ptr<GeometryData>(new DetachedGeometryData(geometry.m_data));
+
+		return *this;
+	}
+
 	Geometry::Geometry(const Geometry& geo)
 	{
-		SetLayout(geo.GetLayout());
+		*this = geo;
 	}
 
 	Geometry::Geometry(const gl::AttribLayout& layout) {
 		SetLayout(layout);
+		m_data = std::unique_ptr<GeometryData>(new DetachedGeometryData());
 	}
 
 #define AttribSetterInit\
@@ -39,8 +49,8 @@ namespace VR {
 			return false;
 		}
 
-		props.attribsPos.color = pos;
-		props.attribsOffsets.color = GetLayout().GetOffset(pos);
+		m_props.attribsPos.color = pos;
+		m_props.attribsOffsets.color = GetLayout().GetOffset(pos);
 
 		return true;
 	}
@@ -57,18 +67,18 @@ namespace VR {
 
 		if (attribs[pos].count == 3)
 		{
-			props._3d = true;
+			m_props._3d = true;
 		}
 
 		if (attribs[pos].count == 2)
 		{
-			props._3d = false;
+			m_props._3d = false;
 		}
 
 		if (attribs[pos].count == 2 || attribs[pos].count == 3)
 		{
-			props.attribsPos.pos = pos;
-			props.attribsOffsets.pos = GetLayout().GetOffset(pos);
+			m_props.attribsPos.pos = pos;
+			m_props.attribsOffsets.pos = GetLayout().GetOffset(pos);
 			return true;
 		}
 
@@ -88,27 +98,27 @@ namespace VR {
 
 		if (attribs[pos].count == 3)
 		{
-			if (!props._3d)
+			if (!m_props._3d)
 			{
 				std::cout << "Warning: set position attribute before setting normal attribute\n";
 			}
 
-			props._3d = true;
+			m_props._3d = true;
 		}
 
 		if (attribs[pos].count == 2)
 		{
-			if (props._3d)
+			if (m_props._3d)
 			{
 				std::cout << "Warning: set position attribute before setting normal attribute\n";
 			}
-			props._3d = false;
+			m_props._3d = false;
 		}
-
+		
 		if (attribs[pos].count == 2 || attribs[pos].count == 3)
 		{
-			props.attribsPos.normal = pos;
-			props.attribsOffsets.normal = GetLayout().GetOffset(pos);
+			m_props.attribsPos.normal = pos;
+			m_props.attribsOffsets.normal = GetLayout().GetOffset(pos);
 			return true;
 		}
 
@@ -157,6 +167,8 @@ namespace VR {
 			layouts.push_back(layout);
 			m_layoutId = layouts.size() - 1;
 		}
+
+		m_props.vertexSize = layout.GetStride();
 	}
 
 	void Geometry::SetColor(const math::vec4& color) {
@@ -167,11 +179,11 @@ namespace VR {
 			return;
 		}
 
-		const size_t vertex_size = GetVertexSize();
-		const size_t vert_count = verticesSize / vertex_size;
-		const size_t color_offset = GetColorOffset();
+		const size_t vertexSize = GetVertexSize();
+		const size_t vertCount = verticesSize / vertexSize;
+		const size_t colorOffset = GetColorOffset();
 
-		for (int v = 0; v < vert_count; v++)
+		for (int v = 0; v < vertCount; v++)
 		{
 			SetColor(v, color);
 		}
@@ -182,6 +194,59 @@ namespace VR {
 		PushAttrib<float>(2);
 
 		SetPosOffset(0);
+	}
+
+	Geometry2D::Geometry2D(const Geometry2D& geometry)
+	{
+		*this = geometry;
+	}
+
+	Geometry2D& Geometry2D::operator=(const Geometry2D& geometry)
+	{
+		*(Geometry*)(this) = geometry;
+
+		m_pos = geometry.m_pos;
+		m_scale = geometry.m_scale;
+
+		return *this;
+	}
+
+	void Geometry2D::SetPos(const math::vec2& new_pos)
+	{
+		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
+		const math::vec2 dPos = new_pos - m_pos;
+
+		for (int v = 0; v < vertCount; v++)
+		{
+			SetPos(v, GetPos(v) + dPos);
+		}
+
+		m_pos = new_pos;
+	}
+
+	void Geometry2D::SetScale(const math::vec2& new_scale)
+	{
+		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
+		const math::vec2 dScale = new_scale / m_scale;
+
+		for (int v = 0; v < vertCount; v++)
+		{
+			SetPos(v, GetPos(v) * dScale);
+		}
+
+		m_scale = new_scale;
+	}
+
+	void Geometry2D::Rotate(const math::vec2& center, float angle)
+	{
+		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
+
+		const math::mat2 R = math::rotate(angle);
+
+		for (int v = 0; v < vertCount; v++)
+		{
+			SetPos(v, GetPos(v) * R);
+		}
 	}
 
 	void Geometry2D::Transform(const math::mat3& transform)
@@ -196,8 +261,8 @@ namespace VR {
 			SetPos(v, pos3d);
 		}
 
-		SetPos(GetPos() + transform.z);
-		SetScale(GetScale() * math::mat2(transform.x, transform.y).det());
+		m_pos = GetPos() + transform.z;
+		m_scale = GetScale() * math::mat2(transform.x, transform.y).det();
 	}
 
 	void Geometry2D::Transform(const math::mat2& transform)
@@ -209,7 +274,7 @@ namespace VR {
 			SetPos(v, GetPos(v) * transform);
 		}
 
-		SetScale(GetScale() * transform.det());
+		m_scale = GetScale() * transform.det();
 	}
 
 	void Geometry2D::CreateShape(const uint8_t* vertices, size_t vert_size, gl::AttribLayout input_layout, const uint32_t* indices, size_t ind_count)
@@ -217,8 +282,7 @@ namespace VR {
 
 	}
 
-
-	Rect::Rect(const math::vec2& size)
+	void Geometry2D::CreateRect(const math::vec2& size)
 	{
 		SetPos(0);
 		SetScale(1);
@@ -231,12 +295,12 @@ namespace VR {
 		const size_t vertexSize = GetVertexSize();
 		constexpr size_t vertCount = 4;
 
-		m_data->Allocate(vertCount * vertexSize, 6);
+		m_data->Reallocate(vertCount * vertexSize, 6);
 
 		SetPos(0, { -x, -y });
-		SetPos(1, {  x, -y });
+		SetPos(1, { x, -y });
 		SetPos(2, { -x,  y });
-		SetPos(3, {  x,  y });
+		SetPos(3, { x,  y });
 
 		m_data->SetIndex(0, 0);
 		m_data->SetIndex(1, 1);
@@ -317,8 +381,8 @@ namespace VR {
 			SetPos(v, pos4d);
 		}
 
-		SetPos(GetPos() + math::vec3(transform.w));
-		SetScale(GetScale() * math::mat3(transform.x, transform.y, transform.z).det());
+		m_pos = GetPos() + math::vec3(transform.w);
+		m_scale = GetScale() * math::mat3(transform.x, transform.y, transform.z).det();
 	}
 
 	void Geometry3D::Transform(const math::mat3& transform)
@@ -331,7 +395,7 @@ namespace VR {
 			SetNormal(v, GetNormal(v) * transform);
 		}
 
-		SetScale(GetScale() * transform.det());
+		m_scale = GetScale() * transform.det();
 	}
 
 
@@ -372,15 +436,17 @@ namespace VR {
 		SetPosOffset(0);
 	}
 
-	GeometryWithNormals::GeometryWithNormals() {
-		PushAttrib<float>(3);
+	Geometry3D& Geometry3D::operator=(const Geometry3D& geometry)
+	{
+		*(Geometry*)(this) = geometry;
 
-		SetNormalOffset(1);
+		m_pos = geometry.m_pos;
+		m_scale = geometry.m_scale;
+
+		return *this;
 	}
 
-
-	Box::Box(const math::vec3& size)
-	{
+	void Geometry3D::CreateBox(const math::vec3& size) {
 		SetPos(0);
 		SetScale(1);
 
@@ -439,5 +505,44 @@ namespace VR {
 		}
 	}
 
+	void Geometry3D::SetPos(const math::vec3& new_pos)
+	{
+		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
+		const math::vec3 dPos = new_pos - m_pos;
+
+		for (int v = 0; v < vertCount; v++)
+		{
+			SetPos(v, GetPos(v) + dPos);
+		}
+
+		m_pos = new_pos;
+	}
+
+	void Geometry3D::SetScale(const math::vec3& new_scale)
+	{
+		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
+		const math::vec3 dScale = new_scale / m_scale;
+
+		for (int v = 0; v < vertCount; v++)
+		{
+			SetPos(v, GetPos(v) * dScale);
+		}
+
+		m_scale = new_scale;
+	}
+
+	GeometryWithNormals::GeometryWithNormals() {
+		PushAttrib<float>(3);
+
+		SetNormalOffset(1);
+	}
+
+
+	Geometry2DColor::Geometry2DColor()
+	{
+		PushAttrib<float>(4);
+
+		SetColorOffset(1);
+	}
 
 }

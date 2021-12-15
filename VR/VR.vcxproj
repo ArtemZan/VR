@@ -95,12 +95,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC; DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(ProjectDir);$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,6 +122,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,12 +137,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC; DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;$(ProjectDir)src;$(SolutionDir)GLEW\include;$(ProjectDir);$(SolutionDir)Libraries\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,6 +164,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -172,6 +176,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Mesh\Mesh.h" />
+    <ClInclude Include="src\Mesh\GeometryData.h" />
     <ClInclude Include="src\Object\Object.h" />
     <ClInclude Include="src\Scene\Batch.h" />
     <ClInclude Include="src\Camera.h" />
@@ -185,7 +191,7 @@
     <ClInclude Include="src\MeshLoader.h" />
     <ClInclude Include="src\Mesh\Geometry.h" />
     <ClInclude Include="src\Mesh\Material.h" />
-    <ClInclude Include="src\Mesh\Mesh.h" />
+    <ClInclude Include="src\Mesh\MeshContainer.h" />
     <ClInclude Include="src\OpenGL\AttribLayout.h" />
     <ClInclude Include="src\OpenGL\Debug.h" />
     <ClInclude Include="src\OpenGL\Shader.h" />
@@ -207,7 +213,8 @@
     <ClInclude Include="Worlds\TestWorld1.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Object\Object.cpp" />
+    <ClCompile Include="src\Mesh\Mesh.cpp" />
+    <ClCompile Include="src\Mesh\GeometryData.cpp" />
     <ClCompile Include="src\Scene\Batch.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Context.cpp" />
@@ -221,7 +228,7 @@
     <ClCompile Include="src\MeshLoader.cpp" />
     <ClCompile Include="src\Mesh\Geometry.cpp" />
     <ClCompile Include="src\Mesh\Material.cpp" />
-    <ClCompile Include="src\Mesh\Mesh.cpp" />
+    <ClCompile Include="src\Mesh\MeshContainer.cpp" />
     <ClCompile Include="src\OpenGL\AttribLayout.cpp" />
     <ClCompile Include="src\OpenGL\Shader.cpp" />
     <ClCompile Include="src\OpenGL\Shadow.cpp" />

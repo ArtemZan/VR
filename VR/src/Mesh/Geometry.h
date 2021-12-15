@@ -29,11 +29,12 @@ namespace VR
 
 
 	private:
+		static std::vector<gl::AttribLayout> layouts;
+
 		size_t m_layoutId = 0;
 
-		Props props;
-
-		static std::vector<gl::AttribLayout> layouts;
+		Props m_props;
+	protected:
 
 	public:
 		std::unique_ptr<GeometryData> m_data;
@@ -45,6 +46,7 @@ namespace VR
 
 		~Geometry();
 
+		Geometry& operator=(const Geometry& geometry);
 
 	private:
 		int FindLayout(const gl::AttribLayout& path);
@@ -56,9 +58,12 @@ namespace VR
 		inline const gl::AttribLayout& GetLayout() const { return layouts[m_layoutId]; }
 
 		template<typename ValueT>
-		inline void PushAttrib(size_t count) { GetLayout().Push<ValueT>(count); } //To do: check for repeating layouts
+		inline void PushAttrib(size_t count) {
+			layouts[m_layoutId].Push<ValueT>(count);
+			m_props.vertexSize += sizeof(ValueT) * count;
+		} //To do: check for repeating layouts
 
-		inline size_t GetVertexSize() const { return props.vertexSize; }//layouts[m_layoutId].GetStride(); }
+		inline size_t GetVertexSize() const { return m_props.vertexSize; }//layouts[m_layoutId].GetStride(); }
 
 
 		bool SetColorOffset(size_t pos);
@@ -69,12 +74,12 @@ namespace VR
 
 #ifdef DEBUG
 #define TRY_TO_GET_OFFSET(data) 										   \
-	if (props.attribsOffsets.data == -1)								   \
+	if (m_props.attribsOffsets.data == -1)								   \
 	{																	   \
 		std::cout << "Error: " << #data << " offset hasn't been set\n";	   \
 		return -1;														   \
 	}																	   \
-	return props.attribsOffsets.data;
+	return m_props.attribsOffsets.data;
 #else
 #define TRY_TO_GET_OFFSET(data) props.attribsOffsets.data;
 #endif
@@ -86,16 +91,16 @@ namespace VR
 		inline int GetNormalOffset() const { TRY_TO_GET_OFFSET(normal); }
 
 
-		inline bool HasNormals() const { return props.attribsPos.normal != int8_t(-1); }
+		inline bool HasNormals() const { return m_props.attribsPos.normal != int8_t(-1); }
 
-		inline bool Is3D() const { return props._3d; }
+		inline bool Is3D() const { return m_props._3d; }
 
 	protected:
 		template <typename T>
-		inline const T& GetData(size_t vertex, size_t attrib_offset) const { return (T&)(m_data->GetVertData(vertex * GetVertexSize() + attrib_offset)); }
+		inline const T& GetData(size_t vertex, size_t attrib_offset) const { return *(T*)(m_data->GetVertData(vertex * GetVertexSize() + attrib_offset)); }
 
 		template <typename T>
-		inline void SetData(size_t vertex, size_t attrib_offset, const T& data) { (T&)(m_data->GetVertData(vertex * GetVertexSize() + attrib_offset)) = data; }
+		inline void SetData(size_t vertex, size_t attrib_offset, const T& data) { *(T*)(m_data->GetVertData(vertex * GetVertexSize() + attrib_offset)) = data; }
 
 
 		inline const math::vec4& GetColor(size_t vertex) const { return GetData<math::vec4>(vertex, GetColorOffset()); }
@@ -115,6 +120,14 @@ namespace VR
 
 	public:
 		Geometry2D();
+
+		Geometry2D(const Geometry2D& geometry);
+
+		Geometry2D& operator=(const Geometry2D& geometry);
+
+		void CreateRect(const math::vec2& size);
+
+
 
 		const math::vec2& GetPos() const override { return m_pos; }
 
@@ -136,8 +149,6 @@ namespace VR
 		void Transform(const math::mat3& transform) override;
 
 
-		void CreateRect(const math::vec2& size);
-
 		void CreateShape(const uint8_t* vertices, size_t vert_size, gl::AttribLayout input_layout, const uint32_t* indices, size_t ind_count);
 	};
 
@@ -147,6 +158,11 @@ namespace VR
 
 	public:
 		Geometry3D();
+
+		Geometry3D& operator=(const Geometry3D& geometry);
+
+		void CreateBox(const math::vec3& size);
+
 
 		const math::vec3& GetPos() const override { return m_pos; }
 
@@ -171,16 +187,14 @@ namespace VR
 
 	};
 
-	struct Rect : public Geometry2D {
-		Rect(const math::vec2& size);
+
+	struct Geometry2DColor : public Geometry2D{
+		Geometry2DColor();
 	};
+
 
 	struct GeometryWithNormals : public Geometry3D {
 		GeometryWithNormals();
-	};
-
-	struct Box : GeometryWithNormals {
-		Box(const math::vec3& size);
 	};
 
 }

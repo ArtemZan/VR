@@ -11,7 +11,7 @@ namespace VR
 	//To do: load materials
 	void MeshLoader::Load(const char* obj)
 	{
-		mat.PushAttrib<float>(3);
+		/*mat.PushAttrib<float>(3);
 		mat.PushAttrib<float>(4);
 		mat.PushAttrib<float>(3);
 		mat.SetPosOffset(0);
@@ -132,6 +132,6 @@ namespace VR
 #endif
 				}
 			}
-		}
+		}*/
 	}
 }

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "VR.h"
 #include "Worlds/Monkeys.h"
-#include "Worlds/Collisions.h"
+//#include "Worlds/Collisions.h"
 //#include "Worlds/TestWorld1.h"
 #include "Worlds/Pendulum.h"
 //#include "Worlds/Labyrinth.h"
@@ -22,7 +22,7 @@ int main()
 
 		DEF_WORLD(Navigation);
 		DEF_WORLD(Monkeys);
-		DEF_WORLD(Collisions);
+		//DEF_WORLD(Collisions);
 		DEF_WORLD(Pendulum);
 
 		//Navigation nav;

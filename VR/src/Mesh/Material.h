@@ -33,6 +33,8 @@ namespace VR
 		inline void SetShaderUniform(const std::string& name, const math::mat3& matrix) { um3[name] = matrix; }
 		inline void SetShaderUniform(const std::string& name, const math::mat3x2& matrix) { um3x2[name] = matrix; }
 
+		bool operator==(const Material& material);
+
 
 	private:
 		gl::Shader* m_shader;
@@ -56,7 +58,15 @@ namespace VR
 
 	struct Material2D : public Material
 	{
-		Material2D();
+		Material2D(const char* shader_path);
+	};
+
+	struct Material2DColor : public Material2D {
+		Material2DColor();
+	};
+
+	struct Material2DTextured : public Material2D {
+		Material2DTextured();
 	};
 
 	struct Material3DLambert : public Material

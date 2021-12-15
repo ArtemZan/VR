@@ -17,15 +17,16 @@ public:
 	Pendulum()
 		:camera(1, { 0, 0, 5 }, fit_types::CENTER)
 	{
-		rect.SetColor(math::vec4(0.0, 1.0, 0.0, 0.0));
-		rect.Square(0.5);
-		rect.MoveTo({ -0.6, -0.8 });
+		rect->SetColor(math::vec4(0.0, 1.0, 0.0, 0.0));
+		rect->GetGeometry().CreateRect(math::vec2( 1.0, 1.0 ));
+		rect->MoveTo({ -0.6, -0.8 });
 
-		string.SetColor({ 0.0, 0.0, 0.0, 1.0 });
-		string.Line({ 0.0, 0.0 }, rect.Pos(), 0.1, 0, 1);
+		string->SetColor({ 0.0, 0.0, 0.0, 1.0 });
+		//string.SetGeometry(std::make_unique<Line>(new Line({ 0.0, 0.0 }, rect.Pos(), 0.1, 0, 1)));
+		//string.Line({ 0.0, 0.0 }, rect.Pos(), 0.1, 0, 1);
 
-		force.SetColor({ 1.0, 0.0, 0.0, 1.0 });
-		force.Line({ 0.0, 0.0 }, rect.Pos(), 0.1, 0, 1);
+		force->SetColor({ 1.0, 0.0, 0.0, 1.0 });
+		//force.Line({ 0.0, 0.0 }, rect.Pos(), 0.1, 0, 1);
 
 		m_scene.Add(force);
 		//m_scene.Add(string);
@@ -36,7 +37,7 @@ public:
 	{
 		AddHandler(this);
 		SetCamera();
-		
+
 		SetClearColor({ 1, 1, 1, 1.0 });
 	}
 
@@ -47,21 +48,21 @@ public:
 		const math::vec2 wSize = io->WindowSize();
 
 		camera.SetAspectRatio(wSize.x / wSize.y);
-		rect.GetMaterial().SetShaderUniform("transform", camera.View());
-		force.GetMaterial().SetShaderUniform("transform", camera.View());
+		rect->GetMaterial().SetShaderUniform("transform", camera.View());
+		force->GetMaterial().SetShaderUniform("transform", camera.View());
 	}
 
 	void OnUpdate(float dTime) override
-	{				
+	{
 		SetCamera();
 		m_scene.Render();
 
 		MustUpdate();
 
 		//string.Line({ 0.0, 0.8 }, rect.Pos(), 0.01, 0, 1);
-		force.Line(rect.Pos(), rect.Pos() + a, 0.01, 0, 3);
+		//force.Line(rect.Pos(), rect.Pos() + a, 0.01, 0, 3);
 
-		math::vec2 pos = rect.Pos();
+		math::vec2 pos = rect->GetPos();
 
 		for (int i = 0; i < 1; i++)
 		{
@@ -77,7 +78,7 @@ public:
 
 		//std::cout << a << " " << v << " " << pos << std::endl;
 
-		rect.MoveTo(pos);
+		rect->MoveTo(pos);
 	}
 
 	void OnPhysicsUpdate(float dTime) override {

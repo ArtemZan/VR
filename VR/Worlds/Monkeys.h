@@ -11,7 +11,7 @@ class Monkeys : public World
 	math::mat4 proj;
 	math::mat4 mvp;
 
-	Material2D btnMat;
+	Material2DColor btnMat;
 	Mesh2D button;
 
 	Mesh3DColor light;
@@ -54,11 +54,11 @@ class Monkeys : public World
 #ifdef RIGHT_HANDED
 				math::vec3 side = -normalize(camera.Dir()).cross(math::vec3({ 0.0, 1.0, 0.0 }));
 #endif
-				math::vec3 pos = Pos();
+				math::vec3 pos = Get()->GetPos();
 
 				float dist = camera.Dir().dot(pos - camera.Pos());
 
-				MoveTo(camera.Pos() + (normalize(camera.Dir()) + math::vec3(fmp.x * side.x, fmp.y * ws.y / ws.x, fmp.x * side.z)) * dist);  
+				Get()->MoveTo(camera.Pos() + (normalize(camera.Dir()) + math::vec3(fmp.x * side.x, fmp.y * ws.y / ws.x, fmp.x * side.z)) * dist);
 			}
 		}
 
@@ -67,19 +67,19 @@ class Monkeys : public World
 
 			if (listen)
 			{
-				if (!mouse_down && IsHovered(mvp))
+				if (!mouse_down && Get()->IsHovered(mvp))
 				{
 					mouse_down = true;
 
 
 					//std::cout << "Hover!\n";
-					SetColor({ 0.0, 1.0, 0.0, 0.0 });
+					Get()->SetColor({ 0.0, 1.0, 0.0, 0.0 });
 				}
 				else
 				{
 					mouse_down = false;
 					//std::cout << "---\n";
-					SetColor({ 0.3, 0.2, 0.0, 0.0 });
+					Get()->SetColor({ 0.3, 0.2, 0.0, 0.0 });
 				}
 			}
 			
@@ -104,10 +104,10 @@ public:
 
 		camera.SetAspectRatio(float(wSize.width) / wSize.height);
 
-		button.SetColor({ 0.0, 1.0, 0.0, 1.0 });
+		button->SetColor({ 0.0, 1.0, 0.0, 1.0 });
 
-		button.Rect({ 0.1, 0.1 });
-		button.MoveTo({ -0.9, 0.9 });
+		//button.Rect({ 0.1, 0.1 });
+		button->MoveTo({ -0.9, 0.9 });
 		m_scene.Add(button);
 
 		monkeys.reserve(5);
@@ -123,32 +123,32 @@ public:
 		mat.SetShaderUniform("diffuseLight.position", math::vec3(5.0, 2.0, 3.0));
 		mat.SetShaderUniform("mvp", proj);
 
-		mat.SetColor({ 0.3, 0.2, 0.0, 0.0 });
-		monkeys.emplace_back(mat);
-		monkeys.back().Shape((uint8_t*)vertices.data(), vertices.size() * 4, indices.data(), indices.size());
+		monkeys.emplace_back(Monkey(mat));
+		monkeys.back()->SetColor({ 0.3, 0.2, 0.0, 0.0 });
+		//monkeys.back().Shape((uint8_t*)vertices.data(), vertices.size() * 4, indices.data(), indices.size());
 		//monkeys.back().Cube(1);
-		monkeys.back().Move({ 5.0, 0.0, 2.0 });
+		monkeys.back()->Move({ 5.0, 0.0, 2.0 });
 		//monkeys.back().CreateNormals();
-		monkeys.back().ShadeSmooth();
+		monkeys.back()->ShadeSmooth();
 		m_scene.Add(monkeys.back());
 		
-		mat.SetColor({ 1.0, 1.0, 0.2, 0.0 });
 		monkeys.emplace_back(monkeys.back());
-		monkeys.back().MoveTo({ 0.0, 0.0, -2.0 });
-		monkeys.back().Scale(3);
+		monkeys.back()->SetColor({ 1.0, 1.0, 0.2, 0.0 });
+		monkeys.back()->MoveTo({ 0.0, 0.0, -2.0 });
+		monkeys.back()->Scale(3);
 		m_scene.Add(monkeys.back());
 
 
-		mat.SetColor({ 0.3, 0.2, 0.0, 0.0 });
 		monkeys.emplace_back(monkeys.back());
-		monkeys.back().SetScale(1);
-		monkeys.back().MoveTo({ -5.0, 0.0, 2.0 });
+		monkeys.back()->SetScale(1);
+		monkeys.back()->MoveTo({ -5.0, 0.0, 2.0 });
+		monkeys.back()->SetColor({ 0.3, 0.2, 0.0, 0.0 });
 		m_scene.Add(monkeys.back());
 
 
 
-		light.GetMaterial().SetColor({ 1.0, 1.0, 1.0, 1.0 });
-		light.Box(0.5);
+		light->SetColor({ 1.0, 1.0, 1.0, 1.0 });
+		//light->Box(0.5);
 		m_scene.Add(light);
 
 		//zero.mesh.material.SetColor({ 1.0, 0.0, 1.0, 1.0 });
@@ -165,7 +165,7 @@ public:
 		AddHandler(this);
 
 
-		for (Monkey& monkey : monkeys)
+		for (auto& monkey : monkeys)
 		{
 			monkey.listen = true;
 		}
@@ -178,12 +178,12 @@ public:
 
 	void OnMouseDown(GLint btn_code, GLint mods) override
 	{
-		for (Monkey& m : monkeys)
+		for (auto& m : monkeys)
 		{
 			m.OnMouseDown(mvp, btn_code);
 		}
 
-		if (button.IsHovered(math::mat3x2(1.0)))
+		if (button->IsHovered(math::mat3x2(1.0)))
 		{
 			link = 0;
 			Detach();
@@ -192,7 +192,7 @@ public:
 
 	void OnMouseMove(const math::vec2& pos) override
 	{
-		for (Monkey& m : monkeys)
+		for (auto& m : monkeys)
 		{
 			m.OnMouseMove(camera, pos);
 		}
@@ -220,15 +220,15 @@ public:
 
 		math::vec3 lp(sin(time / 700) * 5, sin(time / 700 + 1.67) * 3, sin(time / 1400) * 5);
 
-		for (Monkey& m : monkeys)
+		for (auto& m : monkeys)
 		{
-			m.GetMaterial().SetShaderUniform("mvp", mvp);
-			m.GetMaterial().SetShaderUniform("diffuseLight.position", lp);
-			m.Rotate({ 0.0, 1.0, 0.0 }, {0.0, 0.0, 0.0}, 0.01f * dTime);
+			m->GetMaterial().SetShaderUniform("mvp", mvp);
+			m->GetMaterial().SetShaderUniform("diffuseLight.position", lp);
+			m->Rotate({ 0.0, 1.0, 0.0 }, {0.0, 0.0, 0.0}, 0.01f * dTime);
 		}
 
-		light.GetMaterial().SetShaderUniform("mvp", mvp);
-		light.MoveTo(lp);
+		light->GetMaterial().SetShaderUniform("mvp", mvp);
+		light->MoveTo(lp);
 
 
 

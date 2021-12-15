@@ -87,9 +87,14 @@ namespace VR
 		uiv[name] = pair;
 	}
 
+	bool Material::operator==(const Material& material)
+	{
+		return GetShaderId() == material.GetShaderId(); // To do
+	}
 
-	Material2D::Material2D()
-		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\2D.shader")
+
+	Material2D::Material2D(const char* shader_path)
+		:Material(shader_path)
 	{
 		SetShaderUniform("transform", math::mat3x2(1.0));
 	}
@@ -105,5 +110,15 @@ namespace VR
 		:Material("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\Color.shader")
 	{
 		
+	}
+
+	Material2DColor::Material2DColor()
+		: Material2D("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\2D.shader")
+	{
+	}
+
+	Material2DTextured::Material2DTextured()
+		: Material2D("C:\\Users\\Professional\\Documents\\VisualStudio\\Fun\\VR\\VR\\res\\Shaders\\2D.shader")
+	{
 	}
 }

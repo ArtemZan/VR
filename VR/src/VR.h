@@ -20,6 +20,7 @@
 #include "Object/Object.h"
 #include "Mesh/Material.h"
 #include "Mesh/Geometry.h"
+#include "Mesh/MeshContainer.h"
 #include "Mesh/Mesh.h"
 //#include "Object.h"
 
