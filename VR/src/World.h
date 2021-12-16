@@ -49,6 +49,6 @@ namespace VR
 		math::vec4 m_clearColor;
 
 		std::thread physicsUpdate;
-		std::mutex physicsUpdateMutex;
+		std::mutex m_mutex;
 	};
 }

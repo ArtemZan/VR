@@ -61,6 +61,11 @@ namespace VR
 		for (auto& w_batch : m_batches)
 		{
 			std::shared_ptr<Batch> batch = w_batch.lock();
+
+			if (batch->m_vertices.size() == 0) {
+				continue;
+			}
+
 			Material& mat = batch->m_meshes.front()->GetMaterial();
 
 			/*for (int m = 0; m < batch.m_meshes.size(); m++)

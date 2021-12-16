@@ -245,7 +245,7 @@ namespace VR {
 
 		for (int v = 0; v < vertCount; v++)
 		{
-			SetPos(v, GetPos(v) * R);
+			SetPos(v, (GetPos(v) - center) * R + center);
 		}
 	}
 
@@ -308,6 +308,104 @@ namespace VR {
 		m_data->SetIndex(3, 2);
 		m_data->SetIndex(4, 1);
 		m_data->SetIndex(5, 3);
+	}
+
+	void Geometry2D::CreateLine(float length, float width, float border_radius, size_t border_sections)
+	{
+		const math::vec2 start(0);
+		const math::vec2 end(length, 0);
+
+		m_pos = math::vec2();
+		m_scale = math::vec2(1);
+
+		constexpr int MAX_BORDER_SECTIONS = 100;
+
+		if (border_radius > width)
+		{
+			border_radius = width;
+		}
+
+		if (border_sections > MAX_BORDER_SECTIONS)
+		{
+			border_sections = border_radius / width * 10;
+		}
+
+		const int vpc = border_sections + 1; //vertices per corner
+
+		const int posOffset = GetPosOffset();
+		const int vertexSize = GetVertexSize();
+
+		m_data->Allocate(vpc * 4 * vertexSize, 6 + border_sections * 4 * 3);
+
+
+		math::vec2 rotationCenter;
+		math::vec2 rotVec;
+
+		const float rotationCenterOffset = width - border_radius;
+
+		for (int corner = 0; corner < 4; corner++)
+		{
+			switch (corner)
+			{
+			case 0:
+				rotationCenter = start - math::vec2(rotationCenterOffset);
+				rotVec = { 0.0, -border_radius };
+				break;
+			case 1:
+				rotationCenter = start + math::vec2(-rotationCenterOffset, rotationCenterOffset);
+				rotVec = { -border_radius, 0.0 };
+				break;
+			case 2:
+				rotationCenter = end + math::vec2(rotationCenterOffset);
+				rotVec = { 0.0, border_radius };
+				break;
+			case 3:
+				rotationCenter = end + math::vec2(rotationCenterOffset, -rotationCenterOffset);
+				rotVec = { border_radius, 0.0 };
+				break;
+			}
+
+			//All triangles in this half of the line include this point
+			const int pivotInd = (corner / 2 + 1) * 2 * vpc - 1;
+
+			for (int v = 0; v < vpc; v++)
+			{
+				SetPos(corner * vpc + v, rotationCenter + rotVec);
+
+				m_data->SetIndex((corner * border_sections + v) * 3, pivotInd);
+				m_data->SetIndex((corner * border_sections + v) * 3 + 1, v + corner * vpc);
+				m_data->SetIndex((corner * border_sections + v) * 3 + 2, v + corner * vpc + 1);
+
+				rotVec *= math::rotate(-math::PI / 2 / border_sections);
+			}
+
+			if (corner % 2)
+			{
+				m_data->SetIndex(((corner + 1) * border_sections - 1) * 3, pivotInd);
+				m_data->SetIndex(((corner + 1) * border_sections - 1) * 3 + 1, corner * vpc - 1);
+				m_data->SetIndex(((corner + 1) * border_sections - 1) * 3 + 2, corner * vpc);
+			}
+
+		}
+
+		const int rectInd = border_sections * 4 * 3;
+
+		m_data->SetIndex(rectInd + 0, 0);
+		m_data->SetIndex(rectInd + 1, vpc * 2 - 1);
+		m_data->SetIndex(rectInd + 2, vpc * 2);
+		m_data->SetIndex(rectInd + 3, vpc * 2);
+		m_data->SetIndex(rectInd + 4, vpc * 4 - 1);
+		m_data->SetIndex(rectInd + 5, 0);
+	}
+
+	void Geometry2D::CreateLine(const math::vec2& start, const math::vec2& end, float width, float border_radius, size_t border_sections)
+	{
+		CreateLine(start.distance(end), width, border_radius, border_sections);
+
+		math::vec2 norm = math::normalize(end - start);
+
+		SetPos(start);
+		Rotate(start, (asin(norm.y) < 0 ? -1 : 1) * acos(norm.x));
 	}
 
 
@@ -544,5 +642,164 @@ namespace VR {
 
 		SetColorOffset(1);
 	}
+
+
+
+	/*void Mesh2DContainer::Triangle(float a, float b, float c)
+	{
+		const int vertex_size = mat.GetVertexSize();
+		const int pos_offset = mat.GetPosOffset();
+		const int color_offset = mat.GetColorOffset();
+
+		geo.Alloc(vertex_size * 3, 3);
+
+		float cos = (c * c + b * b - a * a) / (2.f * b * c);
+		float h = sqrt(1 - cos * cos) * a;
+
+		*(math::vec2*)(geo.vertices + vertex_size * 0 + pos_offset) = { -c / 2.f, -0.5f * h };
+		*(math::vec2*)(geo.vertices + vertex_size * 1 + pos_offset) = { -c / 2.f + a * cos, 0.5f * h };
+		*(math::vec2*)(geo.vertices + vertex_size * 2 + pos_offset) = {  c / 2.f, -0.5f * h };
+
+		*(math::vec4*)(geo.vertices + vertex_size * 0 + color_offset) = mat.GetColor();
+		*(math::vec4*)(geo.vertices + vertex_size * 1 + color_offset) = mat.GetColor();
+		*(math::vec4*)(geo.vertices + vertex_size * 2 + color_offset) = mat.GetColor();
+
+		geo.indices[0] = 0;
+		geo.indices[1] = 1;
+		geo.indices[2] = 2;
+	}*/
+
+
+	/* 
+
+
+	void Mesh2DContainer::Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections)
+	{
+		Material& material = mesh->material;
+		Geometry& geometry = mesh->geometry;
+
+		if (points.size() < 2)
+		{
+			return;
+		}
+
+		const int pos_offset = material.GetPosOffset();
+		const int color_offset = material.GetColorOffset();
+		const math::vec4 color = material.GetColor();
+		const int vertex_size = material.GetVertexSize();
+		const size_t ind_offset = geometry.ind_offset;
+
+		if (mesh.use_count() == 1)
+		{
+			geometry.Clear();
+		}
+		geometry.Alloc(points.size() * 2 * vertex_size, (points.size() - 1) * 2 * 3);
+
+		math::vec2 next_side;
+
+		for (int p = 0; p < points.size() - 1; p++)
+		{
+			math::vec2 side = next_side;
+			next_side = math::normalize(points[p + 1] - points[p]);
+			float dir_y = next_side.y;
+			next_side.y = -next_side.x;
+			next_side.x = dir_y;
+			next_side *= width;
+
+			if (!p)
+			{
+				side = next_side;
+			}
+
+			math::vec2 offset = (side + next_side) / 2;
+
+			*(math::vec2*)(geometry.vertices + p * 2 * vertex_size + pos_offset) = points[p] + offset;
+			*(math::vec2*)(geometry.vertices + (p * 2 + 1) * vertex_size + pos_offset) = points[p] - offset;
+
+			*(math::vec4*)(geometry.vertices + (p * 2) * vertex_size + color_offset) = color;
+			*(math::vec4*)(geometry.vertices + (p * 2 + 1) * vertex_size + color_offset) = color;
+
+			size_t first_ind = ind_offset + p * 2;
+
+			geometry.indices[p * 6 + 0] = first_ind;
+			geometry.indices[p * 6 + 1] = first_ind + 1;
+			geometry.indices[p * 6 + 2] = first_ind + 2;
+			geometry.indices[p * 6 + 3] = first_ind + 1;
+			geometry.indices[p * 6 + 4] = first_ind + 3;
+			geometry.indices[p * 6 + 5] = first_ind + 2;
+		}
+
+		*(math::vec2*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + pos_offset) = points.back() + next_side;
+		*(math::vec2*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + pos_offset) = points.back() - next_side;
+
+		*(math::vec4*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + color_offset) = color;
+		*(math::vec4*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + color_offset) = color;
+	}
+
+	void Mesh2DContainer::BezierCurve(const std::vector<math::vec2>& pivot_points, float width, int quality, float border_radius, size_t border_sections)
+	{
+		if (pivot_points.size() < 2)
+		{
+			std::cout << "Too little pivot points provided for bezier curve (at least 2 needed)\n";
+			return;
+		}
+
+		const size_t points_count = pivot_points.size() * quality;
+
+		const math::vec2 start = pivot_points.front();
+
+		std::vector<math::vec2> points;
+		points.reserve(points_count);
+
+		std::vector<std::vector<math::vec2>> helpers(pivot_points.size() - 1);
+
+		for (int ppi = 0; ppi < pivot_points.size() - 1; ppi++)
+		{
+			helpers[ppi].resize(helpers.size() - ppi);
+		}
+
+		for (int vi = 0; vi < points_count; vi++)
+		{
+			const float ratio = float(vi) / points_count;
+
+			for (int hgi = 0; hgi < pivot_points.size() - 1; hgi++)
+			{
+				for (int helper = 0; helper < helpers.size() - hgi; helper++)
+				{
+					if (hgi == 0)
+					{
+						helpers[hgi][helper] = pivot_points[helper] + (pivot_points[helper + 1] - pivot_points[helper]) * ratio;
+					}
+					else
+					{
+						helpers[hgi][helper] = helpers[hgi - 1][helper] + (helpers[hgi - 1][helper + 1] - helpers[hgi - 1][helper]) * ratio;
+					}
+				}
+			}
+
+			points.emplace_back(helpers.back().front());
+		}
+
+		Curve(points, width, border_radius, border_sections);
+	}
+
+
+	void Mesh2DContainer::Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count)
+	{
+		Geometry& geometry = mesh->geometry;
+
+		m_pos = math::vec2();
+		m_scale = math::vec2(1);
+
+		geometry.Alloc(vert_size, ind_count);
+
+		memcpy(geometry.vertices, vertices, vert_size);
+		memcpy(geometry.indices, indices, ind_count * sizeof(*indices));
+	}
+
+	void Mesh2DContainer::Shape(const Geometry& geo)
+	{
+		Shape(geo.vertices, geo.vertices_size, geo.indices, geo.indices_count);
+	} */
 
 }

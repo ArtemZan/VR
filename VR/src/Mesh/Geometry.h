@@ -97,10 +97,10 @@ namespace VR
 
 	protected:
 		template <typename T>
-		inline const T& GetData(size_t vertex, size_t attrib_offset) const { return *(T*)(m_data->GetVertData(vertex * GetVertexSize() + attrib_offset)); }
+		inline const T& GetData(size_t vertex, size_t attrib_offset) const { return *(T*)(m_data->VertData(vertex * GetVertexSize() + attrib_offset)); }
 
 		template <typename T>
-		inline void SetData(size_t vertex, size_t attrib_offset, const T& data) { *(T*)(m_data->GetVertData(vertex * GetVertexSize() + attrib_offset)) = data; }
+		inline void SetData(size_t vertex, size_t attrib_offset, const T& data) { *(T*)(m_data->VertData(vertex * GetVertexSize() + attrib_offset)) = data; }
 
 
 		inline const math::vec4& GetColor(size_t vertex) const { return GetData<math::vec4>(vertex, GetColorOffset()); }
@@ -127,6 +127,12 @@ namespace VR
 
 		void CreateRect(const math::vec2& size);
 
+		void CreateLine(const math::vec2& start, const math::vec2& end, float width, float border_radius, size_t border_sections);
+
+		void CreateLine(float length, float width, float border_radius, size_t border_sections);
+
+		void CreateShape(const uint8_t* vertices, size_t vert_size, gl::AttribLayout input_layout, const uint32_t* indices, size_t ind_count);
+
 
 
 		const math::vec2& GetPos() const override { return m_pos; }
@@ -147,9 +153,6 @@ namespace VR
 		void Transform(const math::mat2& transform);
 
 		void Transform(const math::mat3& transform) override;
-
-
-		void CreateShape(const uint8_t* vertices, size_t vert_size, gl::AttribLayout input_layout, const uint32_t* indices, size_t ind_count);
 	};
 
 	class Geometry3D : public Geometry, public Object3D {

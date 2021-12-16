@@ -41,14 +41,14 @@ namespace VR
 		m_attached = true;
 
 		m_timer.Update();
-		/*m_fixedTimer.Update();
+		m_fixedTimer.Update();
 
 		physicsUpdate = std::thread([this]() {
 			while (m_attached)
 			{
 				OnPhysicsUpdate(m_fixedTimer.Update());
 			}
-		});*/
+		});
 
 		while (m_attached)
 		{
@@ -71,6 +71,8 @@ namespace VR
 
 	void World::Update()
 	{
+		m_mutex.lock();
+
 		float dt = m_timer.Update();
 
 		m_updateNow = false;
@@ -86,10 +88,10 @@ namespace VR
 			glfwWaitEvents();
 		}
 
-		//std::cout << "Update\n";
+		m_mutex.unlock();
 
-		/*std::this_thread::sleep_for(std::chrono::microseconds(1'000'000 / 60'000 - int(dt * 1000)));
-		if (dt > 1'000.0 / 60.0)
+		std::this_thread::sleep_for(std::chrono::microseconds(16666 - int(dt * 1000)));
+		/*if (dt > 1'000.0 / 60.0)
 		{
 			std::cout << "FPS: " << 1000.0 / dt << std::endl;
 		}*/

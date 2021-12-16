@@ -33,32 +33,39 @@ namespace VR
 		const size_t verticesSize = geo.m_data->GetVerticesSize();
 		const size_t vertexSize = geo.GetVertexSize();
 		const size_t vertCount = verticesSize / vertexSize;
+		const size_t initialVertCount = batch->m_vertices.size() / vertexSize;
 
 		if (verticesSize == 0)
 		{
 			std::cout << "Warning: trying to add mesh without vertices\n";
-			return;
 		}
+
+		geometryData->m_indices.offset = batch->m_indices.size();
+		geometryData->m_indices.length = indCount;
+
+		geometryData->m_vertices.offset = batch->m_vertices.size();
+		geometryData->m_vertices.length = verticesSize;
+
 
 
 		batch->m_indices.reserve(batch->m_indices.size() + indCount);
 
 		for (int i = 0; i < indCount; i++)
 		{
-			batch->m_indices.push_back(batch->m_vertices.size() + geo.m_data->GetIndex(i));
+			batch->m_indices.push_back(initialVertCount + geo.m_data->GetIndex(i));
 		}
-
-		geometryData->m_indices.offset = batch->m_vertices.size();
 
 
 		batch->m_vertices.reserve(batch->m_vertices.size() + verticesSize);
 
 		for (int i = 0; i < verticesSize; i++)
 		{
-			batch->m_vertices.push_back(*geo.m_data->GetVertData(i));
+			batch->m_vertices.push_back(*geo.m_data->VertData(i));
 		}
 
+
 		geo.m_data.reset(geometryData);
+
 
 		batch->m_vb.Resize(batch->m_vertices.size());
 		batch->m_va.AddBuffer(geo.GetLayout());
@@ -102,6 +109,69 @@ namespace VR
 		//			return;
 		//		}
 		//	}
+	}
+
+	void Batch::Clear(AttachedGeometryData& geometry_data)
+	{
+		ClearIndices(geometry_data);
+		ClearVertices(geometry_data);
+	}
+
+	void Batch::ClearVertices(AttachedGeometryData& geometry_data)
+	{
+		m_vertices.erase(m_vertices.begin() + geometry_data.m_vertices.offset, m_vertices.begin() + geometry_data.m_vertices.offset + geometry_data.m_vertices.length);
+	
+		for (const Mesh& m : m_meshes) {
+			AttachedGeometryData* geo = (AttachedGeometryData*)(m->GetGeometry().m_data.get());
+			if (geo->m_vertices.offset > geometry_data.m_vertices.offset)
+			{
+				geo->m_vertices.offset -= geometry_data.m_vertices.length;
+				geo->m_indices.offset -= geometry_data.m_vertices.length / m->GetGeometry().GetVertexSize();
+			}
+		}
+
+		m_vb.Resize(m_vertices.size());
+	}
+
+	void Batch::ClearIndices(AttachedGeometryData& geometry_data)
+	{
+		m_indices.erase(m_indices.begin() + geometry_data.m_indices.offset, m_indices.begin() + geometry_data.m_indices.offset + geometry_data.m_indices.length);
+	
+		for (const Mesh& m : m_meshes) {
+			AttachedGeometryData* geo = (AttachedGeometryData*)(m->GetGeometry().m_data.get());
+
+			if (geo->m_indices.offset > geometry_data.m_indices.offset) {
+				geo->m_indices.offset -= geometry_data.m_indices.length;
+			}
+		}
+	}
+
+	void Batch::Reallocate(AttachedGeometryData& geometry_data, size_t vertices_size, size_t indices_count)
+	{
+		ReallocateVertices(geometry_data, vertices_size);
+
+		ReallocateIndices(geometry_data, indices_count);
+	}
+
+	void Batch::ReallocateVertices(AttachedGeometryData& geometry_data, size_t vertices_size)
+	{
+		ClearVertices(geometry_data);
+
+		geometry_data.m_vertices.offset = m_vertices.size();
+		geometry_data.m_vertices.length = vertices_size;
+		m_vertices.resize(m_vertices.size() + vertices_size);
+
+		m_vb.Resize(m_vertices.size());
+	}
+
+	void Batch::ReallocateIndices(AttachedGeometryData& geometry_data, size_t indices_count)
+	{
+		ClearIndices(geometry_data);
+
+		geometry_data.m_indices.offset = m_indices.size();
+		geometry_data.m_indices.length = indices_count;
+		m_indices.resize(m_indices.size() + indices_count);
+
 	}
 
 	//void Batch::EraseMesh(size_t mesh_ind)
