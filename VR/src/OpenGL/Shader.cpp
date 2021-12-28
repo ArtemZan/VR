@@ -60,17 +60,17 @@ namespace VR
 			GLCall(glUniform1iv(GetUniformLocation(name), count, data));
 		}
 
-		void Shader::SetUniform(const char* name, const math::mat4& matrix)
+		void Shader::SetUniform(const char* name, const math::mat4f& matrix)
 		{
 			GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, &matrix.x.x));
 		}
 
-		void Shader::SetUniform(const char* name, const math::mat3& matrix)
+		void Shader::SetUniform(const char* name, const math::mat3f& matrix)
 		{
 			GLCall(glUniformMatrix3fv(GetUniformLocation(name), 1, false, &matrix.x.x));
 		}
 
-		void Shader::SetUniform(const char* name, const math::mat3x2& matrix)
+		void Shader::SetUniform(const char* name, const math::mat3x2f& matrix)
 		{
 			GLCall(glUniformMatrix3x2fv(GetUniformLocation(name), 1, false, &matrix.x.x));
 		}

@@ -28,9 +28,9 @@ namespace VR
 			void SetUniform(const char* name, math::vec2 v);
 			void SetUniform(const char* name, math::vec3 v);
 			void SetUniform(const char* name, const int* data, size_t count);
-			void SetUniform(const char* name, const math::mat4& matrix);
-			void SetUniform(const char* name, const math::mat3& matrix);
-			void SetUniform(const char* name, const math::mat3x2& matrix);
+			void SetUniform(const char* name, const math::mat4f& matrix);
+			void SetUniform(const char* name, const math::mat3f& matrix);
+			void SetUniform(const char* name, const math::mat3x2f& matrix);
 
 		private:
 			//Creates and compiles shader

@@ -29,9 +29,9 @@ namespace VR
 		inline void SetShaderUniform(const std::string& name, const math::vec2& v) { uv2[name] = v; }
 		inline void SetShaderUniform(const std::string& name, const math::vec3& v) { uv3[name] = v; }
 		void SetShaderUniform(const std::string& name, const int* data, size_t count);
-		inline void SetShaderUniform(const std::string& name, const math::mat4& matrix) { um4[name] = matrix; }
-		inline void SetShaderUniform(const std::string& name, const math::mat3& matrix) { um3[name] = matrix; }
-		inline void SetShaderUniform(const std::string& name, const math::mat3x2& matrix) { um3x2[name] = matrix; }
+		inline void SetShaderUniform(const std::string& name, const math::mat4f& matrix) { um4[name] = matrix; }
+		inline void SetShaderUniform(const std::string& name, const math::mat3f& matrix) { um3[name] = matrix; }
+		inline void SetShaderUniform(const std::string& name, const math::mat3x2f& matrix) { um3x2[name] = matrix; }
 
 		bool operator==(const Material& material);
 
@@ -45,9 +45,9 @@ namespace VR
 		std::map<std::string, math::vec2> uv2;
 		std::map<std::string, math::vec3> uv3;
 		std::map<std::string, std::pair<std::vector<int>, size_t>> uiv;
-		std::map<std::string, math::mat3> um3;
-		std::map<std::string, math::mat4> um4;
-		std::map<std::string, math::mat3x2> um3x2;
+		std::map<std::string, math::mat3f> um3;
+		std::map<std::string, math::mat4f> um4;
+		std::map<std::string, math::mat3x2f> um3x2;
 
 		int FindShader(const std::string& path);
 

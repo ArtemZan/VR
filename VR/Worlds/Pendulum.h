@@ -11,9 +11,9 @@ class Pendulum : public World
 	Mesh2D force;
 	Camera2D camera;
 
-	math::vec2 pos = { -1.0, -0.0 };
-	math::vec2 v;
-	math::vec2 a = {0.0, -1.0};
+	math::vec2d pos = { -1.0, -0.0 };
+	math::vec2d v;
+	math::vec2d a = {0.0, -1.0};
 
 public:
 	Pendulum()
@@ -21,7 +21,7 @@ public:
 	{		
 		rect->GetGeometry().CreateRect(math::vec2( 1.0, 1.0 ));
 		rect->SetColor(math::vec4(0.0, 1.0, 0.0, 1.0));
-		rect->MoveTo(pos);
+		rect->MoveTo(math::vec2(pos));
 
 		force->GetGeometry().CreateLine({ 0.0, 0.0 }, rect->GetPos(), 0.1, 0, 1);
 		Fstring->GetGeometry().CreateLine({ 0.0, 0.0 }, rect->GetPos(), 0.1, 0, 1);
@@ -86,7 +86,7 @@ public:
 	}
 
 	void OnPhysicsUpdate(float dTime) override {
-		dTime /= 10000;
+		dTime /= 1000;
 
 		math::vec2 Fs = math::normalize(-pos) * (math::vec2(0, -1).dot(math::normalize(pos)) + v.dot(v));
 		math::vec2 G = math::vec2(0.0, -1.0);
