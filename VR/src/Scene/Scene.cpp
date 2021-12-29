@@ -83,13 +83,13 @@ namespace VR
 
 			batch->m_vb.Bind();
 			batch->m_vb.Data(batch->m_vertices.size(), batch->m_vertices.data());
-			/*for (int i = 0; i < batch.vertices.size(); i+=4)
+			/*for (int i = 0; i < batch->m_vertices.size(); i+=4)
 			{
-				if (i % batch.meshes[0]->material.GetVertexSize() == 0)
+				if (i % batch->m_meshes[0]->GetGeometry().GetVertexSize() == 0)
 				{
-					std::cout << std::endl;
+					std::cout << '\n';
 				}
-				std::cout << std::setw(8) << *(float*)(&batch.vertices[i]) << " ";
+				std::cout << std::setw(8) << *(float*)(&batch->m_vertices[i]) << " ";
 			}*/
 			batch->m_va.Bind();
 			batch->m_va.AddBuffer(batch->m_meshes.front()->GetGeometry().GetLayout());

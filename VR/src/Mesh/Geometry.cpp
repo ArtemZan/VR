@@ -26,9 +26,10 @@ namespace VR {
 		*this = geo;
 	}
 
-	Geometry::Geometry(const gl::AttribLayout& layout) {
-		SetLayout(layout);
+	Geometry::Geometry(const gl::AttribLayout& layout)
+	{
 		m_data = std::unique_ptr<GeometryData>(new DetachedGeometryData());
+		SetLayout(layout);
 	}
 
 #define AttribSetterInit\
@@ -245,11 +246,11 @@ namespace VR {
 
 		for (int v = 0; v < vertCount; v++)
 		{
-			SetPos(v, (GetPos(v) - center) * R + center);
+			SetPos(v, R * (GetPos(v) - center) + center);
 		}
 	}
 
-	void Geometry2D::Transform(const math::mat3& transform)
+	void Geometry2D::Transform(const math::mat3f& transform)
 	{
 		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
 
@@ -265,13 +266,13 @@ namespace VR {
 		m_scale = GetScale() * math::mat2(transform.x, transform.y).det();
 	}
 
-	void Geometry2D::Transform(const math::mat2& transform)
+	void Geometry2D::Transform(const math::mat2f& transform)
 	{
 		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
 
 		for (int v = 0; v < vertCount; v++)
 		{
-			SetPos(v, GetPos(v) * transform);
+			SetPos(v, transform * GetPos(v));
 		}
 
 		m_scale = GetScale() * transform.det();
@@ -312,7 +313,7 @@ namespace VR {
 
 	void Geometry2D::CreateLine(float length, float width, float border_radius, size_t border_sections)
 	{
-		const math::vec2 start(0);
+		const math::Tvec2 start(0);
 		const math::vec2 end(length, 0);
 
 		m_pos = math::vec2();
@@ -338,8 +339,8 @@ namespace VR {
 		m_data->Allocate(vpc * 4 * vertexSize, 6 + border_sections * 4 * 3);
 
 
-		math::vec2 rotationCenter;
-		math::vec2 rotVec;
+		math::Tvec2 rotationCenter;
+		math::Tvec2 rotVec;
 
 		const float rotationCenterOffset = width - border_radius;
 
@@ -466,7 +467,7 @@ namespace VR {
 		}
 	}
 
-	void Geometry3D::Transform(const math::mat4& transform)
+	void Geometry3D::Transform(const math::mat4f& transform)
 	{
 		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
 
@@ -480,17 +481,17 @@ namespace VR {
 		}
 
 		m_pos = GetPos() + math::vec3(transform.w);
-		m_scale = GetScale() * math::mat3(transform.x, transform.y, transform.z).det();
+		m_scale = GetScale() * math::mat3f(transform.x, transform.y, transform.z).det();
 	}
 
-	void Geometry3D::Transform(const math::mat3& transform)
+	void Geometry3D::Transform(const math::mat3f& transform)
 	{
 		const int vertCount = m_data->GetVerticesSize() / GetVertexSize();
 
 		for (int v = 0; v < vertCount; v++)
 		{
-			SetPos(v, GetPos(v) * transform);
-			SetNormal(v, GetNormal(v) * transform);
+			SetPos(v, transform * GetPos(v));
+			SetNormal(v, transform * GetNormal(v));
 		}
 
 		m_scale = GetScale() * transform.det();
@@ -503,7 +504,7 @@ namespace VR {
 		SetScale(1);
 
 
-		size_t vert_count = vert_size / (geometry.GetVertexSize() - sizeof(math::vec4));
+		size_t vert_count = vert_size / (geometry.GetVertexSize() - sizeof(math::Tvec4));
 		size_t vertex_size = geometry.GetVertexSize();
 
 		geometry.m_data->Reallocate(vert_count * vertex_size, ind_count);
@@ -514,11 +515,11 @@ namespace VR {
 		for (int i = 0; i < vert_count; i++)
 		{
 			memcpy(vert, vertSrc, material.GetColorOffset());
-			*(math::vec4*)(vert + material.GetColorOffset()) = material.GetColor();
-			memcpy(vert + material.GetColorOffset() + sizeof(math::vec4), vertSrc + material.GetColorOffset(), vertex_size - material.GetColorOffset() - sizeof(math::vec4));
+			*(math::Tvec4*)(vert + material.GetColorOffset()) = material.GetColor();
+			memcpy(vert + material.GetColorOffset() + sizeof(math::Tvec4), vertSrc + material.GetColorOffset(), vertex_size - material.GetColorOffset() - sizeof(math::Tvec4));
 
 			vert += vertex_size;
-			vertSrc += vertex_size - sizeof(math::vec4);
+			vertSrc += vertex_size - sizeof(math::Tvec4);
 		}
 
 		for (int i = 0; i < ind_count; i++)
@@ -575,21 +576,21 @@ namespace VR {
 		for (int s = 1; s < 4; s++)
 		{
 			for (int v = 0; v < 4; v++) {
-				SetPos(s * 4 + v, GetPos(s * 4 - 4 + v) * Rz);
-				SetNormal(s * 4 + v, GetNormal(s * 4 - 4 + v) * Rz);
+				SetPos(s * 4 + v, Rz * GetPos(s * 4 - 4 + v));
+				SetNormal(s * 4 + v, Rz * GetNormal(s * 4 - 4 + v));
 			}
 		}
 
 		const math::mat3 Ry = math::mat3({ 0, 0, -1 }, { 0, 1, 0 }, { 1, 0, 0 });
 
 		for (int v = 0; v < 4; v++) {
-			SetPos(4 * 4 + v, GetPos(3 * 4 + v) * Ry);
-			SetNormal(4 * 4 + v, GetNormal(3 * 4 + v) * Ry);
+			SetPos(4 * 4 + v, Ry * GetPos(3 * 4 + v));
+			SetNormal(4 * 4 + v, Ry * GetNormal(3 * 4 + v));
 		}
 
 		for (int v = 0; v < 4; v++) {
-			SetPos(5 * 4 + v, GetPos(4 + v) * Ry);
-			SetNormal(5 * 4 + v, GetNormal(4 + v) * Ry);
+			SetPos(5 * 4 + v, Ry * GetPos(4 + v));
+			SetNormal(5 * 4 + v, Ry * GetNormal(4 + v));
 		}
 
 		for (int i = 0; i < 36; i += 6)
@@ -656,13 +657,13 @@ namespace VR {
 		float cos = (c * c + b * b - a * a) / (2.f * b * c);
 		float h = sqrt(1 - cos * cos) * a;
 
-		*(math::vec2*)(geo.vertices + vertex_size * 0 + pos_offset) = { -c / 2.f, -0.5f * h };
-		*(math::vec2*)(geo.vertices + vertex_size * 1 + pos_offset) = { -c / 2.f + a * cos, 0.5f * h };
-		*(math::vec2*)(geo.vertices + vertex_size * 2 + pos_offset) = {  c / 2.f, -0.5f * h };
+		*(math::Tvec2*)(geo.vertices + vertex_size * 0 + pos_offset) = { -c / 2.f, -0.5f * h };
+		*(math::Tvec2*)(geo.vertices + vertex_size * 1 + pos_offset) = { -c / 2.f + a * cos, 0.5f * h };
+		*(math::Tvec2*)(geo.vertices + vertex_size * 2 + pos_offset) = {  c / 2.f, -0.5f * h };
 
-		*(math::vec4*)(geo.vertices + vertex_size * 0 + color_offset) = mat.GetColor();
-		*(math::vec4*)(geo.vertices + vertex_size * 1 + color_offset) = mat.GetColor();
-		*(math::vec4*)(geo.vertices + vertex_size * 2 + color_offset) = mat.GetColor();
+		*(math::Tvec4*)(geo.vertices + vertex_size * 0 + color_offset) = mat.GetColor();
+		*(math::Tvec4*)(geo.vertices + vertex_size * 1 + color_offset) = mat.GetColor();
+		*(math::Tvec4*)(geo.vertices + vertex_size * 2 + color_offset) = mat.GetColor();
 
 		geo.indices[0] = 0;
 		geo.indices[1] = 1;
@@ -673,7 +674,7 @@ namespace VR {
 	/* 
 
 
-	void Mesh2DContainer::Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections)
+	void Mesh2DContainer::Curve(const std::vector<math::Tvec2>& points, float width, float border_radius, size_t border_sections)
 	{
 		Material& material = mesh->material;
 		Geometry& geometry = mesh->geometry;
@@ -685,7 +686,7 @@ namespace VR {
 
 		const int pos_offset = material.GetPosOffset();
 		const int color_offset = material.GetColorOffset();
-		const math::vec4 color = material.GetColor();
+		const math::Tvec4 color = material.GetColor();
 		const int vertex_size = material.GetVertexSize();
 		const size_t ind_offset = geometry.ind_offset;
 
@@ -695,11 +696,11 @@ namespace VR {
 		}
 		geometry.Alloc(points.size() * 2 * vertex_size, (points.size() - 1) * 2 * 3);
 
-		math::vec2 next_side;
+		math::Tvec2 next_side;
 
 		for (int p = 0; p < points.size() - 1; p++)
 		{
-			math::vec2 side = next_side;
+			math::Tvec2 side = next_side;
 			next_side = math::normalize(points[p + 1] - points[p]);
 			float dir_y = next_side.y;
 			next_side.y = -next_side.x;
@@ -711,13 +712,13 @@ namespace VR {
 				side = next_side;
 			}
 
-			math::vec2 offset = (side + next_side) / 2;
+			math::Tvec2 offset = (side + next_side) / 2;
 
-			*(math::vec2*)(geometry.vertices + p * 2 * vertex_size + pos_offset) = points[p] + offset;
-			*(math::vec2*)(geometry.vertices + (p * 2 + 1) * vertex_size + pos_offset) = points[p] - offset;
+			*(math::Tvec2*)(geometry.vertices + p * 2 * vertex_size + pos_offset) = points[p] + offset;
+			*(math::Tvec2*)(geometry.vertices + (p * 2 + 1) * vertex_size + pos_offset) = points[p] - offset;
 
-			*(math::vec4*)(geometry.vertices + (p * 2) * vertex_size + color_offset) = color;
-			*(math::vec4*)(geometry.vertices + (p * 2 + 1) * vertex_size + color_offset) = color;
+			*(math::Tvec4*)(geometry.vertices + (p * 2) * vertex_size + color_offset) = color;
+			*(math::Tvec4*)(geometry.vertices + (p * 2 + 1) * vertex_size + color_offset) = color;
 
 			size_t first_ind = ind_offset + p * 2;
 
@@ -729,14 +730,14 @@ namespace VR {
 			geometry.indices[p * 6 + 5] = first_ind + 2;
 		}
 
-		*(math::vec2*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + pos_offset) = points.back() + next_side;
-		*(math::vec2*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + pos_offset) = points.back() - next_side;
+		*(math::Tvec2*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + pos_offset) = points.back() + next_side;
+		*(math::Tvec2*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + pos_offset) = points.back() - next_side;
 
-		*(math::vec4*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + color_offset) = color;
-		*(math::vec4*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + color_offset) = color;
+		*(math::Tvec4*)(geometry.vertices + (points.size() - 1) * 2 * vertex_size + color_offset) = color;
+		*(math::Tvec4*)(geometry.vertices + ((points.size() - 1) * 2 + 1) * vertex_size + color_offset) = color;
 	}
 
-	void Mesh2DContainer::BezierCurve(const std::vector<math::vec2>& pivot_points, float width, int quality, float border_radius, size_t border_sections)
+	void Mesh2DContainer::BezierCurve(const std::vector<math::Tvec2>& pivot_points, float width, int quality, float border_radius, size_t border_sections)
 	{
 		if (pivot_points.size() < 2)
 		{
@@ -746,12 +747,12 @@ namespace VR {
 
 		const size_t points_count = pivot_points.size() * quality;
 
-		const math::vec2 start = pivot_points.front();
+		const math::Tvec2 start = pivot_points.front();
 
-		std::vector<math::vec2> points;
+		std::vector<math::Tvec2> points;
 		points.reserve(points_count);
 
-		std::vector<std::vector<math::vec2>> helpers(pivot_points.size() - 1);
+		std::vector<std::vector<math::Tvec2>> helpers(pivot_points.size() - 1);
 
 		for (int ppi = 0; ppi < pivot_points.size() - 1; ppi++)
 		{
@@ -788,8 +789,8 @@ namespace VR {
 	{
 		Geometry& geometry = mesh->geometry;
 
-		m_pos = math::vec2();
-		m_scale = math::vec2(1);
+		m_pos = math::Tvec2();
+		m_scale = math::Tvec2(1);
 
 		geometry.Alloc(vert_size, ind_count);
 

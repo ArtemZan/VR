@@ -29,8 +29,8 @@ namespace VR
 
 		std::string line;
 
-		std::vector<math::vec3> v;
-		std::vector<math::vec3> vn;
+		std::vector<math::Tvec3> v;
+		std::vector<math::Tvec3> vn;
 
 		while (std::getline(file, line))
 		{
@@ -107,11 +107,11 @@ namespace VR
 
 					for (int i = 0; i < 4; i++)
 					{
-						*(math::vec3*)(vertBuf + i * vert_size) = v[vert[i].v - 1];
+						*(math::Tvec3*)(vertBuf + i * vert_size) = v[vert[i].v - 1];
 
 						if (mat.HasNormals())
 						{
-							*(math::vec3*)(vertBuf + i * vert_size + 3) = vn[vert[i].vn - 1];
+							*(math::Tvec3*)(vertBuf + i * vert_size + 3) = vn[vert[i].vn - 1];
 						}
 					}
 

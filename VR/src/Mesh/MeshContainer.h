@@ -49,9 +49,9 @@ namespace VR
 		Mesh2DContainer(const Material2D& material, const Geometry2D& geometry);
 
 		/*void Line(float length, float width, float border_radius, size_t border_sections = -1);
-		void Line(const math::vec2& start, const math::vec2& end, float width, float border_radius, size_t border_sections = -1);
-		void Curve(const std::vector<math::vec2>& points, float width, float border_radius, size_t border_sections = -1);
-		void BezierCurve(const std::vector<math::vec2>& pivot_points, float width, int quality, float border_radius, size_t border_sections = -1);
+		void Line(const math::Tvec2& start, const math::Tvec2& end, float width, float border_radius, size_t border_sections = -1);
+		void Curve(const std::vector<math::Tvec2>& points, float width, float border_radius, size_t border_sections = -1);
+		void BezierCurve(const std::vector<math::Tvec2>& pivot_points, float width, int quality, float border_radius, size_t border_sections = -1);
 
 		void Shape(const uint8_t* vertices, size_t vert_size, const uint32_t* indices, size_t ind_count);
 		void Shape(const Geometry& geo);*/

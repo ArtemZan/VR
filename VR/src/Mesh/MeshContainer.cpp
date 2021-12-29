@@ -44,7 +44,7 @@ namespace VR
 
 	void Mesh3DContainer::Move(const math::vec3& bias)
 	{
-		math::mat4 m = 1;
+		math::Tmat4 m = 1;
 		m.w = { bias, 1 };
 
 		Transform(m);
@@ -58,13 +58,13 @@ namespace VR
 
 	void Mesh3DContainer::Rotate(const math::vec3& axis, const math::vec3& center, float angle)
 	{
-		math::mat4 T(1);
+		math::Tmat4 T(1);
 
 		T.w = math::vec4(-center, 1);
 
 		math::mat3 R = math::rotate(axis, angle);
 
-		T *= math::mat4({ R.x, 0.f }, { R.y, 0.f }, { R.z, 0.f }, { 0.f, 0.f, 0.f, 1.f });
+		T *= math::mat4({ R.x, 0.f }, { R.y, 0.f }, { R.z, 0.f }, { 0, 0, 0, 1 });
 
 		T *= math::mat4(math::vec4(1, 0, 0, 0), math::vec4(0, 1, 0, 0), math::vec4(0, 0, 1, 0), math::vec4(center, 1));
 
@@ -76,13 +76,13 @@ namespace VR
 
 		for (int i = 0; i < vert_count; i++)
 		{
-			math::vec3& v = *(math::vec3*)(geometry.vertices + i * vert_size + material.GetPosOffset());
+			math::Tvec3& v = *(math::Tvec3*)(geometry.vertices + i * vert_size + material.GetPosOffset());
 			v -= center;
 			v *= m;
 			v += center;
 			if (material.HasNormals())
 			{
-				*(math::vec3*)(geometry.vertices + i * vert_size + material.GetNormalOffset()) *= m;
+				*(math::Tvec3*)(geometry.vertices + i * vert_size + material.GetNormalOffset()) *= m;
 			}
 		}*/
 	}
@@ -90,7 +90,7 @@ namespace VR
 
 	void Mesh3DContainer::Scale(const math::vec3& scale, const math::vec3& center)
 	{
-		math::mat4 T(1);
+		math::Tmat4 T(1);
 
 		T.w = math::vec4(-center, 1);
 
@@ -104,7 +104,7 @@ namespace VR
 		int vert_count = geometry.vertices_size / vert_size;
 		for (int i = 0; i < vert_count; i++)
 		{
-			math::vec3& pos = *(math::vec3*)(geometry.vertices + i * vert_size);
+			math::Tvec3& pos = *(math::Tvec3*)(geometry.vertices + i * vert_size);
 			pos -= center;
 
 			pos *= scale;
@@ -163,9 +163,9 @@ namespace VR
 			const math::vec3 p2 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i + 1));
 			const math::vec3 p3 = m_geometry.GetPos(m_geometry.m_data->GetIndex(i + 2));
 
-			const math::vec4 p1p = math::vec4(p1.x, p1.y, p1.z, 1) * mvp;
-			const math::vec4 p2p = math::vec4(p2.x, p2.y, p2.z, 1) * mvp;
-			const math::vec4 p3p = math::vec4(p3.x, p3.y, p3.z, 1) * mvp;
+			const math::vec4 p1p = mvp * math::vec4(p1.x, p1.y, p1.z, 1);
+			const math::vec4 p2p = mvp * math::vec4(p2.x, p2.y, p2.z, 1);
+			const math::vec4 p3p = mvp * math::vec4(p3.x, p3.y, p3.z, 1);
 
 			const math::vec2 p1d = math::vec2(p1p.x, p1p.y) / p1p.w;
 			const math::vec2 p2d = math::vec2(p2p.x, p2p.y) / p2p.w;
@@ -246,7 +246,7 @@ namespace VR
 
 	void Mesh2DContainer::Move(const math::vec2& bias)
 	{
-		math::mat3 m = 1;
+		math::mat3f m = 1;
 		m.z = { bias, 1 };
 		
 		Transform(m);
@@ -317,9 +317,9 @@ namespace VR
 			const math::vec2 p2 = geo.GetPos(geo.m_data->GetIndex(i + 1));
 			const math::vec2 p3 = geo.GetPos(geo.m_data->GetIndex(i + 2));
 
-			const math::vec3 p1t = math::vec3(p1.x, p1.y, 1) * view;
-			const math::vec3 p2t = math::vec3(p2.x, p2.y, 1) * view;
-			const math::vec3 p3t = math::vec3(p3.x, p3.y, 1) * view;
+			const math::vec3 p1t = view * math::vec3(p1.x, p1.y, 1);
+			const math::vec3 p2t = view * math::vec3(p2.x, p2.y, 1);
+			const math::vec3 p3t = view * math::vec3(p3.x, p3.y, 1);
 
 			if (math::IsInside({ p1t.x, p1t.y }, { p2t.x, p2t.y }, { p3t.x, p3t.y }, mPos))
 			{

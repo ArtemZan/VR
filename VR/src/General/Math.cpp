@@ -20,92 +20,126 @@ namespace VR
 {
 	namespace math
 	{
-		// vec2
 
-		vec2::vec2(float scale)
+		// Tvec2
+
+		template<typename T>
+		Tvec2<T>::Tvec2(T scale)
 			:x(scale), y(scale)
 		{
+
 		}
 
-		vec2::vec2(float x, float y)
+		template<typename T>
+		Tvec2<T>::Tvec2(T x, T y)
 			: x(x), y(y)
 		{
 		}
 
-		vec2::vec2(const vec2& vec2)
-			: x(vec2.x), y(vec2.y)
-		{
-		}
-
-		vec2::vec2(const vec2i& vec)
-			: x(vec.x), y(vec.y)
-		{
-		}
-
-		vec2::vec2(const vec2d& vec)
-			: x(vec.x), y(vec.y)
-		{
-		}
-
-		vec2::vec2(const vec3& vec)
-			: x(vec.x), y(vec.y)
-		{
-		}
-
-		vec2 vec2::operator*(float k)		  const
+		template<typename T>
+		Tvec2<T> Tvec2<T>::operator*(T k)	const
 		{
 			return { x * k, y * k };
 		}
 
-		vec2 vec2::operator*(const vec2& vec) const
+		template<typename T>
+		Tvec2<T> Tvec2<T>::operator*(const Tvec2<T>& vec) const
 		{
 			return { x * vec.x, y * vec.y };
 		}
 
-		vec2 vec2::operator/(float k)		  const
+		template<typename T>
+		Tvec2<T> Tvec2<T>::operator/(T k)		  const
 		{
 			return { x / k, y / k };
 		}
 
-		vec2 vec2::operator/(const vec2& vec) const
+		template<typename T>
+		Tvec2<T> Tvec2<T>::operator/(const Tvec2<T>& vec) const
 		{
 			return { x / vec.x, y / vec.y };
 		}
 
-		vec2 vec2::operator+(const vec2& vec) const
+		template<typename T>
+		Tvec2<T> Tvec2<T>::operator+(const Tvec2<T>& vec) const
 		{
 			return { x + vec.x, y + vec.y };
 		}
 
-		vec2 vec2::operator-(const vec2& vec) const
+		template<typename T>
+		Tvec2<T> Tvec2<T>::operator-(const Tvec2<T>& vec) const
 		{
 			return { x - vec.x, y - vec.y };
 		}
 
-		vec2 vec2::operator-()				  const
+		template<typename T>
+		Tvec2<T> Tvec2<T>::operator-()				  const
 		{
 			return { -x, -y };
 		}
 
-		vec2& vec2::operator*=(const mat2& matrix)
-		{
-			*this = matrix * vec2d(*this);
-			return *this;
-		}
 
-		void vec2::operator=(const vec2& vec)
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator=(const Tvec2<T>& vec)
 		{
 			x = vec.x;
 			y = vec.y;
+
+			return *this;
 		}
 
 
-		vec2 vec2::normalize() const
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator*=(T scale)
+		{
+			return *this = *this * scale;
+		}
+
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator*=(const Tvec2& vec)
+		{
+			return *this = *this * vec;
+		}
+
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator*=(const Tmat2<T>& matrix)
+		{
+			return *this = matrix * *this;
+		}
+
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator/=(T scale)
+		{
+			return *this = *this / scale;
+		}
+
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator/=(const Tvec2& vec)
+		{
+			return *this = *this / vec;
+		}
+
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator+=(const Tvec2& vec)
+		{
+			return *this = *this + vec;
+		}
+
+		template<typename T>
+		Tvec2<T>& Tvec2<T>::operator-=(const Tvec2& vec)
+		{
+			return *this = *this - vec;
+		}
+
+
+		template<typename T>
+		Tvec2<T> Tvec2<T>::normalize() const
 		{
 			return *this / magnitude();
 		}
 
-		float vec2::distance(const vec2& vec) const
+		template<typename T>
+		T Tvec2<T>::distance(const Tvec2<T>& vec) const
 		{
 			float dx = x - vec.x;
 			float dy = y - vec.y;
@@ -113,187 +147,60 @@ namespace VR
 			return sqrt(dx * dx + dy * dy);
 		}
 
-		float vec2::magnitude() const
+		template<typename T>
+		T Tvec2<T>::magnitude() const
 		{
 			return sqrt(x * x + y * y);
 		}
 
-		float vec2::cross(const vec2& vec) const
+		template<typename T>
+		T Tvec2<T>::cross(const Tvec2<T>& vec) const
 		{
 			return vec3(*this, 0).cross(vec3(vec, 0)).z;
 		}
 
-		float vec2::dot(const vec2& vec) const
+		template<typename T>
+		T Tvec2<T>::dot(const Tvec2<T>& vec) const
 		{
 			return x * vec.x + y * vec.y;
 		}
 
-		float vec2::cos(const vec2& vec) const
+		template<typename T>
+		T Tvec2<T>::cos(const Tvec2<T>& vec) const
 		{
 			return dot(vec) / magnitude() / vec.magnitude();
 		}
 
 
-
-		//vec2i
-		vec2i::vec2i()
-			:x(0), y(0)
-		{
-		}
-
-		vec2i::vec2i(int x, int y)
-			: x(x), y(y)
-		{
-		}
-
-		vec2i::vec2i(const vec2i& vec)
-			: x(vec.x), y(vec.y)
-		{
-		}
-
-		vec2i::vec2i(const vec2& vec)
-		{
-		}
-
-		void vec2i::operator=(const vec2i& vec)
-		{
-			x = vec.x;
-			y = vec.y;
-		}
-
-		// vec2d
-
-		vec2d::vec2d(double scale)
-			:x(scale), y(scale)
-		{
-		}
-
-		vec2d::vec2d(double x, double y)
-			: x(x), y(y)
-		{
-		}
-
-		vec2d::vec2d(const vec2d& vec)
-			: x(x), y(y)
-		{
-		}
-
-		vec2d::vec2d(const vec2& vec)
-			: x(vec.x), y(vec.y)
-		{
-		}
-
-		vec2d vec2d::operator*(double k)		  const
-		{
-			return { x * k, y * k };
-		}
-
-		vec2d vec2d::operator*(const vec2d& vec) const
-		{
-			return { x * vec.x, y * vec.y };
-		}
-
-		vec2d vec2d::operator/(double k)		  const
-		{
-			return { x / k, y / k };
-		}
-
-		vec2d vec2d::operator/(const vec2d& vec) const
-		{
-			return { x / vec.x, y / vec.y };
-		}
-
-		vec2d vec2d::operator+(const vec2d& vec) const
-		{
-			return { x + vec.x, y + vec.y };
-		}
-
-		vec2d vec2d::operator-(const vec2d& vec) const
-		{
-			return { x - vec.x, y - vec.y };
-		}
-
-		vec2d vec2d::operator-()				  const
-		{
-			return { -x, -y };
-		}
-
-		void vec2d::operator=(const vec2d& vec)
-		{
-			x = vec.x;
-			y = vec.y;
-		}
-
-
-		vec2d vec2d::normalize() const
-		{
-			return *this / magnitude();
-		}
-
-		double vec2d::distance(const vec2d& vec) const
-		{
-			double dx = x - vec.x;
-			double dy = y - vec.y;
-
-			return sqrt(dx * dx + dy * dy);
-		}
-
-		double vec2d::magnitude() const
-		{
-			return sqrt(x * x + y * y);
-		}
-
-		double vec2d::cross(const vec2d& vec) const
-		{
-			return vec3(*this, 0).cross(vec3(vec, 0)).z;
-		}
-
-		double vec2d::dot(const vec2d& vec) const
-		{
-			return x * vec.x + y * vec.y;
-		}
-
-		double vec2d::cos(const vec2d& vec) const
-		{
-			return dot(vec) / magnitude() / vec.magnitude();
-		}
-
-
-		// vec3
-
-		vec3::vec3(float scale)
+		// Tvec3
+		template<typename T>
+		Tvec3<T>::Tvec3(T scale)
 			:x(scale), y(scale), z(scale)
 		{
 		}
 
-		vec3::vec3(float x, float y, float z)
+		template<typename T>
+		Tvec3<T>::Tvec3(T x, T y, T z)
 			: x(x), y(y), z(z)
 		{
 
 		}
 
-		vec3::vec3(const vec2& vec, float z)
+		template<typename T>
+		Tvec3<T>::Tvec3(const Tvec2<T>& vec, T z)
 			: x(vec.x), y(vec.y), z(z)
 		{
 		}
 
-		vec3::vec3(float x, const vec2& vec)
+		template<typename T>
+		Tvec3<T>::Tvec3(T x, const Tvec2<T>& vec)
 			: x(x), y(vec.x), z(vec.y)
 		{
 		}
 
-		vec3::vec3(const vec3& vec3)
-			: x(vec3.x), y(vec3.y), z(vec3.z)
-		{
 
-		}
-
-		vec3::vec3(const vec4& vec)
-			: x(vec.x), y(vec.y), z(vec.z)
-		{
-		}
-
-		vec3& vec3::operator=(const vec3& vec)
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator=(const Tvec3<T>& vec)
 		{
 			x = vec.x;
 			y = vec.y;
@@ -303,211 +210,126 @@ namespace VR
 		}
 
 
-		vec3 vec3::operator*(float k) const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::operator*(T k) const
 		{
 			return { x * k, y * k, z * k };
 		}
 
-		vec3 vec3::operator*(const vec3& vec) const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::operator*(const Tvec3<T>& vec) const
 		{
 			return { x * vec.x, y * vec.y, z * vec.z };
 		}
 
-		vec3 vec3::operator/(float k) const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::operator/(T k) const
 		{
 			return { x / k, y / k, z / k };
 		}
 
-		vec3 vec3::operator/(const vec3& vec) const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::operator/(const Tvec3<T>& vec) const
 		{
 			return { x / vec.x, y / vec.y, z / vec.z };
 		}
 
-		vec3 vec3::operator+(const vec3& vec) const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::operator+(const Tvec3<T>& vec) const
 		{
 			return { x + vec.x, y + vec.y, z + vec.z };
 		}
 
-		vec3 vec3::operator-(const vec3& vec) const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::operator-(const Tvec3<T>& vec) const
 		{
 			return { x - vec.x, y - vec.y, z - vec.z };
 		}
 
-		vec3 vec3::operator-() const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::operator-() const
 		{
 			return { -x, -y, -z };
 		}
 
 
-		/*void vec3::operator*=(float k)
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator*=(T k)
 		{
 			x *= k;
 			y *= k;
+
+			return *this;
 		}
 
-		void vec3::operator*=(const mat3& matrix)
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator*=(const Tmat3<T>& matrix)
 		{
 			x = matrix.x.x * x + matrix.y.x * y + matrix.z.x * z;
 			y = matrix.x.y * x + matrix.y.y * y + matrix.z.y * z;
 			z = matrix.x.z * x + matrix.y.z * y + matrix.z.z * z;
-		}
-
-		void vec3::operator*=(const vec3& vec)
-		{
-			x *= vec.x;
-			y *= vec.y;
-			z *= vec.z;
-		}
-
-		void vec3::operator/=(float k)
-		{
-			x *= k;
-			y *= k;
-			z *= k;
-		}
-
-		void vec3::operator/=(const vec3& vec)
-		{
-			x /= vec.x;
-			y /= vec.y;
-			z /= vec.z;
-		}
-
-		void vec3::operator+=(const vec3& vec)
-		{
-			x += vec.x;
-			y += vec.y;
-			z += vec.z;
-		}
-
-		void vec3::operator-=(const vec3& vec)
-		{
-			x -= vec.x;
-			y -= vec.y;
-			z -= vec.z;
-		}*/
-
-		vec3 vec3::normalize() const
-		{
-			return *this / magnitude();
-		}
-
-		float vec3::distance(const vec3& vec) const
-		{
-			float dx = x - vec.x;
-			float dy = z - vec.y;
-			float dz = x - vec.z;
-
-			return sqrt(dx * dx + dy * dy + dz * dz);
-		}
-
-		float vec3::magnitude() const
-		{
-			return sqrt(x * x + y * y + z * z);
-		}
-
-		float vec3::dot(const vec3& v) const
-		{
-			return x * v.x + y * v.y + z * v.z;
-		}
-
-#ifdef RIGHT_HANDED
-		vec3 vec3::cross(const vec3& v) const { return { z * v.y - y * v.z, x * v.z - z * v.x, y * v.x - x * v.y }; }
-#else
-		vec3 vec3::cross(const vec3& v) const { return { y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x }; }
-#endif
-
-		// vec3d
-
-		vec3d::vec3d(double scale)
-			:x(scale), y(scale), z(scale)
-		{
-		}
-
-		vec3d::vec3d(double x, double y, double z)
-			: x(x), y(y), z(z)
-		{
-
-		}
-
-		vec3d::vec3d(const vec2d& vec, double z)
-			: x(vec.x), y(vec.y), z(z)
-		{
-		}
-
-		vec3d::vec3d(double x, const vec2d& vec)
-			: x(x), y(vec.x), z(vec.y)
-		{
-		}
-
-		vec3d::vec3d(const vec3d& vec3)
-			: x(vec3.x), y(vec3.y), z(vec3.z)
-		{
-
-		}
-
-		vec3d::vec3d(const vec3& vec3)
-			: x(vec3.x), y(vec3.y), z(vec3.z)
-		{
-
-		}
-
-		vec3d::vec3d(const vec4d& vec)
-			: x(vec.x), y(vec.y), z(vec.z)
-		{
-		}
-
-		vec3d& vec3d::operator=(const vec3d& vec)
-		{
-			x = vec.x;
-			y = vec.y;
-			z = vec.z;
 
 			return *this;
 		}
 
-
-		vec3d vec3d::operator*(double k) const
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator*=(const Tvec3<T>& vec)
 		{
-			return { x * k, y * k, z * k };
+			x *= vec.x;
+			y *= vec.y;
+			z *= vec.z;
+
+			return *this;
 		}
 
-		vec3d vec3d::operator*(const vec3d& vec) const
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator/=(T k)
 		{
-			return { x * vec.x, y * vec.y, z * vec.z };
+			x *= k;
+			y *= k;
+			z *= k;
+
+			return *this;
 		}
 
-		vec3d vec3d::operator/(double k) const
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator/=(const Tvec3<T>& vec)
 		{
-			return { x / k, y / k, z / k };
+			x /= vec.x;
+			y /= vec.y;
+			z /= vec.z;
+
+			return *this;
 		}
 
-		vec3d vec3d::operator/(const vec3d& vec) const
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator+=(const Tvec3<T>& vec)
 		{
-			return { x / vec.x, y / vec.y, z / vec.z };
+			x += vec.x;
+			y += vec.y;
+			z += vec.z;
+
+			return *this;
 		}
 
-		vec3d vec3d::operator+(const vec3d& vec) const
+		template<typename T>
+		Tvec3<T>& Tvec3<T>::operator-=(const Tvec3<T>& vec)
 		{
-			return { x + vec.x, y + vec.y, z + vec.z };
+			x -= vec.x;
+			y -= vec.y;
+			z -= vec.z;
+
+			return *this;
 		}
 
-		vec3d vec3d::operator-(const vec3d& vec) const
-		{
-			return { x - vec.x, y - vec.y, z - vec.z };
-		}
-
-		vec3d vec3d::operator-() const
-		{
-			return { -x, -y, -z };
-		}
-
-		vec3d vec3d::normalize() const
+		template<typename T>
+		Tvec3<T> Tvec3<T>::normalize() const
 		{
 			return *this / magnitude();
 		}
 
-		double vec3d::distance(const vec3d& vec) const
+		template<typename T>
+		T Tvec3<T>::distance(const Tvec3<T>& vec) const
 		{
 			float dx = x - vec.x;
 			float dy = z - vec.y;
@@ -516,116 +338,192 @@ namespace VR
 			return sqrt(dx * dx + dy * dy + dz * dz);
 		}
 
-		double vec3d::magnitude() const
+		template<typename T>
+		T Tvec3<T>::magnitude() const
 		{
 			return sqrt(x * x + y * y + z * z);
 		}
 
-		double vec3d::dot(const vec3d& v) const
+		template<typename T>
+		T Tvec3<T>::dot(const Tvec3<T>& v) const
 		{
 			return x * v.x + y * v.y + z * v.z;
 		}
 
+		template<typename T>
+		Tvec3<T> Tvec3<T>::cross(const Tvec3<T>& v) const {
+			return
 #ifdef RIGHT_HANDED
-		vec3d vec3d::cross(const vec3d& v) const { return { z * v.y - y * v.z, x * v.z - z * v.x, y * v.x - x * v.y }; }
+			{ z * v.y - y * v.z, x * v.z - z * v.x, y * v.x - x * v.y };
 #else
-		vec3d vec3d::cross(const vec3d& v) const { return { y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x }; }
+			{ y* v.z - z * v.y, z* v.x - x * v.z, x* v.y - y * v.x };
 #endif
+		}
+
+		template<typename T>
+		Tvec3<T> cross(const Tvec3<T>& vec1, const Tvec3<T>& vec2) {
+			return vec1.cross(vec2);
+		}
 
 		//vec4
 
-		vec4::vec4()
-			: x(0), y(0), z(0), w(0)
+		template<typename T>
+		Tvec4<T>::Tvec4(T scale)
+			: x(scale), y(scale), z(scale), w(scale)
 		{
 		}
 
-		vec4::vec4(float x, float y, float z, float w)
+		template<typename T>
+		Tvec4<T>::Tvec4(T x, T y, T z, T w)
 			: x(x), y(y), z(z), w(w)
 		{
 
 		}
 
-		vec4::vec4(const vec2& vec1, const vec2& vec2)
+		template<typename T>
+		Tvec4<T>::Tvec4(const Tvec2<T>& vec1, const Tvec2<T>& vec2)
 			: x(vec1.x), y(vec1.y), z(vec2.x), w(vec2.y)
 		{
 		}
 
-		vec4::vec4(const vec2& vec, float z, float w)
+		template<typename T>
+		Tvec4<T>::Tvec4(const Tvec2<T>& vec, T z, T w)
 			: x(vec.x), y(vec.y), z(z), w(w)
 		{
 		}
 
-		vec4::vec4(float x, float y, const vec2& vec)
+		template<typename T>
+		Tvec4<T>::Tvec4(T x, const Tvec2<T>& vec, T w)
+			:x(x), y(vec.x), z(vec.y), w(w)
+		{
+
+		}
+
+		template<typename T>
+		Tvec4<T>::Tvec4(T x, T y, const Tvec2<T>& vec)
 			: x(x), y(y), z(vec.x), w(vec.y)
 		{
 		}
 
-		vec4::vec4(const vec3& vec, float w)
+		template<typename T>
+		Tvec4<T>::Tvec4(const Tvec3<T>& vec, T w)
 			: x(vec.x), y(vec.y), z(vec.z), w(w)
 		{
 		}
 
-		vec4::vec4(float x, const vec3& vec)
+		template<typename T>
+		Tvec4<T>::Tvec4(T x, const Tvec3<T>& vec)
 			: x(x), y(vec.x), z(vec.y), w(vec.z)
 		{
 		}
 
-		vec4::vec4(const vec4& vec4)
-			: x(vec4.x), y(vec4.y), z(vec4.z), w(vec4.w)
+		template<typename T>
+		Tvec4<T> Tvec4<T>::operator*(T k)			const
 		{
-
+			return { x * k, y * k, z * k, w * k };
 		}
 
-		void vec4::operator=(const vec4& vec4)
+		template<typename T>
+		Tvec4<T> Tvec4<T>::operator*(const Tvec4<T>& vec)	const
+		{
+			return { x * vec.x, y * vec.y, z * vec.z, w * vec.w };
+		}
+
+		template<typename T>
+		Tvec4<T> Tvec4<T>::operator/(T k)			const
+		{
+			return { x / k, y / k, z / k, w / k };
+		}
+
+		template<typename T>
+		Tvec4<T> Tvec4<T>::operator/(const Tvec4<T>& vec)	const
+		{
+			return { x / vec.x, y / vec.y, z / vec.z, w / vec.w };
+		}
+
+		template<typename T>
+		Tvec4<T> Tvec4<T>::operator+(const Tvec4<T>& vec)	const
+		{
+			return { x + vec.x, y + vec.y, z + vec.z, w + vec.w };
+		}
+
+		template<typename T>
+		Tvec4<T> Tvec4<T>::operator-(const Tvec4<T>& vec)	const
+		{
+			return { x - vec.x, y - vec.y, z - vec.z, w + vec.w };
+		}
+
+		template<typename T>
+		Tvec4<T> Tvec4<T>::operator-() const
+		{
+			return { -x, -y, -z, -w };
+		}
+
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator=(const Tvec4<T>& vec4)
 		{
 			x = vec4.x;
 			y = vec4.y;
 			z = vec4.z;
 			w = vec4.w;
+
+			return *this;
 		}
 
 
-		vec4 vec4::operator*(float k)			const
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator*=(T k)
 		{
-			return { x * k, y * k, z * k, w * k };
+			return *this = *this * k;
 		}
 
-		vec4 vec4::operator*(const vec4& vec)	const
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator*=(const Tvec4<T>& vec)
 		{
-			return { x * vec.x, y * vec.y, z * vec.z, w * vec.w };
+			return *this = *this * vec;
 		}
 
-		vec4 vec4::operator/(float k)			const
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator*=(const Tmat4<T>& matrix)
 		{
-			return { x / k, y / k, z / k, w / k };
+			return *this = matrix * *this;
 		}
 
-		vec4 vec4::operator/(const vec4& vec)	const
+
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator/=(T k)
 		{
-			return { x / vec.x, y / vec.y, z / vec.z, w / vec.w };
+			return *this = *this / k;
 		}
 
-		vec4 vec4::operator+(const vec4& vec)	const
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator/=(const Tvec4<T>& vec)
 		{
-			return { x + vec.x, y + vec.y, z + vec.z, w + vec.w };
+			return *this = *this / vec;
 		}
 
-		vec4 vec4::operator-(const vec4& vec)	const
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator+=(const Tvec4<T>& vec)
 		{
-			return { x - vec.x, y - vec.y, z - vec.z, w + vec.w };
+			return *this = *this + vec;
 		}
 
-		vec4 vec4::operator-() const
+		template<typename T>
+		Tvec4<T>& Tvec4<T>::operator-=(const Tvec4<T>& vec)
 		{
-			return { -x, -y, -z, -w };
+			return *this = *this - vec;
 		}
 
-		vec4 vec4::normalize() const
+
+
+		template<typename T>
+		Tvec4<T> Tvec4<T>::normalize() const
 		{
 			return *this / magnitude();
 		}
 
-		float vec4::distance(const vec4& vec) const
+		template<typename T>
+		T Tvec4<T>::distance(const Tvec4<T>& vec) const
 		{
 			float dx = x - vec.x;
 			float dy = y - vec.y;
@@ -634,54 +532,67 @@ namespace VR
 			return sqrt(dx * dx + dy * dy + dz * dz + dw * dw);
 		}
 
-		float vec4::magnitude() const
+		template<typename T>
+		T Tvec4<T>::magnitude() const
 		{
 			return sqrt(x * x + y * y + z * z + w * w);
 		}
 
-		/*float vec4::cross(const vec4& vec) const
+		/*float Tvec4<T>::cross(const Tvec4<T>& vec) const
 		{
 			return 0.0f;
 		}*/
 
-		float vec4::dot(const vec4& vec) const
+		template<typename T>
+		T Tvec4<T>::dot(const Tvec4<T>& vec) const
 		{
 			return x * vec.x + y * vec.y + z * vec.z + w * vec.w;
 		}
 
-		float vec4::cos(const vec4& vec) const
+		template<typename T>
+		T Tvec4<T>::cos(const Tvec4<T>& vec) const
 		{
 			return dot(vec) / magnitude() / vec.magnitude();
 		}
 
 
-		// mat2
+		// Tmat2
 
-		mat2::mat2()
-		{
-		}
-
-		mat2::mat2(const mat2& mat)
-			: i(mat.i), j(mat.j)
-		{
-
-		}
-
-		mat2::mat2(double scale)
+		template<typename T>
+		Tmat2<T>::Tmat2(T scale)
+			:i(0), j(0)
 		{
 			x.x = scale;
 			y.y = scale;
 		}
 
-		mat2::mat2(const vec2d& i, const vec2d& j)
+		template<typename T>
+		Tmat2<T>::Tmat2(const Tvec2<T>& i, const Tvec2<T>& j)
 			: x(i), y(j)
 		{
 
 		}
 
-		const mat2& mat2::operator*(const mat2& matrix)
+		template<typename T>
+		Tmat2<T>& Tmat2<T>::operator=(const Tmat2<T>& mat)
 		{
-			mat2 res;
+			i = mat.i;
+			j = mat.j;
+
+			return *this;
+		}
+
+
+		template<typename T>
+		Tvec2<T> Tmat2<T>::operator*(const Tvec2<T>& vec) const
+		{
+			return i * vec.x + j * vec.y;
+		}
+
+		template<typename T>
+		Tmat2<T> Tmat2<T>::operator*(const Tmat2<T>& matrix) const
+		{
+			Tmat2<T> res;
 
 			res.x = *this * matrix.x;
 			res.y = x * matrix.y.x + y * matrix.y.y;
@@ -690,101 +601,64 @@ namespace VR
 		}
 
 
-		// mat2f
+		//Tmat3
 
-		mat2f::mat2f()
-		{
-
-		}
-
-		mat2f::mat2f(const mat2f& mat)
-			:i(mat.i), j(mat.j)
-		{
-		}
-
-		mat2f::mat2f(const mat2& mat)
-			: i(mat.i), j(mat.j)
-		{
-		}
-
-
-		//mat3
-
-		mat3::mat3()
-		{
-		}
-
-		mat3::mat3(const mat3f& mat)
-			:i(mat.i), j(mat.j), k(mat.k)
-		{
-		}
-
-		mat3::mat3(const mat3& mat)
-			: i(mat.i), j(mat.j), k(mat.k)
-		{
-		}
-
-		mat3::mat3(double scale)
+		template<typename T>
+		Tmat3<T>::Tmat3(T scale)
+			:i(0), j(0), k(0)
 		{
 			x.x = scale;
 			y.y = scale;
 			z.z = scale;
 		}
 
-		mat3::mat3(const vec3d& x, const vec3d& y, const vec3d& z)
+		template<typename T>
+		Tmat3<T>::Tmat3(const Tvec3<T>& x, const Tvec3<T>& y, const Tvec3<T>& z)
 			:x(x), y(y), z(z)
 		{
 		}
 
-		mat3 mat3::operator*(const mat3& matrix) const
+		template<typename T>
+		Tmat3<T>& Tmat3<T>::operator=(const Tmat3<T>& mat)
 		{
-			mat3 res;
+			i = mat.i;
+			j = mat.j;
+			k = mat.k;
+
+			return *this;
+		}
+
+		template<typename T>
+		Tvec3<T> Tmat3<T>::operator*(const Tvec3<T>& vec) const
+		{
+			return i * vec.x + j * vec.y + k * vec.z;
+		}
+
+		template<typename T>
+		Tmat3<T> Tmat3<T>::operator*(const Tmat3<T>& matrix) const
+		{
+			Tmat3<T> res;
 			res.x = x * matrix.x.x + y * matrix.x.y + z * matrix.x.z;
 			res.y = x * matrix.y.x + y * matrix.y.y + z * matrix.y.z;
 			res.z = x * matrix.z.x + y * matrix.z.y + z * matrix.z.z;
+
 			return res;
 		}
 
 
-		//mat3f
+		//Tmat4
 
-		mat3f::mat3f()
+
+		template<typename T>
+		Tmat4<T>::Tmat4()
+			:i(0), j(0), k(0), l(0)
 		{
+			
 		}
 
-		mat3f::mat3f(const mat3f& mat)
-			:i(mat.i), j(mat.j), k(mat.k)
-		{
-		}
-
-		mat3f::mat3f(const mat3& mat)
-			: i(mat.i), j(mat.j), k(mat.k)
-		{
-		}
-
-
-		//mat4
-
-		mat4::mat4()
-		{
-		}
-
-		mat4::mat4(const mat4f& mat)
-			:i(mat.i), j(mat.j), k(mat.k), l(mat.l)
-		{
-		}
-
-		mat4::mat4(const mat4& mat)
-			: i(mat.i), j(mat.j), k(mat.k), l(mat.l)
-		{
-		}
-
-		mat4::mat4(const vec4& x, const vec4& y, const vec4& z, const vec4& w)
-			:x(x), y(y), z(z), w(w)
-		{
-		}
-
-		mat4::mat4(float scale)
+		template<typename T>
+		Tmat4<T>::Tmat4(T scale)
+			:i(0), j(0), k(0), l(0)
 		{
 			x.x = scale;
 			y.y = scale;
@@ -792,77 +666,121 @@ namespace VR
 			w.w = scale;
 		}
 
-		mat4& mat4::operator=(const mat4& mat)
+		template<typename T>
+		Tmat4<T>::Tmat4(const Tvec4<T>& x, const Tvec4<T>& y, const Tvec4<T>& z, const Tvec4<T>& w)
+			: x(x), y(y), z(z), w(w)
+		{
+		}
+
+		template<typename T>
+		Tmat4<T>& Tmat4<T>::operator=(const Tmat4<T>& mat)
 		{
 			i = mat.i;
 			j = mat.j;
 			k = mat.k;
 			l = mat.l;
+
+			return *this;
 		}
 
-		mat4 mat4::operator*(const mat4& matrix) const
+		template<typename T>
+		Tvec4<T> Tmat4<T>::operator*(const Tvec4<T>& vec) const
 		{
-			mat4 res;
+			return i * vec.x + j * vec.y + k * vec.z + l * vec.w;
+		}
+
+		template<typename T>
+		Tmat4<T> Tmat4<T>::operator*(const Tmat4<T>& matrix) const
+		{
+			Tmat4<T> res;
 			res.x = x * matrix.x.x + y * matrix.x.y + z * matrix.x.z + w * matrix.x.w;
 			res.y = x * matrix.y.x + y * matrix.y.y + z * matrix.y.z + w * matrix.y.w;
 			res.z = x * matrix.z.x + y * matrix.z.y + z * matrix.z.z + w * matrix.z.w;
 			res.w = x * matrix.w.x + y * matrix.w.y + z * matrix.w.z + w * matrix.w.w;
+
 			return res;
 		}
 
-		// mat4f
+		template<typename T>
+		T Tmat4<T>::det() const {
+			Tmat3<T> m1 = {
+				{y.y, y.z, y.w},
+				{z.y, z.z, z.w},
+				{w.y, w.z, w.w}
+			};
 
-		mat4f::mat4f()
-		{
+			Tmat3<T> m2 = {
+				{x.y, x.z, x.w},
+				{z.y, z.z, z.w},
+				{w.y, w.z, w.w}
+			};
+
+			Tmat3<T> m3 = {
+				{x.y, x.z, x.w},
+				{y.y, y.z, y.w},
+				{w.y, w.z, w.w}
+			};
+
+			Tmat3<T> m4 = {
+				{x.y, x.z, x.w},
+				{y.y, y.z, y.w},
+				{z.y, z.z, z.w}
+			};
+
+			return i.x * m1.det() - j.x * m2.det() + k.x * m3.det() - l.x * m4.det();
 		}
 
-		mat4f::mat4f(const mat4f& mat)
-			:i(mat.i), j(mat.j), k(mat.k), l(mat.l)
-		{
-		}
 
-		mat4f::mat4f(const mat4& mat)
-			: i(mat.i), j(mat.j), k(mat.k), l(mat.l)
-		{
-		}
-
-		//mat3x2
+		//Tmat3x2
 
 
-		mat3x2::mat3x2()
+		template<typename T>
+		Tmat3x2<T>::Tmat3x2(const Tvec2<T>& i, const Tvec2<T>& j, const Tvec2<T>& k)
+			:i(i), j(j), k(k)
 		{
 
 		}
 
-		mat3x2::mat3x2(float scale)
+		template<typename T>
+		Tmat3x2<T>::Tmat3x2(T scale)
+			:i(0), j(0), k(0)
 		{
 			x.x = scale;
 			y.y = scale;
 		}
 
-		vec2 normalize(const math::vec2& vec)
+		template<typename T>
+		Tmat3x2<T>& Tmat3x2<T>::operator=(const Tmat3x2<T>& mat)
+		{
+			i = mat.i;
+			j = mat.j;
+			k = mat.k;
+
+			return *this;
+		}
+
+		template<typename T>
+		Tvec2<T> normalize(const math::Tvec2<T>& vec)
 		{
 			return vec.normalize();
 		}
 
-		vec2d normalize(const math::vec2d& vec)
+		template<typename T>
+		Tvec3<T> normalize(const math::Tvec3<T>& vec)
 		{
 			return vec.normalize();
 		}
 
-		vec3 normalize(const math::vec3& vec)
-		{
-			return vec.normalize();
-		}
 
-		vec3d normalize(const math::vec3d& vec)
+		template<typename T>
+		Tvec4<T> normalize(const math::Tvec4<T>& vec)
 		{
 			return vec.normalize();
 		}
 
 		mat4 perspective(float fov, float aspect, float near, float far)
 		{
-			mat4 res(1.0f);
+			Tmat4 res(1.0f);
 			res.x.x = 1.0f / aspect / tan(fov / 2);
 			res.y.y = 1.0f / tan(fov / 2);
 			res.z.z = -(far + near) / (far - near);
@@ -873,7 +791,7 @@ namespace VR
 
 		mat4 lookAt(const vec3& eye, const vec3& dir, const vec3& up)
 		{
-			mat4 res(1);
+			Tmat4 res(1);
 
 			const vec3 u = up.normalize();
 			const vec3 d = -dir.normalize();
@@ -926,10 +844,10 @@ namespace VR
 				c + u.z * u.z * (1 - c)
 			);
 
-			/*return mat3(
-				vec3(0, 0, 1),
-				vec3(0, 1, 0),
-				vec3(-1, 0, 0)
+			/*return Tmat3(
+				Tvec3(0, 0, 1),
+				Tvec3(0, 1, 0),
+				Tvec3(-1, 0, 0)
 			);*/
 
 			return mat3(i, j, k);
@@ -948,6 +866,178 @@ namespace VR
 		}
 
 
+		//Some dirty stuff here
 
-}
+#define CROSS_4 
+#define CROSS_3	vec.cross(vec);
+#define CROSS_2	vec.cross(vec);
+#define CROSS(DEFINE) CROSS_##DEFINE
+
+#define __DefUseVecGeneral(SIZE) 		   	\
+		template<typename T>			   	\
+		void __UseVec##SIZE##General() {	\
+			Tvec##SIZE##<T> vec;		   	\
+											\
+			CROSS(SIZE)						\
+			vec.distance(vec);			   	\
+			vec.dot(vec);				   	\
+			vec.magnitude();			   	\
+			vec.normalize();			   	\
+			normalize(vec);			   		\
+										   	\
+			vec = -vec;						\
+			vec *= 1;					   	\
+			vec *= Tmat##SIZE##<T>();		\
+			vec *= vec;					   	\
+			vec * 1;					   	\
+			Tmat##SIZE##<T>() * vec;		\
+			vec * vec;						\
+			vec += vec;					   	\
+			vec -= vec;					   	\
+			vec /= vec;					   	\
+			vec + vec;					   	\
+			vec - vec;					   	\
+			vec / vec;					   	\
+		}
+
+		__DefUseVecGeneral(2);
+		__DefUseVecGeneral(3);
+		__DefUseVecGeneral(4);
+
+#define __DefUseMatGeneral(SIZE) 		   	\
+		template<typename T>				\
+		void __UseMat##SIZE##General() {	\
+			Tmat##SIZE##<T> mat(T(1));		\
+			Tmat##SIZE##<T> mat1;		\
+			mat = mat;						\
+		}
+
+		__DefUseMatGeneral(2);
+		__DefUseMatGeneral(3);
+		__DefUseMatGeneral(4);
+		__DefUseMatGeneral(3x2);
+
+		template<typename T>
+		void __UseVec2() {
+			Tvec2<T> v(Tvec3<T>(0));
+
+			Tvec2<T> v1(1, 2);
+
+			v.cross(v);
+		}
+
+		template<typename T>
+		void __UseVec3() {
+			Tvec3<T> v(Tvec4<T>(0));
+
+			Tvec3<T> v1(Tvec2<T>(0), T(0));
+			Tvec3<T> v2(T(0), Tvec2<T>(0));
+
+			Tvec3<T> v3(1, 2, 3);
+
+			v.cross(v);
+			cross(v, v);
+		}
+
+		template<typename T>
+		void __UseVec4() {
+			Tvec4<T> v(Tvec3<T>(0), T(0));
+			Tvec4<T> v1(T(0), Tvec3<T>(0));
+
+			Tvec4<T> v2(Tvec2<T>(0), Tvec2<T>(0));
+			Tvec4<T> v3(Tvec2<T>(0), T(0), T(0));
+			Tvec4<T> v4(T(0), Tvec2<T>(0), T(0));
+			Tvec4<T> v5(T(0), T(0), Tvec2<T>(0));
+
+			Tvec4<T> v6(1, 2, 3, 4);
+		}
+
+		template<typename T>
+		void __UseMat2() {
+ 			Tmat2<T> m(Tvec2<T>(0), Tvec2<T>(0));
+			m.det();
+			m * m;
+			m *= m;
+		}
+
+		template<typename T>
+		void __UseMat3() {
+			Tmat3<T> m(Tvec3<T>(0), Tvec3<T>(0), Tvec3<T>(0));
+			m.det();
+			m* m;
+			m *= m;
+		}
+
+		template<typename T>
+		void __UseMat4() {
+			Tmat4<T> m(Tvec4<T>(0), Tvec4<T>(0), Tvec4<T>(0), Tvec4<T>(0));
+			m.det();
+			m* m;
+			m *= m;
+		}
+
+		template<typename T>
+		void __UseMat3x2() {
+			Tmat3x2<T> m(Tvec2<T>(0), Tvec2<T>(0), Tvec2<T>(0));
+		}
+
+		void __UseMath() {
+			__UseVec2General<float>();
+			__UseVec3General<float>();
+			__UseVec4General<float>();
+					 
+			__UseVec2General<double>();
+			__UseVec3General<double>();
+			__UseVec4General<double>();
+					 
+			__UseVec2General<int>();
+			__UseVec3General<int>();
+			__UseVec4General<int>();
+					 
+			__UseMat2General<float>();
+			__UseMat3General<float>();
+			__UseMat4General<float>();
+			__UseMat3x2General<float>();
+
+			__UseMat2General<double>();
+			__UseMat3General<double>();
+			__UseMat4General<double>();
+			__UseMat3x2General<double>();
+
+			__UseMat2General<int>();
+			__UseMat3General<int>();
+			__UseMat4General<int>();
+			__UseMat3x2General<double>();
+
+
+			__UseVec2<float>();
+			__UseVec3<float>();
+			__UseVec4<float>();
+
+			__UseVec2<double>();
+			__UseVec3<double>();
+			__UseVec4<double>();
+
+			__UseVec2<int>();
+			__UseVec3<int>();
+			__UseVec4<int>();
+
+			__UseMat2<float>();
+			__UseMat3<float>();
+			__UseMat4<float>();
+			__UseMat3x2<float>();
+
+			__UseMat2<double>();
+			__UseMat3<double>();
+			__UseMat4<double>();
+			__UseMat3x2<double>();
+
+			__UseMat2<int>();
+			__UseMat3<int>();
+			__UseMat4<int>();
+			__UseMat3x2<int>();
+
+			Tmat4<double> mat;
+		}
+	}
 }

@@ -136,7 +136,7 @@ public:
 
 			if (leftResize || rightResize || topResize || bottomResize)
 			{
-				//center.MoveTo(boxes.back().pos * math::vec2( 1.0f / wh, 1.0f));
+				//center.MoveTo(boxes.back().pos * math::Tvec2( 1.0f / wh, 1.0f));
 				Render();
 			}
 		}
@@ -275,14 +275,14 @@ public:
 			graph[from * 4 + 3].neighbours.emplace_back(&graph[from * 4 + 2]);
 			for (int to = from + 1; to < boxes.size(); to++)
 			{
-				/*math::vec2 v0[4]{
+				/*math::Tvec2 v0[4]{
 					boxes[from].pos - boxes[from].size / 2.0f,
 					{boxes[from].pos.x + boxes[from].size.x / 2.0f, boxes[from].pos.y - boxes[from].size.y / 2.0f},
 					{boxes[from].pos.x - boxes[from].size.x / 2.0f, boxes[from].pos.y + boxes[from].size.y / 2.0f},
 					boxes[from].pos + boxes[from].size / 2.0f
 				};
 
-				math::vec2 v1[4]{
+				math::Tvec2 v1[4]{
 					boxes[to].pos - boxes[to].size / 2.0f,
 					{boxes[to].pos.x + boxes[to].size.x / 2.0f, boxes[to].pos.y - boxes[to].size.y / 2.0f},
 					{boxes[to].pos.x - boxes[to].size.x / 2.0f, boxes[to].pos.y + boxes[to].size.y / 2.0f},
@@ -302,7 +302,7 @@ public:
 						bool cross = false;
 						for (int obst = 0; obst < boxes.size() && !cross; obst++)
 						{
-							/*math::vec2 ov[4]{
+							/*math::Tvec2 ov[4]{
 								boxes[obst].pos - boxes[obst].size / 2.0f,
 								{boxes[obst].pos.x + boxes[obst].size.x / 2.0f, boxes[obst].pos.y - boxes[obst].size.y / 2.0f},
 								{boxes[obst].pos.x - boxes[obst].size.x / 2.0f, boxes[obst].pos.y + boxes[obst].size.y / 2.0f},
@@ -312,8 +312,8 @@ public:
 							bool below = false;
 							for (int ov = 0; ov < 4; ov++)
 							{
-								//float min = math::dot(graph[from * 4 + v0].pos - math::vec2(0.0, b), graph[obst * 4 + ov].pos);
-								//float max = math::dot(graph[to * 4 + v1].pos - math::vec2(0.0, b), graph[obst * 4 + ov].pos)
+								//float min = math::dot(graph[from * 4 + v0].pos - math::Tvec2(0.0, b), graph[obst * 4 + ov].pos);
+								//float max = math::dot(graph[to * 4 + v1].pos - math::Tvec2(0.0, b), graph[obst * 4 + ov].pos)
 								//if(math::normalize(graph[obst * 4 + ov].pos).)
 
 								if ((from == obst && ov == v0) || (to == obst && ov == v1))

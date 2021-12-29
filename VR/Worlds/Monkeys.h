@@ -45,7 +45,7 @@ class Monkeys : public World
 			{
 				IO* io = IO::Get();
 				math::vec2 fmp = io->MousePos();
-				math::vec2 ws = io->WindowSize();
+				math::Tvec2 ws = io->WindowSize();
 				fmp /= ws;
 				fmp *= 2;
 				fmp.x -= 1;
@@ -58,7 +58,7 @@ class Monkeys : public World
 
 				float dist = camera.Dir().dot(pos - camera.Pos());
 
-				Get()->MoveTo(camera.Pos() + (normalize(camera.Dir()) + math::vec3(fmp.x * side.x, fmp.y * ws.y / ws.x, fmp.x * side.z)) * dist);
+				Get()->MoveTo(camera.Pos() + (normalize(camera.Dir()) + math::Tvec3(fmp.x * side.x, fmp.y * ws.y / ws.x, fmp.x * side.z)) * dist);
 			}
 		}
 
@@ -102,7 +102,7 @@ public:
 		IO* io = IO::Get();
 		math::vec2i wSize = io->WindowSize();
 
-		camera.SetAspectRatio(float(wSize.width) / wSize.height);
+		camera.SetAspectRatio(float(wSize.x) / wSize.y);
 
 		button->SetColor({ 0.0, 1.0, 0.0, 1.0 });
 
@@ -183,7 +183,7 @@ public:
 			m.OnMouseDown(mvp, btn_code);
 		}
 
-		if (button->IsHovered(math::mat3x2(1.0)))
+		if (button->IsHovered(math::Tmat3x2(1.0)))
 		{
 			link = 0;
 			Detach();
@@ -203,7 +203,7 @@ public:
 		IO* io = IO::Get();
 		math::vec2i wSize = io->WindowSize();
 
-		proj = math::perspective(1.f, float(wSize.width) / wSize.height, 0.0, 1000.0f);
+		proj = math::perspective(1.f, float(wSize.x) / wSize.y, 0.0, 1000.0f);
 		glViewport(0, 0, width, height);
 	}
 
@@ -234,15 +234,15 @@ public:
 
 		//for (int i = 0; i < objects.size(); i++)
 		//{
-		//	math::vec3 dPos;
+		//	math::Tvec3 dPos;
 		//	Object& object = objects[i];
-		//	math::vec3 a;
+		//	math::Tvec3 a;
 		//	for (int t = 0; t < timeWarp; t++)
 		//	{
 		//		for (int j = 0; j < objects.size(); j++)
 		//		{
 		//			if (i == j) continue;
-		//			math::vec3 d = objects[j].pos - object.pos;
+		//			math::Tvec3 d = objects[j].pos - object.pos;
 
 		//			float r2 = d.x * d.x + d.y * d.y + d.z * d.z;
 		//			if (r2 > 1e-6)

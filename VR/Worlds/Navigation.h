@@ -14,7 +14,7 @@ public:
 	{
 		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.9, 0.9), { 1.0, 1.0, 0.0, 0 });
 		AddButton(math::vec2(0.1, 0.1), math::vec2(-0.7, 0.9), { 0.0f, 0.6f, 0.4f, 0.f });
-		//AddButton(math::vec2(0.1, 0.1), math::vec2(-0.5, 0.9), { 0.7f, 0.5f, 0.4f, 0.f });
+		//AddButton(math::Tvec2(0.1, 0.1), math::Tvec2(-0.5, 0.9), { 0.7f, 0.5f, 0.4f, 0.f });
 
 		for (auto& b : buttons)
 		{
@@ -43,7 +43,7 @@ public:
 	void SetAspectRatio()
 	{
 		IO* io = IO::Get();
-		math::vec2 wSize = io->WindowSize();
+		math::vec2f wSize = io->WindowSize();
 
 		camera.SetAspectRatio(wSize.x / wSize.y);
 

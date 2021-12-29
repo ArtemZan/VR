@@ -39,7 +39,6 @@ namespace VR
 	public:
 		std::unique_ptr<GeometryData> m_data;
 
-
 		Geometry(const gl::AttribLayout& layout = {});
 
 		Geometry(const Geometry& geo);
@@ -109,7 +108,7 @@ namespace VR
 	public:
 		void SetColor(const math::vec4& color);
 
-		virtual void Transform(const math::mat3& transform) = 0;
+		virtual void Transform(const math::mat3f& transform) = 0;
 	};
 
 
@@ -150,9 +149,9 @@ namespace VR
 		inline void SetPos(size_t vertex, const math::vec2& pos) { SetData(vertex, GetPosOffset(), pos); }
 
 
-		void Transform(const math::mat2& transform);
+		void Transform(const math::mat2f& transform);
 
-		void Transform(const math::mat3& transform) override;
+		void Transform(const math::mat3f& transform) override;
 	};
 
 	class Geometry3D : public Geometry, public Object3D {
@@ -184,9 +183,9 @@ namespace VR
 
 		void ShadeSmooth(float distance_threshold);
 
-		void Transform(const math::mat3& transform) override;
+		void Transform(const math::mat3f& transform) override;
 
-		void Transform(const math::mat4& transform);
+		void Transform(const math::mat4f& transform);
 
 	};
 

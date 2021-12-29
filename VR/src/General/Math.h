@@ -9,600 +9,44 @@ namespace VR
 
 		constexpr double PI = 3.14159265359;
 
-		struct mat2;
-		struct mat3;
-		struct mat4;
+		template<typename T>
+		struct Tmat2;
 
-		struct vec2;
-		struct vec3;
-		struct vec4;
-		struct vec2d;
-		struct vec3d;
-		struct vec4d;
-		struct vec2i;
-		struct vec3i;
-		struct vec4i;
+		template<typename T>
+		struct Tmat3;
 
-#define SET_OPERATOR(OPERATOR, ARG_TYPE, ARG) inline auto& operator##OPERATOR##=(ARG_TYPE ARG) { *this = *this OPERATOR ARG; return *this; }
+		template<typename T>
+		struct Tmat4;
 
-		struct vec2
-		{
-			vec2(float scale = 0);
-			vec2(float x, float y);
-			vec2(const vec2& vec);
+		template<typename T>
+		struct Tvec2;
 
-			vec2(const vec2i& vec);
+		template<typename T>
+		struct Tvec3;
 
-			vec2(const vec2d& vec);
-
-			vec2(const vec3& vec);
+		template<typename T>
+		struct Tvec4;
 
 
-			union
+		template <typename T = float>
+		struct Tvec2 {
+			Tvec2(T scale = 0);
+			Tvec2(T x, T y);
+
+			template<typename SrcT>
+			Tvec2(const Tvec2<SrcT>& vec)
+				:x(vec.x), y(vec.y)
 			{
-				float x, s, r;
-			};
 
-			union
+			}
+
+			template<typename SrcT>
+			Tvec2(const Tvec3<SrcT>& vec)
+				: x(vec.x), y(vec.y)
 			{
-				float y, t, g;
-			};
 
+			}
 
-			void operator=(const vec2& vec);
-
-			vec2 operator*(float k)			const;
-			vec2 operator*(const vec2& vec) const;
-
-			vec2 operator/(float k)			const;
-			vec2 operator/(const vec2& vec) const;
-
-			vec2 operator+(const vec2& vec) const;
-			vec2 operator-(const vec2& vec) const;
-			vec2 operator-()				const;
-
-			SET_OPERATOR(*, float, k);
-			SET_OPERATOR(*, const vec2&, vec);
-			vec2& operator*=(const mat2& matrix);
-			SET_OPERATOR(/ , float, k);
-			SET_OPERATOR(/ , const vec2&, vec);
-			SET_OPERATOR(+, const vec2&, vec);
-			SET_OPERATOR(-, const vec2&, vec);
-
-			vec2 normalize() const;
-			float distance(const vec2& vec) const;
-			float magnitude() const;
-			float cross(const vec2& vec) const;
-			float dot(const vec2& vec) const;
-			float cos(const vec2& vec) const;
-		};
-
-		vec2 normalize(const math::vec2& vec);
-
-		inline std::ostream& operator<<(std::ostream& stream, const vec2& vec)
-		{
-			stream << "[" << vec.x << " " << vec.y << "]";
-			return stream;
-		}
-
-
-		struct vec2i
-		{
-			vec2i();
-			vec2i(int x, int y);
-			vec2i(const vec2i& vec);
-			vec2i(const vec2& vec);
-
-			union
-			{
-				int x, s, r, width;
-			};
-			union
-			{
-				int y, t, g, height;
-			};
-
-			void operator=(const vec2i& vec);
-
-			inline vec2i operator+(const vec2i& vec) const { return { x + vec.x, y + vec.y }; }
-			inline vec2i operator-(const vec2i& vec) const { return { x - vec.x, y - vec.y }; }
-			inline vec2 operator-() { return { -x, -y }; }
-
-			SET_OPERATOR(+, const vec2i&, vec);
-			SET_OPERATOR(-, const vec2i&, vec);
-		};
-
-		inline std::ostream& operator<<(std::ostream& stream, const vec2i& vec)
-		{
-			stream << "[" << vec.x << " " << vec.y << "]";
-			return stream;
-		}
-
-
-		struct vec2d
-		{
-			vec2d(double scale = 0);
-			vec2d(double x, double y);
-			vec2d(const vec2d& vec);
-			vec2d(const vec2& vec);
-
-			union
-			{
-				double x, s, r;
-			};
-			union
-			{
-				double y, t, g;
-			};
-
-			void operator=(const vec2d& vec);
-
-			vec2d operator*(double k) const;
-			vec2d operator*(const vec2d& vec) const;
-
-			vec2d operator/(double k) const;
-			vec2d operator/(const vec2d& vec) const;
-			vec2d operator+(const vec2d& vec) const;
-			vec2d operator-(const vec2d& vec) const;
-			vec2d operator-() const;
-
-			SET_OPERATOR(*, double, k);
-			SET_OPERATOR(*, const vec2d&, vec);
-			inline vec2d& operator*=(const mat2& matrix) { *this = matrix * *this; return *this; }
-			SET_OPERATOR(/ , double, k);
-			SET_OPERATOR(/ , const vec2d&, vec);
-			SET_OPERATOR(+, const vec2d&, vec);
-			SET_OPERATOR(-, const vec2d&, vec);
-
-			vec2d normalize() const;
-			double distance(const vec2d& vec) const;
-			double magnitude() const;
-			double cross(const vec2d& vec) const;
-			double dot(const vec2d& vec) const;
-			double cos(const vec2d& vec) const;
-		};
-
-		vec2d normalize(const math::vec2d& vec);
-
-		inline std::ostream& operator<<(std::ostream& stream, const vec2d& vec)
-		{
-			stream << "[" << vec.x << " " << vec.y << "]";
-			return stream;
-		}
-
-
-		struct vec3
-		{
-			vec3(float scale = 0);
-			vec3(float x, float y, float z);
-			vec3(const vec2& vec, float z);
-			vec3(float x, const vec2& vec);
-			vec3(const vec3& vec);
-			vec3(const vec3d& vec);
-
-			vec3(const vec4& vec);
-
-			union
-			{
-				float x, s, r;
-			};
-			union
-			{
-				float y, t, g;
-			};
-			union
-			{
-				float z, p, b;
-			};
-
-
-			vec3& operator=(const vec3& vec);
-
-			vec3 operator*(float k)			const;
-			vec3 operator*(const vec3& vec)	const;
-			vec3 operator/(float k)			const;
-			vec3 operator/(const vec3& vec)	const;
-			vec3 operator+(const vec3& vec)	const;
-			vec3 operator-(const vec3& vec)	const;
-			vec3 operator-()				const;
-
-			SET_OPERATOR(*, float, k);
-			SET_OPERATOR(*, const vec3&, vec);
-			inline vec3d operator*=(const mat3& mat) { *this = mat * vec3d(*this); }
-			SET_OPERATOR(/ , float, k);
-			SET_OPERATOR(/ , const vec3&, vec);
-			SET_OPERATOR(+, const vec3&, vec);
-			SET_OPERATOR(-, const vec3&, vec);
-
-			vec3 normalize() const;
-			float distance(const vec3& vec) const;
-			float magnitude() const;
-			float dot(const vec3& v) const;
-			vec3 cross(const vec3& v) const;
-		};
-
-		vec3 normalize(const math::vec3& vec);
-
-		inline std::ostream& operator<<(std::ostream& stream, const vec3& vec)
-		{
-			stream << "[" << vec.x << " " << vec.y << " " << vec.z << "]";
-			return stream;
-		}
-
-
-		struct vec3d
-		{
-			vec3d(double scale = 0);
-			vec3d(double x, double y, double z);
-			vec3d(const vec2d& vec, double z);
-			vec3d(double x, const vec2d& vec);
-			vec3d(const vec3d& vec);
-			vec3d(const vec3& vec);
-
-			vec3d(const vec4d& vec);
-
-			union
-			{
-				double x, s, r;
-			};
-			union
-			{
-				double y, t, g;
-			};
-			union
-			{
-				double z, p, b;
-			};
-
-
-			vec3d& operator=(const vec3& vec);
-
-			vec3d operator*(double k)			const;
-			vec3d operator*(const vec3d& vec)	const;
-			vec3d operator/(double k)			const;
-			vec3d operator/(const vec3d& vec)	const;
-			vec3d operator+(const vec3d& vec)	const;
-			vec3d operator-(const vec3d& vec)	const;
-			vec3d operator-() const;
-
-			SET_OPERATOR(*, double, k);
-			SET_OPERATOR(*, const vec3&, vec);
-			inline vec3d operator*=(const mat3& mat) { *this = mat * *this; }
-			SET_OPERATOR(/ , double, k);
-			SET_OPERATOR(/ , const vec3d&, vec);
-			SET_OPERATOR(+, const vec3d&, vec);
-			SET_OPERATOR(-, const vec3d&, vec);
-
-			double dot(const vec3d& v) const;
-#ifdef RIGHT_HANDED
-			inline vec3d cross(const vec3d& v) const { return { z * v.y - y * v.z, x * v.z - z * v.x, y * v.x - x * v.y }; }
-#else
-			inline vec3d cross(const vec3d& v) const { return { y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x }; }
-#endif
-			vec3d normalize() const;
-			double distance(const vec3d& vec) const;
-			double magnitude() const;
-		};
-
-		vec3d normalize(const math::vec3d& vec);
-
-		inline std::ostream& operator<<(std::ostream& stream, const vec3d& vec)
-		{
-			stream << "[" << vec.x << " " << vec.y << " " << vec.z << "]";
-			return stream;
-		}
-
-
-		struct vec4
-		{
-			vec4();
-			vec4(float x, float y, float z, float w);
-
-			vec4(const vec2& vec1, const vec2& vec2);
-			vec4(const vec2& vec, float z, float w);
-			vec4(float x, const vec2& vec, float w);
-			vec4(float x, float y, const vec2& vec);
-
-			vec4(const vec3& vec, float w);
-			vec4(float x, const vec3& vec);
-
-			vec4(const vec4& vec);
-			vec4(const vec4d& vec);
-
-
-			union
-			{
-				float x, s, r;
-			};
-
-			union
-			{
-				float y, t, g;
-			};
-
-			union
-			{
-				float z, p, b;
-			};
-
-			union
-			{
-				float w, q, a;
-			};
-
-
-			void operator=(const vec4& vec);
-
-			vec4 operator*(float k)			const;
-			vec4 operator*(const vec4& vec)	const;
-			vec4 operator/(float k)			const;
-			vec4 operator/(const vec4& vec)	const;
-			vec4 operator+(const vec4& vec)	const;
-			vec4 operator-(const vec4& vec)	const;
-			vec4 operator-() const;
-
-			SET_OPERATOR(*, float, k);
-			SET_OPERATOR(*, const vec4&, vec);
-			inline vec4d operator*=(const mat4& mat) { *this = mat * vec4d(*this); }
-			SET_OPERATOR(/ , float, k);
-			SET_OPERATOR(/ , const vec4&, vec);
-			SET_OPERATOR(+, const vec4&, vec);
-			SET_OPERATOR(-, const vec4&, vec);
-
-			vec4 normalize() const;
-			float distance(const vec4& vec) const;
-			float magnitude() const;
-			//float cross(const vec4& vec) const;
-			float dot(const vec4& vec) const;
-			float cos(const vec4& vec) const;
-		};
-
-		inline std::ostream& operator<<(std::ostream& stream, const vec4& vec)
-		{
-			stream << "[" << vec.x << " " << vec.y << " " << vec.z << " " << vec.w << "]";
-			return stream;
-		}
-
-
-		struct vec4d
-		{
-			vec4d();
-			vec4d(double x, double y, double z, double w);
-
-			vec4d(const vec2d& vec1, const vec2d& vec2);
-			vec4d(const vec2d& vec, double z, double w);
-			vec4d(double x, const vec2d& vec, double w);
-			vec4d(double x, double y, const vec2d& vec);
-
-			vec4d(const vec3d& vec, double w);
-			vec4d(double x, const vec3d& vec);
-
-			vec4d(const vec4d& vec);
-			vec4d(const vec4& vec);
-
-			union
-			{
-				double x, s, r;
-			};
-			union
-			{
-				double y, t, g;
-			};
-			union
-			{
-				double z, p, b;
-			};
-			union
-			{
-				double w, q, a;
-			};
-
-			void operator=(const vec4d& vec);
-
-			inline vec4d operator*(double k)			const { return { x * k, y * k, z * k, w * k }; }
-			inline vec4d operator*(const vec4d& vec)	const { return { x * vec.x, y * vec.y, z * vec.z, w * vec.w }; }
-			inline vec4d operator/(double k)			const { return { x / k, y / k, z / k, w / k }; }
-			inline vec4d operator/(const vec4d& vec)	const { return { x / vec.x, y / vec.y, z / vec.z, w / vec.w }; }
-			inline vec4d operator+(const vec4d& vec)	const { return { x + vec.x, y + vec.y, z + vec.z, w + vec.w }; }
-			inline vec4d operator-(const vec4d& vec)	const { return { x - vec.x, y - vec.y, z - vec.z, w + vec.w }; }
-			inline vec4d operator-() const { return { -x, -y, -z, -w }; }
-
-			SET_OPERATOR(*, double, k);
-			SET_OPERATOR(*, const vec4d&, vec);
-			inline vec4d operator*=(const mat4& mat) { *this = mat * *this; }
-			SET_OPERATOR(/ , double, k);
-			SET_OPERATOR(/ , const vec4d&, vec);
-			SET_OPERATOR(+, const vec4d&, vec);
-			SET_OPERATOR(-, const vec4d&, vec);
-
-			vec4d normalize();
-		};
-
-		inline std::ostream& operator<<(std::ostream& stream, const vec4d& vec)
-		{
-			stream << "[" << vec.x << " " << vec.y << " " << vec.z << " " << vec.w << "]";
-			return stream;
-		}
-
-
-		struct mat2
-		{
-			mat2();
-			mat2(const mat2& mat);
-			mat2(double scale);
-			mat2(const vec2d& i, const vec2d& j);
-
-			union
-			{
-				vec2d x, i;
-			};
-
-			union
-			{
-				vec2d y, j;
-			};
-
-			vec2d operator*(const vec2d& vec) const;
-
-			inline float det() const { return x.cross(y); }
-
-			const mat2& operator*(const mat2& matrix);
-		};
-
-		struct mat2f {
-			mat2f();
-			mat2f(const mat2f& mat);
-			mat2f(const mat2& mat);
-
-			union
-			{
-				vec2 x, i;
-			};
-
-			union
-			{
-				vec2 y, j;
-			};
-		};
-
-		struct mat3
-		{
-			mat3();
-			mat3(const mat3f& mat);
-			mat3(const mat3& mat);
-
-			mat3(double scale);
-			mat3(const vec3d& x, const vec3d& y, const vec3d& z);
-
-			union
-			{
-				vec3d x, i;
-			};
-
-			union
-			{
-				vec3d y, j;
-			};
-
-			union
-			{
-				vec3d z, k;
-			};
-
-			vec3d operator*(const vec3d& vec) const;
-
-			inline float det() const { return x.cross(y).dot(z); }
-
-			mat3 operator*(const mat3& matrix) const;
-		};
-
-		struct mat3f {
-			mat3f();
-			mat3f(const mat3f& mat);
-			mat3f(const mat3& mat);
-
-			union
-			{
-				vec3 x, i;
-			};
-
-			union
-			{
-				vec3 y, j;
-			};
-
-			union
-			{
-				vec3 z, k;
-			};
-		};
-
-		struct mat4
-		{
-			mat4();
-			mat4(const mat4f& mat);
-			mat4(const mat4& mat);
-
-			mat4(const vec4& x, const vec4& y, const vec4& z, const vec4& w);
-			mat4(float scale);
-
-			union
-			{
-				vec4d x, i;
-			};
-
-			union
-			{
-				vec4d y, j;
-			};
-
-			union
-			{
-				vec4d z, k;
-			};
-
-			union
-			{
-				vec4d w, l;
-			};
-
-			mat4& operator=(const mat4& mat);
-
-			vec4d operator*(const vec4d& vec) const;
-
-			mat4 operator*(const mat4& matrix) const;
-			inline const void operator*=(const mat4& matrix) { *this = *this * matrix; }
-		};
-
-		struct mat4f {
-			mat4f();
-			mat4f(const mat4f& mat);
-			mat4f(const mat4& mat);
-
-			union
-			{
-				vec4 x, i;
-			};
-
-			union
-			{
-				vec4 y, j;
-			};
-
-			union
-			{
-				vec4 z, k;
-			};
-
-			union
-			{
-				vec4 w, l;
-			};
-		};
-
-		struct mat3x2
-		{
-			mat3x2();
-			mat3x2(float scale);
-
-			vec2d x;
-			vec2d y;
-			vec2d z;
-		};
-
-		struct mat3x2f
-		{
-			mat3x2f();
-			mat3x2f(float scale);
-
-			vec2 x;
-			vec2 y;
-			vec2 z;
-		};
-
-
-		template <typename T>
-		struct vec2 {
 			union
 			{
 				T x, s, r;
@@ -612,7 +56,489 @@ namespace VR
 			{
 				T y, t, g;
 			};
+
+			Tvec2& operator=(const Tvec2& vec);
+
+			Tvec2 operator*(T scale)			const;
+			Tvec2 operator*(const Tvec2& vec) const;
+
+			Tvec2 operator/(T scale)			const;
+			Tvec2 operator/(const Tvec2& vec) const;
+
+			Tvec2 operator+(const Tvec2& vec) const;
+			Tvec2 operator-(const Tvec2& vec) const;
+			Tvec2 operator-()				const;
+
+
+			Tvec2& operator*=(T scale);
+			Tvec2& operator*=(const Tvec2& vec);
+			Tvec2& operator*=(const Tmat2<T>& matrix);
+
+			Tvec2& operator/=(T scale);
+			Tvec2& operator/=(const Tvec2& vec);
+
+			Tvec2& operator+=(const Tvec2& vec);
+			Tvec2& operator-=(const Tvec2& vec);
+
+
+			Tvec2 normalize() const;
+			T distance(const Tvec2& vec) const;
+			T magnitude() const;
+			T cross(const Tvec2& vec) const;
+			T dot(const Tvec2& vec) const;
+			T cos(const Tvec2& vec) const;
 		};
+
+		template<typename T>
+		Tvec2<T> normalize(const math::Tvec2<T>& vec);
+
+		template<typename T>
+		inline std::ostream& operator<<(std::ostream& stream, const Tvec2<T>& vec)
+		{
+			stream << "[" << vec.x << " " << vec.y << "]";
+			return stream;
+		}
+
+
+		template<typename T = float>
+		struct Tvec3
+		{
+			Tvec3(T scale = 0);
+			Tvec3(T x, T y, T z);
+			Tvec3(const Tvec2<T>& vec, T z);
+			Tvec3(T x, const Tvec2<T>& vec);
+
+			template<typename SrcT>
+			Tvec3(const Tvec3<SrcT>& vec)
+				:x(vec.x), y(vec.y), z(vec.z)
+			{
+
+			}
+
+			Tvec3(const Tvec4<T>& vec)
+				:x(vec.x), y(vec.y), z(vec.z)
+			{
+
+			}
+
+			union
+			{
+				T x, s, r;
+			};
+
+			union
+			{
+				T y, t, g;
+			};
+
+			union
+			{
+				T z, p, b;
+			};
+
+
+			Tvec3& operator=(const Tvec3& vec);
+
+			Tvec3 operator*(T k)			const;
+			Tvec3 operator*(const Tvec3& vec)	const;
+			Tvec3 operator/(T k)			const;
+			Tvec3 operator/(const Tvec3& vec)	const;
+			Tvec3 operator+(const Tvec3& vec)	const;
+			Tvec3 operator-(const Tvec3& vec)	const;
+			Tvec3 operator-()				const;
+
+			Tvec3& operator*=(T scale);
+			Tvec3& operator*=(const Tvec3& vec);
+			Tvec3& operator*=(const Tmat3<T>& matrix);
+
+			Tvec3& operator/=(T scale);
+			Tvec3& operator/=(const Tvec3& vec);
+
+			Tvec3& operator+=(const Tvec3& vec);
+			Tvec3& operator-=(const Tvec3& vec);
+
+			Tvec3 normalize() const;
+			T distance(const Tvec3& vec) const;
+			T magnitude() const;
+			T dot(const Tvec3& v) const;
+			Tvec3 cross(const Tvec3& v) const;
+		};
+
+		template<typename T>
+		Tvec3<T> normalize(const math::Tvec3<T>& vec);
+
+		template<typename T>
+		inline std::ostream& operator<<(std::ostream& stream, const Tvec3<T>& vec)
+		{
+			stream << "[" << vec.x << " " << vec.y << " " << vec.z << "]";
+			return stream;
+		}
+
+		template<typename T>
+		Tvec3<T> cross(const math::Tvec3<T>& vec1, const math::Tvec3<T>& vec2);
+
+
+		template<typename T = float>
+		struct Tvec4
+		{
+			Tvec4(T scale = 0);
+			Tvec4(T x, T y, T z, T w);
+
+			Tvec4(const Tvec2<T>& vec, T z, T w);
+			Tvec4(T x, const Tvec2<T>& vec, T w);
+			Tvec4(T x, T y, const Tvec2<T>& vec);
+			Tvec4(const Tvec2<T>& vec1, const Tvec2<T>& vec2);
+
+			Tvec4(const Tvec3<T>& vec, T w);
+			Tvec4(T x, const Tvec3<T>& vec);
+
+			template<typename SrcT>
+			Tvec4(const Tvec4<SrcT>& vec)
+				: x(vec.x), y(vec.y), z(vec.z), w(vec.w)
+			{
+
+			}
+
+
+			union
+			{
+				T x, s, r;
+			};
+
+			union
+			{
+				T y, t, g;
+			};
+
+			union
+			{
+				T z, p, b;
+			};
+
+			union
+			{
+				T w, q, a;
+			};
+
+
+			Tvec4& operator=(const Tvec4& vec);
+
+			Tvec4 operator*(T scale)			const;
+			Tvec4 operator*(const Tvec4& vec)	const;
+			Tvec4 operator/(T scale)			const;
+			Tvec4 operator/(const Tvec4& vec)	const;
+			Tvec4 operator+(const Tvec4& vec)	const;
+			Tvec4 operator-(const Tvec4& vec)	const;
+			Tvec4 operator-() const;
+
+			Tvec4& operator*=(T scale);
+			Tvec4& operator*=(const Tvec4& vec);
+			Tvec4& operator*=(const Tmat4<T>& matrix);
+
+			Tvec4& operator/=(T scale);
+			Tvec4& operator/=(const Tvec4& vec);
+
+			Tvec4& operator+=(const Tvec4& vec);
+			Tvec4& operator-=(const Tvec4& vec);
+
+			Tvec4 normalize() const;
+			T distance(const Tvec4& vec) const;
+			T magnitude() const;
+			//float cross(const Tvec4& vec) const;
+			T dot(const Tvec4& vec) const;
+			T cos(const Tvec4& vec) const;
+		};
+
+		template<typename T>
+		inline std::ostream& operator<<(std::ostream& stream, const Tvec4<T>& vec)
+		{
+			stream << "[" << vec.x << " " << vec.y << " " << vec.z << " " << vec.w << "]";
+			return stream;
+		}
+
+
+		template<typename T = double>
+		struct Tmat2
+		{
+			Tmat2(T scale = 0);
+			Tmat2(const Tvec2<T>& i, const Tvec2<T>& j);
+
+			template<typename SrcT>
+			Tmat2(const Tmat2<SrcT>& mat)
+				:i(mat.i), j(mat.j)
+			{
+
+			}
+
+			union
+			{
+				Tvec2<T> x, i;
+			};
+
+			union
+			{
+				Tvec2<T> y, j;
+			};
+
+			Tmat2& operator=(const Tmat2& mat);
+
+			Tvec2<T> operator*(const Tvec2<T>& vec) const;
+
+			inline T det() const { return x.cross(y); }
+
+			Tmat2 operator*(const Tmat2& matrix) const;
+
+			inline Tmat2& operator*=(const Tmat2& matrix) { return *this = *this * matrix; }
+		};
+
+		template<typename T = double>
+		struct Tmat3
+		{
+			Tmat3(T scale = 0);
+			Tmat3(const Tvec3<T>& i, const Tvec3<T>& j, const Tvec3<T>& k);
+
+			template<typename SrcT>
+			Tmat3(const Tmat3<SrcT>& mat)
+				:i(mat.i), j(mat.j), k(mat.k)
+			{
+
+			}
+
+			union
+			{
+				Tvec3<T> x, i;
+			};
+
+			union
+			{
+				Tvec3<T> y, j;
+			};
+
+			union
+			{
+				Tvec3<T> z, k;
+			};
+
+			Tmat3& operator=(const Tmat3& mat);
+
+			Tvec3<T> operator*(const Tvec3<T>& vec) const;
+
+			inline T det() const { return x.cross(y).dot(z); }
+
+			Tmat3 operator*(const Tmat3& matrix) const;
+
+			inline Tmat3& operator*=(const Tmat3& matrix) { return *this = *this * matrix; }
+		};
+
+		template<typename T = double>
+		struct Tmat4
+		{
+			Tmat4();
+			Tmat4(T scale);
+			Tmat4(const Tvec4<T>& x, const Tvec4<T>& y, const Tvec4<T>& z, const Tvec4<T>& w);
+
+			template<typename SrcT>
+			Tmat4(const Tmat4<SrcT>& mat)
+				:i(mat.i), j(mat.j), k(mat.k), l(mat.l)
+			{
+
+			}
+
+			union
+			{
+				Tvec4<T> x, i;
+			};
+
+			union
+			{
+				Tvec4<T> y, j;
+			};
+
+			union
+			{
+				Tvec4<T> z, k;
+			};
+
+			union
+			{
+				Tvec4<T> w, l;
+			};
+
+			Tmat4& operator=(const Tmat4& mat);
+
+			Tvec4<T> operator*(const Tvec4<T>& vec) const;
+			Tmat4 operator*(const Tmat4& matrix) const;
+
+			T det() const;
+
+			inline const Tmat4& operator*=(const Tmat4& matrix) { *this = *this * matrix; return *this; }
+		};
+
+		template<typename T = double>
+		struct Tmat3x2
+		{
+			Tmat3x2(T scale = 0);
+
+			Tmat3x2(const Tvec2<T>& i, const Tvec2<T>& j, const Tvec2<T>& k);
+
+			template<typename SrcT>
+			Tmat3x2(const Tmat3x2<SrcT>& mat)
+				:i(mat.i), j(mat.j), k(mat.k)
+			{
+
+			}
+
+			union
+			{
+				Tvec2<T> x, i;
+			};
+
+			union
+			{
+				Tvec2<T> y, j;
+			};
+
+			union
+			{
+				Tvec2<T> z, k;
+			};
+
+			Tmat3x2& operator=(const Tmat3x2& mat);
+		};
+
+
+
+		/*template<>
+		struct Tvec2<> {
+
+		};*/
+
+
+		using vec2f = Tvec2<>;
+		using vec3f = Tvec3<>;
+		using vec4f = Tvec4<>;
+
+
+		/*template<>
+		struct Tvec2<double>
+		{
+
+		};*/
+
+		/*template<>
+		struct Tvec3<double> {
+
+		};
+
+		template<>
+		struct Tvec4<double> {
+
+		};*/
+
+		using vec2d = Tvec2<double>;
+		using vec3d = Tvec3<double>;
+		using vec4d = Tvec4<double>;
+
+
+		/*template<>
+		struct Tvec2<int> {
+
+		};
+
+		template<>
+		struct Tvec3<int> {
+
+		};
+
+		template<>
+		struct Tvec4<int> {
+
+		};*/
+
+		using vec2i = Tvec2<int>;
+		using vec3i = Tvec3<int>;
+		using vec4i = Tvec4<int>;
+
+		using vec2 = Tvec2<>;
+		using vec3 = Tvec3<>;
+		using vec4 = Tvec4<>;
+
+
+
+		/*template<>
+		struct Tmat2<float> {
+
+		};
+
+		template<>
+		struct Tmat3<float> {
+
+		};
+
+		template<>
+		struct Tmat4<float> {
+
+		};
+
+		template<>
+		struct Tmat3x2<float> {
+
+		};*/
+
+		using mat2f = Tmat2<float>;
+		using mat3f = Tmat3<float>;
+		using mat4f = Tmat4<float>;
+		using mat3x2f = Tmat3x2<float>;
+
+
+		/*template<>
+		struct Tmat2<> {
+
+		};
+
+		template<>
+		struct Tmat3<> {
+
+		};
+
+		template<>
+		struct Tmat4<> {
+
+		};*/
+
+		using mat2d = Tmat2<>;
+		using mat3d = Tmat3<>;
+		using mat4d = Tmat4<>;
+		using mat3x2d = Tmat3x2<>;
+
+
+		/*template<>
+		struct Tmat2<int> {
+
+		};
+
+		template<>
+		struct Tmat3<int> {
+
+		};
+
+		template<>
+		struct Tmat4<int> {
+
+		};*/
+
+		using mat2i = Tmat2<int>;
+		using mat3i = Tmat3<int>;
+		using mat4i = Tmat4<int>;
+		using mat3x2i = Tmat3x2<int>;
+
+
+		using mat2 = Tmat2<>;
+		using mat3 = Tmat3<>;
+		using mat4 = Tmat4<>;
+		using mat3x2 = Tmat3x2<>;
+
+
 
 
 		mat4 perspective(float fov, float aspect, float near, float far);
@@ -647,9 +573,9 @@ namespace VR
 			while (ind_count >= 2 && ind_count != size_t(-1))
 			{
 				if (IsInside(
-					vec2(*(const XType*)(vertices + indices[ind_count] * stride), *(const YType*)(vertices + indices[ind_count] * stride + sizeof(XType))),
-					vec2(*(const XType*)(vertices + indices[ind_count - 1] * stride), *(const YType*)(vertices + indices[ind_count - 1] * stride + sizeof(XType))),
-					vec2(*(const XType*)(vertices + indices[ind_count - 2] * stride), *(const YType*)(vertices + indices[ind_count - 2] * stride + sizeof(XType))),
+					Tvec2(*(const XType*)(vertices + indices[ind_count] * stride), *(const YType*)(vertices + indices[ind_count] * stride + sizeof(XType))),
+					Tvec2(*(const XType*)(vertices + indices[ind_count - 1] * stride), *(const YType*)(vertices + indices[ind_count - 1] * stride + sizeof(XType))),
+					Tvec2(*(const XType*)(vertices + indices[ind_count - 2] * stride), *(const YType*)(vertices + indices[ind_count - 2] * stride + sizeof(XType))),
 					point))
 				{
 					return true;

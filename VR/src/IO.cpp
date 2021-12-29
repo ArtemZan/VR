@@ -7,7 +7,7 @@ namespace VR
 
 	IO::IO()
 	{
-		glfwGetWindowSize(Context::m_window.m_window, &windowSize.width, &windowSize.height);
+		glfwGetWindowSize(Context::m_window.m_window, &windowSize.x, &windowSize.y);
 	}
 
 	IO::~IO()

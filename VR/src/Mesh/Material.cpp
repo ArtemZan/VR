@@ -96,7 +96,7 @@ namespace VR
 	Material2D::Material2D(const char* shader_path)
 		:Material(shader_path)
 	{
-		SetShaderUniform("transform", math::mat3x2(1.0));
+		SetShaderUniform("transform", math::Tmat3x2(1.0));
 	}
 
 

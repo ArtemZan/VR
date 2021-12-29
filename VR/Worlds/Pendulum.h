@@ -13,11 +13,16 @@ class Pendulum : public World
 
 	math::vec2d pos = { -1.0, -0.0 };
 	math::vec2d v;
-	math::vec2d a = {0.0, -1.0};
+	math::vec2d a = { 0.0, -1.0 };
+
+	template<typename T = float>
+	struct A {
+		A(T x, T y, T z);
+	};
 
 public:
 	Pendulum()
-		:camera(1, { 0, 0, 2 }, fit_types::CENTER)
+		:camera(1, {0, 0, 2}, fit_types::CENTER)
 	{		
 		rect->GetGeometry().CreateRect(math::vec2( 1.0, 1.0 ));
 		rect->SetColor(math::vec4(0.0, 1.0, 0.0, 1.0));
@@ -48,12 +53,12 @@ public:
 	{
 		const IO* io = IO::Get();
 
-		const math::vec2 wSize = io->WindowSize();
+		const math::Tvec2 wSize = io->WindowSize();
 
 		camera.SetAspectRatio(wSize.x / wSize.y);
-		string->GetMaterial().SetShaderUniform("transform", camera.View());
-		force->GetMaterial().SetShaderUniform("transform", camera.View());
-		rect->GetMaterial().SetShaderUniform("transform", camera.View());
+		string->GetMaterial().SetShaderUniform("transform", math::mat3x2f(camera.View()));
+		force->GetMaterial().SetShaderUniform("transform", math::mat3x2f(camera.View()));
+		rect->GetMaterial().SetShaderUniform("transform", math::mat3x2f(camera.View()));
 	}
 
 	void OnUpdate(float dTime) override
@@ -66,7 +71,7 @@ public:
 		rect->MoveTo(pos);
 
 		math::vec2 Fs = math::normalize(-pos) * (math::vec2(0, -1).dot(math::normalize(pos)) + v.dot(v));
-		math::vec2 G = math::vec2(0.0, -1.0);
+		math::Tvec2 G = math::vec2(0.0, -1.0);
 
 		string->GetGeometry().CreateLine({ 0.0, 0.0 }, pos, 0.01, 0, 1);
 		string->SetColor({1.0, 1.0, 1.0, 1.0});
@@ -89,7 +94,7 @@ public:
 		dTime /= 1000;
 
 		math::vec2 Fs = math::normalize(-pos) * (math::vec2(0, -1).dot(math::normalize(pos)) + v.dot(v));
-		math::vec2 G = math::vec2(0.0, -1.0);
+		math::Tvec2 G = math::vec2(0.0, -1.0);
 
 		a = G + Fs;
 		v += a * dTime;
